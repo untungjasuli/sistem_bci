@@ -1,0 +1,185 @@
+import mysql from 'mysql2/promise';
+import { redirect } from '@sveltejs/kit';
+
+const dbConfig = {
+	host: '172.17.0.1',
+	port: 3306,
+	user: 'victor',
+	password: 'VictorAI2026!',
+	database: 'sistem_bci'
+};
+
+async function getConnection() {
+	return mysql.createConnection(dbConfig);
+}
+
+export const load = async ({ cookies, url }) => {
+	const user = cookies.get('session_user');
+	if (!user) {
+		throw redirect(303, '/login');
+	}
+
+	const search = url.searchParams.get('search')?.trim() || '';
+	const sort = url.searchParams.get('sort') || 'asc';
+
+	const conn = await getConnection();
+	try {
+		let sql = `
+			SELECT a.id, a.nik, a.nama, a.jenis_kelamin, a.tanggal_lahir,
+				a.hub_keluarga, a.keluarga_id,
+				k.no_kk, k.blok_rumah_id, k.status_rumah,
+				b.no_blok
+			FROM anggota_keluarga a
+			JOIN keluarga k ON a.keluarga_id = k.id
+			LEFT JOIN blok_rumah b ON k.blok_rumah_id = b.id
+		`;
+		const params = [];
+
+		if (search) {
+			sql += ' WHERE a.nik LIKE ? OR a.nama LIKE ? OR k.no_kk LIKE ? OR b.no_blok LIKE ?';
+			const searchTerm = `%${search}%`;
+			params.push(searchTerm, searchTerm, searchTerm, searchTerm);
+		}
+
+		sql += ` ORDER BY a.nama ${sort === 'desc' ? 'DESC' : 'ASC'}`;
+
+		const [rows] = await conn.execute(sql, params);
+
+		const [blokRumah] = await conn.execute('SELECT id, no_blok FROM blok_rumah ORDER BY no_blok ASC');
+
+		return {
+			penduduk: rows,
+			blokRumah,
+			search,
+			sort
+		};
+	} finally {
+		await conn.end();
+	}
+};
+
+export const actions = {
+	create: async ({ request, cookies }) => {
+		const user = cookies.get('session_user');
+		if (!user) {
+			throw redirect(303, '/login');
+		}
+
+		const form = await request.formData();
+		const id = form.get('id')?.toString().trim() || '';
+		const noKk = form.get('no_kk')?.toString().trim() || '';
+		const blokRumahId = form.get('blok_rumah_id')?.toString() || '';
+		const statusRumah = form.get('status_rumah')?.toString() || 'sendiri';
+
+		if (!noKk) {
+			return { error: 'No. KK wajib diisi' };
+		}
+		if (!blokRumahId) {
+			return { error: 'Blok Rumah wajib dipilih' };
+		}
+
+		const niks = form.getAll('nik[]')?.map((v) => v.toString().trim()) || [];
+		const namas = form.getAll('nama[]')?.map((v) => v.toString().trim()) || [];
+		const jks = form.getAll('jenis_kelamin[]')?.map((v) => v.toString()) || [];
+		const tglLahir = form.getAll('tanggal_lahir[]')?.map((v) => v.toString()) || [];
+		const hubs = form.getAll('hub_keluarga[]')?.map((v) => v.toString()) || [];
+
+		if (niks.length === 0) {
+			return { error: 'Minimal harus ada 1 anggota keluarga' };
+		}
+
+		for (let i = 0; i < niks.length; i++) {
+			if (!niks[i]) return { error: `NIK anggota ke-${i + 1} wajib diisi` };
+			if (!namas[i]) return { error: `Nama anggota ke-${i + 1} wajib diisi` };
+			if (!jks[i]) return { error: `Jenis kelamin anggota ke-${i + 1} wajib diisi` };
+			if (!tglLahir[i]) return { error: `Tanggal lahir anggota ke-${i + 1} wajib diisi` };
+			if (!hubs[i]) return { error: `Hubungan keluarga anggota ke-${i + 1} wajib diisi` };
+		}
+
+		const conn = await getConnection();
+		try {
+			await conn.beginTransaction();
+
+			let keluargaId;
+			if (id) {
+				// Update existing keluarga
+				await conn.execute(
+					'UPDATE keluarga SET no_kk = ?, blok_rumah_id = ?, status_rumah = ? WHERE id = ?',
+					[noKk, blokRumahId, statusRumah, id]
+				);
+				keluargaId = parseInt(id);
+
+				// Hapus anggota lama, sisipkan baru
+				await conn.execute('DELETE FROM anggota_keluarga WHERE keluarga_id = ?', [keluargaId]);
+			} else {
+				// Insert new keluarga
+				const [result] = await conn.execute(
+					'INSERT INTO keluarga (no_kk, blok_rumah_id, status_rumah) VALUES (?, ?, ?)',
+					[noKk, blokRumahId, statusRumah]
+				);
+				keluargaId = result.insertId;
+			}
+
+			// Insert semua anggota
+			for (let i = 0; i < niks.length; i++) {
+				await conn.execute(
+					`INSERT INTO anggota_keluarga (nik, nama, jenis_kelamin, tanggal_lahir, hub_keluarga, keluarga_id)
+					 VALUES (?, ?, ?, ?, ?, ?)`,
+					[niks[i], namas[i], jks[i], tglLahir[i], hubs[i], keluargaId]
+				);
+			}
+
+			await conn.commit();
+			return { success: id ? 'Data keluarga dan anggota berhasil diperbarui' : 'Data keluarga dan anggota berhasil disimpan' };
+		} catch (e) {
+			await conn.rollback();
+			if (e.code === 'ER_DUP_ENTRY') {
+				if (e.message.includes('no_kk')) {
+					return { error: 'No. KK sudah terdaftar' };
+				}
+				return { error: 'NIK sudah terdaftar' };
+			}
+			return { error: 'Gagal menyimpan data: ' + e.message };
+		} finally {
+			await conn.end();
+		}
+	},
+
+	deleteAnggota: async ({ request, cookies }) => {
+		const user = cookies.get('session_user');
+		if (!user) {
+			throw redirect(303, '/login');
+		}
+
+		const form = await request.formData();
+		const id = form.get('id')?.toString();
+
+		if (!id) {
+			return { error: 'ID anggota tidak valid' };
+		}
+
+		const conn = await getConnection();
+		try {
+			const [anggota] = await conn.execute(
+				'SELECT hub_keluarga FROM anggota_keluarga WHERE id = ?',
+				[id]
+			);
+
+			if (anggota.length === 0) {
+				return { error: 'Anggota tidak ditemukan' };
+			}
+
+			if (anggota[0].hub_keluarga === 'Kepala Keluarga') {
+				return { error: 'Penduduk ini adalah kepala keluarga. Silahkan hapus dari Form Keluarga' };
+			}
+
+			await conn.execute('DELETE FROM anggota_keluarga WHERE id = ?', [id]);
+			return { success: 'Data anggota berhasil dihapus' };
+		} catch (e) {
+			console.error('DELETE anggota error:', e);
+			return { error: 'Gagal menghapus data: ' + e.message };
+		} finally {
+			await conn.end();
+		}
+	}
+};

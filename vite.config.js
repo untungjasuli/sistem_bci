@@ -11,5 +11,10 @@ export default defineConfig({
 			},
 			adapter: adapter()
 		})
-	]
+	],
+	server: {
+		host: '0.0.0.0',
+		port: 5173,
+		allowedHosts: ['demo.untungjasuli.my.id']
+	}
 });

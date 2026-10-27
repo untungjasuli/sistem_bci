@@ -13,18 +13,33 @@ async function getConnection() {
 	return mysql.createConnection(dbConfig);
 }
 
-export const load = async ({ cookies }) => {
+export const load = async ({ cookies, url }) => {
 	const user = cookies.get('session_user');
 	if (!user) {
 		throw redirect(303, '/login');
 	}
 
+	const search = url.searchParams.get('search')?.trim() || '';
+	const sort = url.searchParams.get('sort') || 'asc'; // 'asc' | 'desc'
+
+	let sql = 'SELECT id, no_blok, created_at FROM blok_rumah';
+	const params = [];
+
+	if (search) {
+		sql += ' WHERE no_blok LIKE ?';
+		params.push(`%${search}%`);
+	}
+
+	sql += ` ORDER BY no_blok ${sort === 'desc' ? 'DESC' : 'ASC'}`;
+
 	const conn = await getConnection();
 	try {
-		const [rows] = await conn.execute(
-			'SELECT id, no_blok, created_at FROM blok_rumah ORDER BY id DESC'
-		);
-		return { blokRumah: rows };
+		const [rows] = await conn.execute(sql, params);
+		return {
+			blokRumah: rows,
+			search,
+			sort
+		};
 	} finally {
 		await conn.end();
 	}
@@ -74,16 +89,19 @@ export const actions = {
 
 		const conn = await getConnection();
 		try {
-			await conn.execute('UPDATE blok_rumah SET no_blok = ? WHERE id = ?', [noBlok, id]);
+			const [result] = await conn.execute('UPDATE blok_rumah SET no_blok = ? WHERE id = ?', [noBlok, id]);
+			if (result.affectedRows === 0) {
+				return { error: 'Data blok rumah tidak ditemukan' };
+			}
 			return { success: 'Data blok rumah berhasil diperbarui' };
 		} catch (e) {
+			console.error('UPDATE blok_rumah error:', e);
 			if (e.code === 'ER_DUP_ENTRY') {
 				return { error: 'No. Blok sudah terdaftar' };
 			}
-			return { error: 'Gagal memperbarui data' };
+			return { error: 'Gagal memperbarui data: ' + e.message };
 		} finally {
 			await conn.end();
-		
 		}
 	},
 
