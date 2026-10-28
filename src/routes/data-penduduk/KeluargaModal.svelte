@@ -27,13 +27,26 @@
 		}, 4000);
 	}
 
+// Konversi tanggal ke format YYYY-MM-DD dalam timezone GMT+7 (WIB)
+	function toWibDateString(dateVal) {
+		if (!dateVal) return '';
+		const d = new Date(dateVal);
+		if (isNaN(d.getTime())) return '';
+		const offsetMs = 7 * 60 * 60 * 1000;
+		const wib = new Date(d.getTime() + offsetMs);
+		const y = wib.getUTCFullYear();
+		const m = String(wib.getUTCMonth() + 1).padStart(2, '0');
+		const day = String(wib.getUTCDate()).padStart(2, '0');
+		return `${y}-${m}-${day}`;
+	}
+
 	$effect(() => {
 		if (anggotaFormRaw && anggotaFormRaw.length > 0) {
 			anggotaForm = anggotaFormRaw.map((a) => ({
 				nik: a.nik || '',
 				nama: a.nama || '',
 				jenis_kelamin: a.jenis_kelamin || 'Laki-laki',
-				tanggal_lahir: a.tanggal_lahir ? new Date(a.tanggal_lahir).toISOString().split('T')[0] : '',
+				tanggal_lahir: toWibDateString(a.tanggal_lahir),
 				hub_keluarga: a.hub_keluarga || 'Anak'
 			}));
 		} else {

@@ -145,6 +145,46 @@ export const actions = {
 		}
 	},
 
+	updateAnggota: async ({ request, cookies }) => {
+		const user = cookies.get('session_user');
+		if (!user) {
+			throw redirect(303, '/login');
+		}
+
+		const form = await request.formData();
+		const id = form.get('id')?.toString();
+		const nik = form.get('nik')?.toString().trim();
+		const nama = form.get('nama')?.toString().trim();
+		const jenis_kelamin = form.get('jenis_kelamin')?.toString();
+		const tanggal_lahir = form.get('tanggal_lahir')?.toString() || null;
+
+		if (!id || !nik || !nama || !jenis_kelamin) {
+			return { error: 'Data tidak lengkap' };
+		}
+
+		const conn = await getConnection();
+		try {
+			const [result] = await conn.execute(
+				'UPDATE anggota_keluarga SET nik = ?, nama = ?, jenis_kelamin = ?, tanggal_lahir = ? WHERE id = ?',
+				[nik, nama, jenis_kelamin, tanggal_lahir, id]
+			);
+
+			if (result.affectedRows === 0) {
+				return { error: 'Anggota tidak ditemukan' };
+			}
+
+			return { success: 'Data penduduk berhasil diperbarui' };
+		} catch (e) {
+			console.error('UPDATE anggota error:', e);
+			if (e.code === 'ER_DUP_ENTRY') {
+				return { error: 'NIK sudah terdaftar' };
+			}
+			return { error: 'Gagal memperbarui data: ' + e.message };
+		} finally {
+			await conn.end();
+		}
+	},
+
 	deleteAnggota: async ({ request, cookies }) => {
 		const user = cookies.get('session_user');
 		if (!user) {

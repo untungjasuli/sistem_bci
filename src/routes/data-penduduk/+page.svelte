@@ -151,12 +151,30 @@
 		}
 	}
 
+	// Konversi tanggal ke format YYYY-MM-DD dalam timezone GMT+7 (WIB)
+	function toWibDateString(dateVal) {
+		if (!dateVal) return '';
+		const d = new Date(dateVal);
+		if (isNaN(d.getTime())) return '';
+		// Offset GMT+7 = 7 * 60 menit
+		const offsetMs = 7 * 60 * 60 * 1000;
+		const wib = new Date(d.getTime() + offsetMs);
+		const y = wib.getUTCFullYear();
+		const m = String(wib.getUTCMonth() + 1).padStart(2, '0');
+		const day = String(wib.getUTCDate()).padStart(2, '0');
+		return `${y}-${m}-${day}`;
+	}
+
 	function openEditIndividu(id, nik, nama, jenisKelamin, tanggalLahir) {
-		editingIndividuId = id;
-		editNIK = nik || '';
-		editNama = nama || '';
-		editJenisKelamin = jenisKelamin || 'Laki-laki';
-		editTanggalLahir = tanggalLahir ? tanggalLahir.split('T')[0] : '';
+		try {
+			editingIndividuId = id;
+			editNIK = nik || '';
+			editNama = nama || '';
+			editJenisKelamin = jenisKelamin || 'Laki-laki';
+			editTanggalLahir = toWibDateString(tanggalLahir);
+		} catch (e) {
+			console.error('openEditIndividu error:', e);
+		}
 		showEditIndividu = true;
 	}
 
