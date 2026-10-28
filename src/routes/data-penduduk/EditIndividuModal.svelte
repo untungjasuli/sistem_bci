@@ -10,15 +10,6 @@
 		onSave
 	} = $props();
 
-	let toast = $state(null);
-
-	function showToast(type, message) {
-		toast = { type, message };
-		setTimeout(() => {
-			toast = null;
-		}, 4000);
-	}
-
 	async function handleSubmit(e) {
 		e.preventDefault();
 
@@ -37,37 +28,19 @@
 			});
 			const result = await res.json();
 			if (!res.ok || result.error) {
-				showToast('error', result.error || 'Gagal menyimpan data individu');
+				onClose();
+				onSave(false, result.error || 'Gagal menyimpan data individu');
 				return;
 			}
-			showToast('success', result.success || 'Data penduduk berhasil diperbarui');
 			onClose();
-			onSave(true);
+			onSave(true, result.success || 'Data penduduk berhasil diperbarui');
 		} catch (e) {
 			console.error('Save individu error:', e);
-			showToast('error', 'Gagal menyimpan data individu');
+			onClose();
+			onSave(false, 'Gagal menyimpan data individu');
 		}
 	}
 </script>
-
-{#if toast}
-	<div
-		class="fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium flex items-center gap-3 animate-in fade-in slide-in-from-top-2"
-		class:bg-green-50={toast.type === 'success'}
-		class:text-green-700={toast.type === 'success'}
-		class:border-green-200={toast.type === 'success'}
-		class:bg-red-50={toast.type === 'error'}
-		class:text-red-700={toast.type === 'error'}
-		class:border-red-200={toast.type === 'error'}
-	>
-		{#if toast.type === 'success'}
-			<i class="fa-solid fa-circle-check"></i>
-		{:else}
-			<i class="fa-solid fa-circle-exclamation"></i>
-		{/if}
-		<span>{toast.message}</span>
-	</div>
-{/if}
 
 {#if showEditIndividu}
 	<div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center" onclick={onClose} role="button" aria-label="Tutup modal"></div>

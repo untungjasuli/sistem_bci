@@ -210,7 +210,7 @@ export const actions = {
 			}
 
 			if (anggota[0].hub_keluarga === 'Kepala Keluarga') {
-				return { error: 'Penduduk ini adalah kepala keluarga. Silahkan hapus dari Form Keluarga' };
+				return { error: 'Kepala Keluarga tidak bisa dihapus. Silahkan hapus dari form edit keluarga' };
 			}
 
 			await conn.execute('DELETE FROM anggota_keluarga WHERE id = ?', [id]);

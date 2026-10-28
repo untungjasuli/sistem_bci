@@ -18,16 +18,7 @@
 	let anggotaForm = $state([]);
 	let activeAnggotaIndex = $state(0);
 
-	let toast = $state(null);
-
-	function showToast(type, message) {
-		toast = { type, message };
-		setTimeout(() => {
-			toast = null;
-		}, 4000);
-	}
-
-// Konversi tanggal ke format YYYY-MM-DD dalam timezone GMT+7 (WIB)
+	// Konversi tanggal ke format YYYY-MM-DD dalam timezone GMT+7 (WIB)
 	function toWibDateString(dateVal) {
 		if (!dateVal) return '';
 		const d = new Date(dateVal);
@@ -86,35 +77,16 @@
 		return async ({ update }) => {
 			await update();
 			if (page.form?.success) {
-				showToast('success', page.form.success);
-				onSave(true);
+				onClose();
+				onSave(true, page.form.success);
 			}
 			if (page.form?.error) {
-				showToast('error', page.form.error);
-				onSave(false);
+				onClose();
+				onSave(false, page.form.error);
 			}
 		};
 	}
 </script>
-
-{#if showModal && toast}
-	<div
-		class="fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium flex items-center gap-3 animate-in fade-in slide-in-from-top-2"
-		class:bg-green-50={toast.type === 'success'}
-		class:text-green-700={toast.type === 'success'}
-		class:border-green-200={toast.type === 'success'}
-		class:bg-red-50={toast.type === 'error'}
-		class:text-red-700={toast.type === 'error'}
-		class:border-red-200={toast.type === 'error'}
-	>
-		{#if toast.type === 'success'}
-			<i class="fa-solid fa-circle-check"></i>
-		{:else}
-			<i class="fa-solid fa-circle-exclamation"></i>
-		{/if}
-		<span>{toast.message}</span>
-	</div>
-{/if}
 
 {#if showModal}
 	<div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center" onclick={onClose} role="button" aria-label="Tutup modal"></div>

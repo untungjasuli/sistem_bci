@@ -1,5 +1,6 @@
 <script>
 	import { page } from '$app/state';
+	import { invalidateAll } from '$app/navigation';
 	import KeluargaModal from './KeluargaModal.svelte';
 	import EditIndividuModal from './EditIndividuModal.svelte';
 
@@ -32,7 +33,7 @@
 		toast = { type, message };
 		setTimeout(() => {
 			toast = null;
-		}, 4000);
+		}, 5000); // durasi 5 detik
 	}
 
 	if (data?.success) {
@@ -145,9 +146,13 @@
 		}
 	}
 
-	function onKeluargaSave(success) {
+	async function onKeluargaSave(success, message) {
 		if (success) {
-			window.location.reload();
+			showToast('success', message);
+			await invalidateAll();
+		} else {
+			showToast('error', message);
+			await invalidateAll();
 		}
 	}
 
@@ -187,9 +192,13 @@
 		editTanggalLahir = '';
 	}
 
-	async function handleSaveIndividu(success) {
+	async function handleSaveIndividu(success, message) {
 		if (success) {
-			window.location.reload();
+			showToast('success', message);
+			await invalidateAll();
+		} else {
+			showToast('error', message);
+			await invalidateAll();
 		}
 	}
 
@@ -211,7 +220,7 @@
 				return;
 			}
 			showToast('success', result.success || 'Data penduduk berhasil dihapus');
-			window.location.reload();
+			await invalidateAll();
 		} catch (e) {
 			console.error('Delete individu error:', e);
 			showToast('error', 'Gagal menghapus data');

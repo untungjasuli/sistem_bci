@@ -45,7 +45,6 @@
 				</div>
 
 				<div class="flex items-center gap-2">
-					<!-- Profile Dropdown -->
 					<div class="relative">
 						<button
 							onclick={toggleProfile}
@@ -83,7 +82,6 @@
 						{/if}
 					</div>
 
-					<!-- Tombol Logout di kanan navbar (icon saja) -->
 					<button
 						onclick={() => { document.getElementById('logout-form').submit(); }}
 						class="p-2 text-gray-600 hover:bg-red-50 hover:text-red-600 rounded-lg transition-colors"
@@ -159,15 +157,16 @@
 				aria-label="Tutup sidebar"
 			></button>
 		{/if}
+
+		<main class="{page.url.pathname === '/login' ? 'pt-0' : 'lg:pl-64 pt-16'} min-h-screen">
+			{#if page.url.pathname === '/login'}
+				{@render children()}
+			{:else}
+				<div class="px-4 sm:px-6 lg:px-8 py-8">
+					{@render children()}
+				</div>
+			{/if}
+		</main>
 	{/if}
 
-	<main class="{page.url.pathname === '/login' ? 'pt-0' : 'lg:pl-64 pt-16'} min-h-screen">
-		{#if page.url.pathname === '/login'}
-			{@render children()}
-		{:else}
-			<div class="px-4 sm:px-6 lg:px-8 py-8">
-				{@render children()}
-			</div>
-		{/if}
-	</main>
 </div>
