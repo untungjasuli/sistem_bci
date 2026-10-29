@@ -71,56 +71,57 @@
 	}
 
 	async function handleSubmit(e) {
-		e.preventDefault();
-		modalError = '';
+			e.preventDefault();
+			modalError = '';
 
-		if (!currentPemilik.blok_rumah_id || !currentPemilik.nama || !currentPemilik.nik || !currentPemilik.no_hp) {
-			modalError = 'Semua field wajib diisi';
-			return;
-		}
-
-		if (currentPemilik.nik.length !== 16) {
-			modalError = 'NIK harus 16 digit';
-			return;
-		}
-
-		if (currentPemilik.no_hp.length < 11 || currentPemilik.no_hp.length > 13) {
-			modalError = 'Nomor HP 11-13 digit';
-			return;
-		}
-
-		const formData = new FormData();
-		formData.append('blok_rumah_id', currentPemilik.blok_rumah_id);
-		formData.append('nama', currentPemilik.nama);
-		formData.append('nik', currentPemilik.nik);
-		formData.append('no_hp', currentPemilik.no_hp);
-
-		if (editMode) {
-			formData.append('id', currentPemilik.id);
-		}
-
-		const action = editMode ? 'update' : 'create';
-
-		try {
-			const res = await fetch(`?/${action}`, {
-				method: 'POST',
-				body: formData,
-				credentials: 'include'
-			});
-			const result = await res.json();
-
-			if (!res.ok || result.error) {
-				modalError = result.error || 'Gagal menyimpan';
+			if (!currentPemilik.blok_rumah_id || !currentPemilik.nama || !currentPemilik.no_hp) {
+				modalError = 'Blok Rumah, Nama, dan Nomor HP wajib diisi';
 				return;
 			}
 
-			showToast('success', result.success);
-			closeModal();
-			await invalidateAll();
-		} catch (err) {
-			console.error('Submit error:', err);
-			modalError = 'Gagal menyimpan data';
-		}
+			// NIK optional - if provided, validate 16 digits
+			if (currentPemilik.nik && currentPemilik.nik.length !== 16) {
+				modalError = 'NIK harus 16 digit';
+				return;
+			}
+
+			if (currentPemilik.no_hp.length < 11 || currentPemilik.no_hp.length > 13) {
+				modalError = 'Nomor HP 11-13 digit';
+				return;
+			}
+
+			const formData = new FormData();
+			formData.append('blok_rumah_id', currentPemilik.blok_rumah_id);
+			formData.append('nama', currentPemilik.nama);
+			formData.append('nik', currentPemilik.nik || '');
+			formData.append('no_hp', currentPemilik.no_hp);
+
+			if (editMode) {
+				formData.append('id', currentPemilik.id);
+			}
+
+			const action = editMode ? 'update' : 'create';
+
+			try {
+				const res = await fetch(`?/${action}`, {
+					method: 'POST',
+					body: formData,
+					credentials: 'include'
+				});
+				const result = await res.json();
+
+				if (!res.ok || result.error) {
+					modalError = result.error || 'Gagal menyimpan';
+					return;
+				}
+
+				showToast('success', result.success);
+				closeModal();
+				await invalidateAll();
+			} catch (err) {
+				console.error('Submit error:', err);
+				modalError = 'Gagal menyimpan data';
+			}
 	}
 
 	async function handleDelete(id, blok_rumah_id) {
@@ -288,21 +289,25 @@
 							<td class="px-6 py-4 text-sm text-gray-600">{p.no_hp}</td>
 							<td class="px-6 py-4 text-sm text-gray-600">{formatDate(p.created_at)}</td>
 							<td class="px-6 py-4 text-right">
-								<div class="flex items-center justify-end gap-2">
-									<button
-										onclick={() => openEditModal(p)}
-										class="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors"
-									>
-										<i class="fa-solid fa-pen mr-1"></i> Edit
-									</button>
-									<button
-										onclick={() => handleDelete(p.id, p.blok_rumah_id)}
-										class="px-3 py-1.5 text-xs font-medium text-white bg-red-600 border border-transparent rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-colors"
-									>
-										<i class="fa-solid fa-trash mr-1"></i> Hapus
-									</button>
-								</div>
-							</td>
+											<div class="flex items-center justify-end gap-1">
+												<button
+													onclick={() => openEditModal(p)}
+													class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+													title="Edit"
+													aria-label="Edit"
+												>
+													<i class="fa-regular fa-pen-to-square text-lg"></i>
+												</button>
+												<button
+													onclick={() => handleDelete(p.id, p.blok_rumah_id)}
+													class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+													title="Hapus"
+													aria-label="Hapus"
+												>
+													<i class="fa-regular fa-trash-can text-lg"></i>
+												</button>
+											</div>
+										</td>
 						</tr>
 					{/each}
 				</tbody>
@@ -368,80 +373,88 @@
 				</div>
 
 				<form onsubmit={handleSubmit} class="space-y-4">
-					{#if modalError}
-						<div class="p-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg">
-							<i class="fa-solid fa-circle-exclamation mr-1"></i> {modalError}
-						</div>
-					{/if}
+							{#if modalError}
+								<div class="p-3 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg">
+									<i class="fa-solid fa-circle-exclamation mr-1"></i> {modalError}
+								</div>
+							{/if}
 
-					<div>
-						<label for="blok_rumah_id" class="block text-sm font-medium text-gray-700 mb-2">Blok Rumah (Kosong) <span class="text-red-500">*</span></label>
-						<select
-							id="blok_rumah_id"
-							bind:value={currentPemilik.blok_rumah_id}
-							disabled={editMode}
-							required
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors {editMode ? 'bg-gray-50' : ''}"
-						>
-							<option value="">-- Pilih Blok Kosong --</option>
-							{#each emptyBlocks as b}
-								<option value={b.id}>{b.no_blok}</option>
-							{/each}
-						</select>
-						{#if editMode}
-							<p class="text-xs text-gray-500 mt-1">Blok tidak bisa diubah saat edit</p>
-						{/if}
-					</div>
+							<div>
+											<label for="blok_rumah_id" class="block text-sm font-medium text-gray-700 mb-2">Blok Rumah (Kosong) <span class="text-red-500">*</span></label>
+											{#if editMode}
+												<!-- Edit mode: read-only text input showing block number -->
+												<input
+													type="text"
+													value={currentPemilik.no_blok || ''}
+													readonly
+													class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 text-gray-900 cursor-not-allowed"
+												/>
+												<input type="hidden" name="blok_rumah_id" value={currentPemilik.blok_rumah_id} />
+												<p class="text-xs text-gray-500 mt-1">Blok tidak bisa diubah saat edit</p>
+											{:else}
+												<select
+													id="blok_rumah_id"
+													bind:value={currentPemilik.blok_rumah_id}
+													name="blok_rumah_id"
+													required
+													class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+												>
+													<option value="">-- Pilih Blok Kosong --</option>
+													{#each emptyBlocks as b}
+														<option value={b.id}>{b.no_blok}</option>
+													{/each}
+												</select>
+											{/if}
+										</div>
 
-					<div>
-						<label for="nama" class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap <span class="text-red-500">*</span></label>
-						<input
-							type="text"
-							id="nama"
-							bind:value={currentPemilik.nama}
-							placeholder="Nama pemilik"
-							required
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-						/>
-					</div>
+							<div>
+								<label for="nama" class="block text-sm font-medium text-gray-700 mb-2">Nama Lengkap <span class="text-red-500">*</span></label>
+								<input
+									type="text"
+									id="nama"
+									bind:value={currentPemilik.nama}
+									placeholder="Nama pemilik"
+									required
+									class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+								/>
+							</div>
 
-					<div>
-						<label for="nik" class="block text-sm font-medium text-gray-700 mb-2">NIK <span class="text-red-500">*</span></label>
-						<input
-							type="text"
-							id="nik"
-							bind:value={currentPemilik.nik}
-							oninput={handleNikInput}
-							placeholder="16 digit angka"
-							maxlength="16"
-							required
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-						/>
-					</div>
+							<div>
+								<label for="nik" class="block text-sm font-medium text-gray-700 mb-2">NIK <span class="text-gray-400">(Opsional)</span></label>
+								<input
+									type="text"
+									id="nik"
+									bind:value={currentPemilik.nik}
+									oninput={handleNikInput}
+									placeholder="16 digit angka (opsional)"
+									maxlength="16"
+									class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+								/>
+							</div>
 
-					<div>
-						<label for="no_hp" class="block text-sm font-medium text-gray-700 mb-2">Nomor HP <span class="text-red-500">*</span></label>
-						<input
-							type="text"
-							id="no_hp"
-							bind:value={currentPemilik.no_hp}
-							oninput={handleHpInput}
-							placeholder="11-13 digit angka"
-							maxlength="13"
-							required
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-						/>
-					</div>
+							<div>
+								<label for="no_hp" class="block text-sm font-medium text-gray-700 mb-2">Nomor HP <span class="text-red-500">*</span></label>
+								<input
+									type="text"
+									id="no_hp"
+									bind:value={currentPemilik.no_hp}
+									oninput={handleHpInput}
+									placeholder="11-13 digit angka"
+									maxlength="13"
+									required
+									class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+								/>
+							</div>
 
-					<div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
-						<button type="button" onclick={closeModal} class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors">
-							<i class="fa-solid fa-xmark mr-1"></i> Batal
-						</button>
-						<button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
-							<i class="fa-solid fa-save mr-1"></i> {editMode ? 'Update' : 'Simpan'}
-						</button>
-					</div>
-				</form>
+							<div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+								<button type="button" onclick={closeModal} class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors">
+									<i class="fa-solid fa-xmark mr-1"></i> Batal
+								</button>
+								<button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+									<i class="fa-solid fa-save mr-1"></i> {editMode ? 'Update' : 'Simpan'}
+								</button>
+							</div>
+						</form>
 			</div>
 		</div>
 	{/if}

@@ -438,17 +438,19 @@
 								</span>
 							</td>
 							<td class="px-6 py-4 text-right">
-								{#if t.status === 'belum_bayar'}
-									<button
-										onclick={() => openBayarModal(t)}
-										class="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors"
-									>
-										<i class="fa-solid fa-money-bill-wave mr-1"></i> Bayar
-									</button>
-								{:else}
-									<span class="text-xs text-gray-400">Sudah lunas</span>
-								{/if}
-							</td>
+											{#if t.status === 'belum_bayar'}
+												<button
+													onclick={() => openBayarModal(t)}
+													class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+													title="Bayar"
+													aria-label="Bayar"
+												>
+													<i class="fa-solid fa-money-bill-wave text-lg"></i>
+												</button>
+											{:else}
+												<span class="text-xs text-gray-400">Sudah lunas</span>
+											{/if}
+										</td>
 						</tr>
 					{/each}
 				</tbody>
@@ -527,14 +529,17 @@
 								</div>
 							</div>
 							{#if t.status === 'belum_bayar'}
-								<button
-									type="button"
-									onclick={() => openBayarModal(t)}
-									class="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors"
-								>
-									<i class="fa-solid fa-money-bill-wave mr-2"></i> Bayar Tagihan
-								</button>
-							{/if}
+											<button
+												type="button"
+												onclick={() => openBayarModal(t)}
+												class="w-full p-3 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors text-center"
+												title="Bayar Tagihan"
+												aria-label="Bayar Tagihan"
+											>
+												<i class="fa-solid fa-money-bill-wave text-2xl"></i>
+												<div class="text-xs mt-1">Bayar Tagihan</div>
+											</button>
+										{/if}
 						</div>
 					{/if}
 				</div>

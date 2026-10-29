@@ -383,27 +383,30 @@
 										<!-- Desktop: Horizontal buttons -->
 										<div class="hidden lg:flex items-center gap-1">
 											<button
-												onclick={() => openKeluargaFromTable(p.keluarga_id, p.no_kk, p.blok_rumah_id, p.status_rumah)}
-												class="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors"
-												title="Lihat Keluarga"
-											>
-												<i class="fa-solid fa-users"></i>
-											</button>
-											<button
-												onclick={() => openEditIndividu(p.id, p.nik, p.nama, p.jenis_kelamin, p.tanggal_lahir, p.nomor_hp)}
-												class="px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 border border-transparent rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 transition-colors"
-												title="Edit"
-											>
-												<i class="fa-solid fa-pen-to-square"></i>
-											</button>
-											<button
-												onclick={() => handleDeleteIndividu(p.id)}
-												class="px-3 py-1.5 text-xs font-medium text-white bg-red-600 border border-transparent rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-colors"
-												title="Hapus"
-											>
-												<i class="fa-solid fa-trash"></i>
-											</button>
-										</div>
+																		onclick={() => openKeluargaFromTable(p.keluarga_id, p.no_kk, p.blok_rumah_id, p.status_rumah)}
+																		class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+																		title="Lihat Keluarga"
+																		aria-label="Lihat Keluarga"
+																	>
+																		<i class="fa-solid fa-users text-lg"></i>
+																	</button>
+																	<button
+																		onclick={() => openEditIndividu(p.id, p.nik, p.nama, p.jenis_kelamin, p.tanggal_lahir, p.nomor_hp)}
+																		class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+																		title="Edit"
+																		aria-label="Edit"
+																	>
+																		<i class="fa-regular fa-pen-to-square text-lg"></i>
+																	</button>
+																	<button
+																		type="button"
+																		onclick={() => handleDeleteIndividu(p.id)}
+																		class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+																		title="Hapus"
+																		aria-label="Hapus"
+																	>
+																		<i class="fa-regular fa-trash-can text-lg"></i>
+																	</button>
 
 										<!-- Mobile: Dropdown -->
 										<div class="lg:hidden relative" data-dropdown-menu>
@@ -417,34 +420,34 @@
 												<i class="fa-solid fa-ellipsis-v"></i>
 											</button>
 											{#if openDropdownIndex === index}
-												<div class="absolute right-0 top-full mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg animate-in fade-in zoom-in-95 z-50" role="menu">
-													<button
-														onclick={() => { openKeluargaFromTable(p.keluarga_id, p.no_kk, p.blok_rumah_id, p.status_rumah); openDropdownIndex = -1; }}
-														class="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg flex items-center gap-2"
-														role="menuitem"
-													>
-														<i class="fa-solid fa-users text-blue-600 w-4"></i>
-														<span>Lihat Keluarga</span>
-													</button>
-													<button
-														onclick={() => { openEditIndividu(p.id, p.nik, p.nama, p.jenis_kelamin, p.tanggal_lahir, p.nomor_hp); openDropdownIndex = -1; }}
-														class="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-														role="menuitem"
-													>
-														<i class="fa-solid fa-pen-to-square text-indigo-600 w-4"></i>
-														<span>Edit</span>
-													</button>
-													<button
-														onclick={() => { handleDeleteIndividu(p.id); openDropdownIndex = -1; }}
-														class="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 rounded-b-lg flex items-center gap-2"
-														role="menuitem"
-													>
-														<i class="fa-solid fa-trash w-4"></i>
-														<span>Hapus</span>
-													</button>
-												</div>
-											{/if}
-										</div>
+																		<div class="absolute right-0 top-full mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg animate-in fade-in zoom-in-95 z-50" role="menu">
+																			<button
+																				onclick={() => { openKeluargaFromTable(p.keluarga_id, p.no_kk, p.blok_rumah_id, p.status_rumah); openDropdownIndex = -1; }}
+																				class="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg flex items-center gap-2"
+																				role="menuitem"
+																			>
+																				<i class="fa-solid fa-users text-blue-600 w-4"></i>
+																				<span>Lihat Keluarga</span>
+																			</button>
+																			<button
+																				onclick={() => { openEditIndividu(p.id, p.nik, p.nama, p.jenis_kelamin, p.tanggal_lahir, p.nomor_hp); openDropdownIndex = -1; }}
+																				class="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+																				role="menuitem"
+																			>
+																				<i class="fa-regular fa-pen-to-square text-indigo-600 w-4"></i>
+																				<span>Edit</span>
+																			</button>
+																			<button
+																				type="button"
+																				onclick={() => { handleDeleteIndividu(p.id); openDropdownIndex = -1; }}
+																				class="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 rounded-b-lg flex items-center gap-2"
+																				role="menuitem"
+																			>
+																				<i class="fa-regular fa-trash-can w-4"></i>
+																				<span>Hapus</span>
+																			</button>
+																		</div>
+																	{/if}
 									</div>
 								</td>
 							</tr>
