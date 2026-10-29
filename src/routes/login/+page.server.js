@@ -30,7 +30,8 @@ export const actions = {
 			cookies.set('session_user', JSON.stringify({
 				id: user.id,
 				username: user.username,
-				name: user.name
+				name: user.name,
+				role: user.role
 			}), {
 				path: '/',
 				httpOnly: true,

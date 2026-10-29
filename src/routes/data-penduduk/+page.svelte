@@ -1,19 +1,18 @@
 <script>
 	import { page } from '$app/state';
-	import { invalidateAll } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import KeluargaModal from './KeluargaModal.svelte';
 	import EditIndividuModal from './EditIndividuModal.svelte';
 
 	let { data } = $props();
 
-	let pendudukItems = $derived(data.penduduk || []);
+	// Data dari server sudah dipaginasi, difilter, dan diurutkan
+	// Client hanya tampilkan langsung
+	let items = $derived(data.penduduk || []);
 	let blokRumahItems = $derived(data.blokRumah || []);
-	let search = $state(data.search || '');
-	let sort = $state(data.sort || 'asc');
-	let sortBy = $state(data.sortBy || 'nama');
 
-	// Pagination state - baca dari URL
-	let currentPage = $state(data.page || 1);
+	// Pagination state - sinkron dengan URL via page store
+	let currentPage = $derived(parseInt(page.url.searchParams.get('page') || '1', 10));
 	let itemsPerPage = $state(data.itemsPerPage || 10);
 	const itemsPerPageOptions = [10, 25, 50, 100];
 
@@ -63,65 +62,40 @@
 		showToast('error', data.error);
 	}
 
-	let sortedPenduduk = $derived(
-		pendudukItems
-			.filter((p) => !search || p.nik.toLowerCase().includes(search.toLowerCase()) || p.nama.toLowerCase().includes(search.toLowerCase()) || (p.no_kk && p.no_kk.toLowerCase().includes(search.toLowerCase())) || (p.no_blok && p.no_blok.toLowerCase().includes(search.toLowerCase())) || (p.nomor_hp && p.nomor_hp.toLowerCase().includes(search.toLowerCase())))
-			.slice()
-			.sort((a, b) => {
-				const na = sortBy === 'no_blok' ? (a.no_blok || '').toLowerCase() : a.nama.toLowerCase();
-				const nb = sortBy === 'no_blok' ? (b.no_blok || '').toLowerCase() : b.nama.toLowerCase();
-				return sort === 'asc' ? na.localeCompare(nb) : nb.localeCompare(na);
-			})
-	);
+	// Search state - hanya update saat submit, bukan tiap ketik
+	let search = $state(data.search || '');
+	let pendingSearch = $state(data.search || ''); // untuk input sebelum submit
 
-	// Paginated data
-	let paginatedPenduduk = $derived(
-		sortedPenduduk.slice(
-			(currentPage - 1) * itemsPerPage,
-			currentPage * itemsPerPage
-		)
-	);
+	// Sort state
+	let sort = $state(data.sort || 'asc');
+	let sortBy = $state(data.sortBy || 'nama');
 
-	let totalPages = $derived(Math.ceil(sortedPenduduk.length / itemsPerPage) || 1);
+	let totalPages = $derived(Math.ceil((data.total || items.length) / itemsPerPage) || 1);
 
-	// Reset page saat search/sort/itemsPerPage berubah (bukan mount awal)
-	let prevSearch = $state(search);
-	let prevSort = $state(sort);
-	let prevSortBy = $state(sortBy);
-	let prevItemsPerPage = $state(itemsPerPage);
-	let isFirstMount = $state(true);
+	let displayItems = $derived(items);
 
-	$effect(() => {
-		if (isFirstMount) {
-			isFirstMount = false;
-			prevSearch = search;
-			prevSort = sort;
-			prevSortBy = sortBy;
-			prevItemsPerPage = itemsPerPage;
-			return;
-		}
-		if (search !== prevSearch || sort !== prevSort || sortBy !== prevSortBy || itemsPerPage !== prevItemsPerPage) {
-			currentPage = 1;
-		}
-		prevSearch = search;
-		prevSort = sort;
-		prevSortBy = sortBy;
-		prevItemsPerPage = itemsPerPage;
-	});
-
-	function updateUrl() {
+	// Submit search - hanya saat Enter atau klik tombol cari
+	function handleSearchSubmit(e) {
+		e.preventDefault();
+		search = pendingSearch;
 		const params = new URLSearchParams();
 		if (search) params.set('search', search);
 		params.set('sort', sort);
 		params.set('sortBy', sortBy);
-		params.set('page', currentPage.toString());
+		params.set('page', '1');
 		params.set('itemsPerPage', itemsPerPage.toString());
-		window.history.pushState(null, '', `?${params.toString()}`);
+		goto(`?${params.toString()}`);
 	}
 
-	function onSearchInput(e) {
-		search = e.target.value;
-		updateUrl();
+	function onClearSearch() {
+		search = '';
+		pendingSearch = '';
+		const params = new URLSearchParams();
+		params.set('sort', sort);
+		params.set('sortBy', sortBy);
+		params.set('page', '1');
+		params.set('itemsPerPage', itemsPerPage.toString());
+		goto(`?${params.toString()}`);
 	}
 
 	function onSortClick(column) {
@@ -131,12 +105,13 @@
 			sortBy = column;
 			sort = 'asc';
 		}
-		updateUrl();
-	}
-
-	function onClearSearch() {
-		search = '';
-		updateUrl();
+		const params = new URLSearchParams();
+		if (search) params.set('search', search);
+		params.set('sort', sort);
+		params.set('sortBy', sortBy);
+		params.set('page', '1');
+		params.set('itemsPerPage', itemsPerPage.toString());
+		goto(`?${params.toString()}`);
 	}
 
 	function openAddModal() {
@@ -314,7 +289,7 @@
 		</div>
 		<div class="flex items-center gap-3 w-full lg:w-auto">
 			<form
-				onsubmit={(e) => e.preventDefault()}
+				onsubmit={handleSearchSubmit}
 				class="relative flex items-center flex-1 min-w-0"
 			>
 				<label class="sr-only">Cari NIK / Nama / KK / Blok</label>
@@ -322,10 +297,10 @@
 					<input
 						type="text"
 						name="search"
-						value={search}
+						value={pendingSearch}
 						placeholder="Cari NIK / Nama / KK / Blok..."
 						class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-						oninput={onSearchInput}
+						oninput={(e) => (pendingSearch = e.target.value)}
 					/>
 					<i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
 					{#if search}
@@ -359,7 +334,7 @@
 		</div>
 	</div>
 
-	{#if paginatedPenduduk.length > 0}
+	{#if displayItems.length > 0}
 			<div class="bg-white rounded-lg shadow border border-gray-200 overflow-x-auto">
 				<table class="w-full text-left border-collapse min-w-full">
 					<thead>
@@ -386,7 +361,7 @@
 						</tr>
 					</thead>
 					<tbody class="divide-y divide-gray-100">
-						{#each paginatedPenduduk as p, index}
+						{#each displayItems as p, index}
 							<tr class="hover:bg-gray-50 transition-colors">
 								<td class="px-6 py-4 text-sm text-gray-600">{(currentPage - 1) * itemsPerPage + index + 1}</td>
 								<td class="px-6 py-4 text-sm text-gray-900 font-medium">{p.no_kk || '-'}</td>
@@ -473,47 +448,76 @@
 								</td>
 							</tr>
 						{/each}
-										</tbody>
-									</table>
-								</div>
+					</tbody>
+				</table>
+			</div>
 
-								<!-- Pagination Controls -->
-								<div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-4 py-3 bg-white border border-gray-200 rounded-lg">
-									<div class="flex items-center gap-3">
-										<label class="text-sm text-gray-700">Tampilkan</label>
-										<select
-											bind:value={itemsPerPage}
-											onchange={updateUrl}
-											class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-										>
-											{#each itemsPerPageOptions as opt}
-												<option value={opt}>{opt} per halaman</option>
-											{/each}
-										</select>
-									</div>
-									<div class="flex items-center gap-2">
-										<span class="text-sm text-gray-700">
-											Halaman {currentPage} dari {totalPages} (Total: {sortedPenduduk.length} data)
-										</span>
-										<button
-											onclick={() => { if (currentPage > 1) { currentPage = currentPage - 1; updateUrl(); }}}
-											disabled={currentPage === 1}
-											class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-											aria-label="Halaman sebelumnya"
-										>
-											<i class="fa-solid fa-chevron-left"></i>
-										</button>
-										<button
-											onclick={() => { if (currentPage < totalPages) { currentPage = currentPage + 1; updateUrl(); }}}
-											disabled={currentPage === totalPages}
-											class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-											aria-label="Halaman selanjutnya"
-										>
-											<i class="fa-solid fa-chevron-right"></i>
-										</button>
-									</div>
-								</div>
-							{:else}
+			<!-- Pagination Controls -->
+			<div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-4 py-3 bg-white border border-gray-200 rounded-lg">
+				<div class="flex items-center gap-3">
+					<label for="items-per-page-penduduk" class="text-sm text-gray-700">Tampilkan</label>
+					<select
+						id="items-per-page-penduduk"
+						bind:value={itemsPerPage}
+						onchange={() => {
+							const params = new URLSearchParams();
+							if (search) params.set('search', search);
+							params.set('sort', sort);
+							params.set('sortBy', sortBy);
+							params.set('page', '1');
+							params.set('itemsPerPage', itemsPerPage.toString());
+							goto(`?${params.toString()}`);
+						}}
+						class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+					>
+						{#each itemsPerPageOptions as opt}
+							<option value={opt}>{opt} per halaman</option>
+						{/each}
+					</select>
+				</div>
+				<div class="flex items-center gap-2">
+					<span class="text-sm text-gray-700">
+						Halaman {currentPage} dari {totalPages} (Total: {data.total ?? displayItems.length} data)
+					</span>
+					<button
+						onclick={() => {
+							if (currentPage > 1) {
+								const params = new URLSearchParams();
+								if (search) params.set('search', search);
+								params.set('sort', sort);
+								params.set('sortBy', sortBy);
+								params.set('page', (currentPage - 1).toString());
+								params.set('itemsPerPage', itemsPerPage.toString());
+								goto(`?${params.toString()}`);
+							}
+						}}
+						disabled={currentPage === 1}
+						class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+						aria-label="Halaman sebelumnya"
+					>
+						<i class="fa-solid fa-chevron-left"></i>
+					</button>
+					<button
+						onclick={() => {
+							if (currentPage < totalPages) {
+								const params = new URLSearchParams();
+								if (search) params.set('search', search);
+								params.set('sort', sort);
+								params.set('sortBy', sortBy);
+								params.set('page', (currentPage + 1).toString());
+								params.set('itemsPerPage', itemsPerPage.toString());
+								goto(`?${params.toString()}`);
+							}
+						}}
+						disabled={currentPage === totalPages}
+						class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+						aria-label="Halaman selanjutnya"
+					>
+						<i class="fa-solid fa-chevron-right"></i>
+					</button>
+				</div>
+			</div>
+		{:else}
 		<div class="bg-red-50 border border-red-200 rounded-lg p-6 flex items-center gap-3">
 			<i class="fa-solid fa-circle-exclamation text-red-500"></i>
 			<div>

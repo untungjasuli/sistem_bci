@@ -1,36 +1,106 @@
-import { redirect } from '@sveltejs/kit';
+import { redirect, error } from '@sveltejs/kit';
 import { getConnection } from '#lib/server/db';
 
-export const load = async (event) => {
-	const cookies = event.cookies;
-	const session = cookies ? cookies.get('session_user') : null;
-
-	if (!session) {
-		throw redirect(302, '/login');
+export const load = async ({ cookies }) => {
+	const user = cookies.get('session_user');
+	if (!user) {
+		throw redirect(303, '/login');
 	}
 
 	const conn = await getConnection();
 	try {
-		const [totalPenduduk] = await conn.execute('SELECT COUNT(*) as count FROM anggota_keluarga');
-		const [totalKeluarga] = await conn.execute('SELECT COUNT(*) as count FROM keluarga');
-		const [totalBlokRumah] = await conn.execute('SELECT COUNT(*) as count FROM blok_rumah');
-		const [recentKeluarga] = await conn.execute(
-			`SELECT k.id, k.no_kk, k.blok_rumah_id, k.status_rumah, b.no_blok, k.created_at
+		// Total blok rumah
+		const [blokRows] = await conn.execute('SELECT COUNT(*) as total FROM blok_rumah');
+		const totalBlok = blokRows[0]?.total || 0;
+
+		// Total keluarga
+		const [keluargaRows] = await conn.execute('SELECT COUNT(*) as total FROM keluarga');
+		const totalKeluarga = keluargaRows[0]?.total || 0;
+
+		// Total penduduk
+		const [pendudukRows] = await conn.execute('SELECT COUNT(*) as total FROM anggota_keluarga');
+		const totalPenduduk = pendudukRows[0]?.total || 0;
+
+		// Blok dihuni (blok yang punya keluarga)
+		const [dihuniRows] = await conn.execute(`
+			SELECT COUNT(DISTINCT b.id) as total 
+			FROM blok_rumah b 
+			JOIN keluarga k ON k.blok_rumah_id = b.id
+		`);
+		const blokDihuni = dihuniRows[0]?.total || 0;
+
+		// Blok kosong
+		const blokKosong = totalBlok - blokDihuni;
+
+		// Penduduk per jenis kelamin
+		const [jkRows] = await conn.execute(`
+			SELECT jenis_kelamin, COUNT(*) as total 
+			FROM anggota_keluarga 
+			GROUP BY jenis_kelamin
+		`);
+		const jkStats = { laki: 0, perempuan: 0 };
+		jkRows.forEach((r) => {
+			if (r.jenis_kelamin === 'Laki-laki') jkStats.laki = r.total;
+			else if (r.jenis_kelamin === 'Perempuan') jkStats.perempuan = r.total;
+		});
+
+		// Penduduk per hubungan keluarga
+		const [hubRows] = await conn.execute(`
+			SELECT hub_keluarga, COUNT(*) as total 
+			FROM anggota_keluarga 
+			GROUP BY hub_keluarga
+		`);
+		const hubStats = { kepala: 0, istri: 0, anak: 0 };
+		hubRows.forEach((r) => {
+			if (r.hub_keluarga === 'Kepala Keluarga') hubStats.kepala = r.total;
+			else if (r.hub_keluarga === 'Istri') hubStats.istri = r.total;
+			else if (r.hub_keluarga === 'Anak') hubStats.anak = r.total;
+		});
+
+		// Penduduk per kelompok umur (berdasarkan tanggal_lahir)
+		const [umurRows] = await conn.execute(`
+			SELECT 
+				SUM(CASE WHEN TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 0 AND 0 THEN 1 ELSE 0 END) as bayi,
+				SUM(CASE WHEN TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 1 AND 4 THEN 1 ELSE 0 END) as balita,
+				SUM(CASE WHEN TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 5 AND 9 THEN 1 ELSE 0 END) as anak_anak,
+				SUM(CASE WHEN TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 10 AND 18 THEN 1 ELSE 0 END) as remaja,
+				SUM(CASE WHEN TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 19 AND 43 THEN 1 ELSE 0 END) as dewasa,
+				SUM(CASE WHEN TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 45 AND 59 THEN 1 ELSE 0 END) as pra_lansia,
+				SUM(CASE WHEN TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) >= 60 THEN 1 ELSE 0 END) as lansia
+			FROM anggota_keluarga
+			WHERE tanggal_lahir IS NOT NULL
+		`);
+		const umurStats = umurRows[0] || {
+			bayi: 0, balita: 0, anak_anak: 0, remaja: 0, dewasa: 0, pra_lansia: 0, lansia: 0
+		};
+
+		// 5 keluarga terbaru
+		const [recentKeluarga] = await conn.execute(`
+			SELECT k.id, k.no_kk, k.blok_rumah_id, k.status_rumah, k.created_at, b.no_blok,
+			       (SELECT COUNT(*) FROM anggota_keluarga WHERE keluarga_id = k.id) as jumlah_anggota
 			FROM keluarga k
 			LEFT JOIN blok_rumah b ON k.blok_rumah_id = b.id
-			ORDER BY k.created_at DESC LIMIT 5`
-		);
+			ORDER BY k.created_at DESC
+			LIMIT 5
+		`);
 
 		return {
-			session: JSON.parse(session),
 			stats: {
-				totalPenduduk: totalPenduduk[0]?.count || 0,
-				totalKeluarga: totalKeluarga[0]?.count || 0,
-				totalBlokRumah: totalBlokRumah[0]?.count || 0
+				totalBlok,
+				totalKeluarga,
+				totalPenduduk,
+				blokDihuni,
+				blokKosong,
+				jkStats,
+				hubStats,
+				umurStats
 			},
-			recentKeluarga: recentKeluarga || []
+			recentKeluarga
 		};
+	} catch (e) {
+		console.error('LOAD dashboard error:', e);
+		throw error(500, 'Gagal memuat dashboard');
 	} finally {
-		await conn.end();
+		conn.release();
 	}
 };

@@ -15,10 +15,9 @@ export const load = async ({ cookies, url }) => {
 
 	let sql = `
 		SELECT b.id, b.no_blok, b.created_at,
-		       CASE WHEN COUNT(k.id) > 0 THEN 'Dihuni' ELSE 'Kosong' END as status
+		       CASE WHEN EXISTS (SELECT 1 FROM keluarga k WHERE k.blok_rumah_id = b.id) 
+		            THEN 'Dihuni' ELSE 'Kosong' END as status
 		FROM blok_rumah b
-		LEFT JOIN keluarga k ON k.blok_rumah_id = b.id
-		GROUP BY b.id, b.no_blok, b.created_at
 	`;
 	const params = [];
 
@@ -27,14 +26,22 @@ export const load = async ({ cookies, url }) => {
 		params.push(`%${search}%`);
 	}
 
-	const orderField = sortBy === 'status' ? 'status' : 'b.no_blok';
+	const orderField = sortBy === 'status'
+			? "CASE WHEN EXISTS (SELECT 1 FROM keluarga k WHERE k.blok_rumah_id = b.id) THEN 'Dihuni' ELSE 'Kosong' END"
+			: 'b.no_blok';
 	sql += ` ORDER BY ${orderField} ${sort === 'desc' ? 'DESC' : 'ASC'}`;
 
-	// Hitung total untuk pagination
-	const countSql = `SELECT COUNT(*) as total FROM (${sql}) as sub`;
+	// Hitung total untuk pagination (query terpisah tanpa ORDER BY dan LIMIT)
+	// Count sederhana karena main query tidak pakai GROUP BY
+	let countSql = `SELECT COUNT(*) as total FROM blok_rumah b`;
+	const countParams = [];
+	if (search) {
+		countSql += ' WHERE b.no_blok LIKE ?';
+		countParams.push(`%${search}%`);
+	}
 	const conn = await getConnection();
 	try {
-		const [countRows] = await conn.execute(countSql, params);
+		const [countRows] = await conn.execute(countSql, countParams);
 		const total = countRows[0]?.total || 0;
 
 		// Apply limit/offset
@@ -52,7 +59,7 @@ export const load = async ({ cookies, url }) => {
 			total
 		};
 	} finally {
-		await conn.end();
+		conn.release();
 	}
 };
 
@@ -80,7 +87,7 @@ export const actions = {
 			}
 			return { error: 'Gagal menambahkan data' };
 		} finally {
-			await conn.end();
+			conn.release();
 		}
 	},
 
@@ -112,7 +119,7 @@ export const actions = {
 			}
 			return { error: 'Gagal memperbarui data: ' + e.message };
 		} finally {
-			await conn.end();
+			conn.release();
 		}
 	},
 
@@ -134,7 +141,7 @@ export const actions = {
 			await conn.execute('DELETE FROM blok_rumah WHERE id = ?', [id]);
 			return { success: 'Data blok rumah berhasil dihapus' };
 		} finally {
-			await conn.end();
+			conn.release();
 		}
 	}
 };

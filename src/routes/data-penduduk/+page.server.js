@@ -19,27 +19,40 @@ export const load = async ({ cookies, url }) => {
 
 	const conn = await getConnection();
 	try {
-		let sql = `
-			SELECT a.id, a.nik, a.nama, a.jenis_kelamin, a.tanggal_lahir,
-			a.hub_keluarga, a.keluarga_id, a.nomor_hp,
-			k.no_kk, k.blok_rumah_id, k.status_rumah,
-			b.no_blok
-			FROM anggota_keluarga a
-			JOIN keluarga k ON a.keluarga_id = k.id
-			LEFT JOIN blok_rumah b ON k.blok_rumah_id = b.id
-		`;
+		let whereSql = '';
 		const params = [];
 
 		if (search) {
-			sql += ' WHERE a.nik LIKE ? OR a.nama LIKE ? OR k.no_kk LIKE ? OR b.no_blok LIKE ?';
+			whereSql = ' WHERE a.nik LIKE ? OR a.nama LIKE ? OR k.no_kk LIKE ? OR b.no_blok LIKE ?';
 			const searchTerm = `%${search}%`;
 			params.push(searchTerm, searchTerm, searchTerm, searchTerm);
 		}
 
 		const orderField = safeSortBy === 'no_blok' ? 'b.no_blok' : 'a.nama';
-		sql += ` ORDER BY ${orderField} ${sort === 'desc' ? 'DESC' : 'ASC'}`;
 
-		const [rows] = await conn.execute(sql, params);
+		// Hitung total untuk pagination
+		const [countRows] = await conn.execute(
+			`SELECT COUNT(*) as total FROM anggota_keluarga a JOIN keluarga k ON a.keluarga_id = k.id LEFT JOIN blok_rumah b ON k.blok_rumah_id = b.id ${whereSql}`,
+			params
+		);
+		const total = countRows[0]?.total || 0;
+
+		// Data dengan pagination
+		const offset = (page - 1) * itemsPerPage;
+		params.push(itemsPerPage, offset);
+		const [rows] = await conn.execute(
+			`SELECT a.id, a.nik, a.nama, a.jenis_kelamin, a.tanggal_lahir,
+				a.hub_keluarga, a.keluarga_id, a.nomor_hp,
+				k.no_kk, k.blok_rumah_id, k.status_rumah,
+				b.no_blok
+				FROM anggota_keluarga a
+				JOIN keluarga k ON a.keluarga_id = k.id
+				LEFT JOIN blok_rumah b ON k.blok_rumah_id = b.id
+				${whereSql}
+				ORDER BY ${orderField} ${sort === 'desc' ? 'DESC' : 'ASC'}
+				LIMIT ? OFFSET ?`,
+			params
+		);
 
 		const [blokRumah] = await conn.execute('SELECT id, no_blok FROM blok_rumah ORDER BY no_blok ASC');
 
@@ -50,13 +63,14 @@ export const load = async ({ cookies, url }) => {
 			sort,
 			sortBy: safeSortBy,
 			page,
-			itemsPerPage
+			itemsPerPage,
+			total
 		};
 	} catch (e) {
 		console.error('LOAD data-penduduk error:', e);
 		throw error(500, 'Gagal memuat data penduduk');
 	} finally {
-		await conn.end();
+		conn.release();
 	}
 };
 
@@ -160,7 +174,7 @@ export const actions = {
 			}
 			return { error: 'Gagal menyimpan data: ' + e.message };
 		} finally {
-			await conn.end();
+			conn.release();
 		}
 	},
 
@@ -211,7 +225,7 @@ export const actions = {
 			}
 			return { error: 'Gagal memperbarui data: ' + e.message };
 		} finally {
-			await conn.end();
+			conn.release();
 		}
 	},
 
@@ -249,7 +263,7 @@ export const actions = {
 			console.error('DELETE anggota error:', e);
 			return { error: 'Gagal menghapus data: ' + e.message };
 		} finally {
-			await conn.end();
+			conn.release();
 		}
 	}
 };

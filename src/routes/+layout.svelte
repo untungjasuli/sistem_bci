@@ -21,6 +21,25 @@
 	function toggleProfile() {
 		profileOpen = !profileOpen;
 	}
+
+	function closeSidebar() {
+		sidebarOpen = false;
+	}
+
+	function closeProfile() {
+		profileOpen = false;
+	}
+
+	// Close dropdown saat klik di luar
+	$effect(() => {
+		function handleClickOutside(e) {
+			if (profileOpen && !e.target.closest('[data-profile-dropdown]')) {
+				profileOpen = false;
+			}
+		}
+		document.addEventListener('click', handleClickOutside);
+		return () => document.removeEventListener('click', handleClickOutside);
+	});
 </script>
 
 <div class="min-h-screen bg-gray-50">
@@ -45,44 +64,40 @@
 				</div>
 
 				<div class="flex items-center gap-2">
-					<div class="flex items-center gap-2">
-						<div class="relative">
-							<button
-								onclick={toggleProfile}
-								class="flex items-center gap-2 px-2 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-							>
-								<div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
-									U
-								</div>
-								<span class="hidden sm:block">Admin</span>
-								<i class="fa-solid fa-chevron-down text-xs text-gray-500"></i>
-							</button>
+							<div class="flex items-center gap-2">
+								<div class="relative" data-profile-dropdown>
+									<button
+										onclick={toggleProfile}
+										class="flex items-center gap-2 px-2 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+									>
+										<div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold">
+											U
+										</div>
+										<span class="hidden sm:block">Admin</span>
+										<i class="fa-solid fa-chevron-down text-xs text-gray-500"></i>
+									</button>
 
-							{#if profileOpen}
-								<div class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50">
-									<a href="/profile" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors block">
-										<i class="fa-solid fa-user w-5 text-gray-400"></i>
-										<span>My Profile</span>
-									</a>
-									<a href="/settings" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors block">
-										<i class="fa-solid fa-gear w-5 text-gray-400"></i>
-										<span>Settings</span>
-									</a>
-									<a href="/messages" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors block">
-										<i class="fa-solid fa-envelope w-5 text-gray-400"></i>
-										<span>Messages</span>
-									</a>
-									<hr class="my-1 border-gray-100" />
-									<form method="POST" action="/logout" class="px-4 py-2">
-										<button type="submit" class="flex items-center gap-3 w-full text-left text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors">
-											<i class="fa-solid fa-right-from-bracket w-5"></i>
-											<span>Log Out</span>
-										</button>
-									</form>
+									{#if profileOpen}
+										<div class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50">
+											<a href="/profile" onclick={closeProfile} class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors block">
+												<i class="fa-solid fa-user w-5 text-gray-400"></i>
+												<span>Profil Saya</span>
+											</a>
+											<a href="/settings" onclick={closeProfile} class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors block">
+												<i class="fa-solid fa-gear w-5 text-gray-400"></i>
+												<span>Pengaturan</span>
+											</a>
+											<hr class="my-1 border-gray-100" />
+											<form method="POST" action="/logout" class="px-4 py-2">
+												<button type="submit" class="flex items-center gap-3 w-full text-left text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors">
+													<i class="fa-solid fa-right-from-bracket w-5"></i>
+													<span>Log Out</span>
+												</button>
+											</form>
+										</div>
+									{/if}
 								</div>
-							{/if}
-						</div>
-					</div>
+							</div>
 
 					<button
 						onclick={() => { document.getElementById('logout-form').submit(); }}
@@ -111,47 +126,51 @@
 				</div>
 				<nav class="flex-1 overflow-y-auto p-4 space-y-1">
 								<ul class="space-y-1">
-									<li>
-										<a
-											href="/"
-											class="flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors
-												{page.url.pathname === '/' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
-										>
-											<i class="fa-solid fa-chart-pie w-5"></i>
-											<span>Dashboard</span>
-										</a>
-									</li>
-									<li>
-										<a
-											href="/data-blok-rumah"
-											class="flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors
-												{page.url.pathname === '/data-blok-rumah' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
-										>
-											<i class="fa-solid fa-house w-5"></i>
-											<span>Data Blok Rumah</span>
-										</a>
-									</li>
-									<li>
-										<a
-											href="/data-penduduk"
-											class="flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors
-												{page.url.pathname === '/data-penduduk' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
-										>
-											<i class="fa-solid fa-users w-5"></i>
-											<span>Data Penduduk</span>
-										</a>
-									</li>
-								</ul>
+													<li>
+														<a
+															href="/"
+															onclick={closeSidebar}
+															class="flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors
+																{page.url.pathname === '/' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+														>
+															<i class="fa-solid fa-chart-pie w-5"></i>
+															<span>Dashboard</span>
+														</a>
+													</li>
+													<li>
+														<a
+															href="/data-blok-rumah"
+															onclick={closeSidebar}
+															class="flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors
+																{page.url.pathname === '/data-blok-rumah' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+														>
+															<i class="fa-solid fa-house w-5"></i>
+															<span>Data Blok Rumah</span>
+														</a>
+													</li>
+													<li>
+														<a
+															href="/data-penduduk"
+															onclick={closeSidebar}
+															class="flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors
+																{page.url.pathname === '/data-penduduk' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+														>
+															<i class="fa-solid fa-users w-5"></i>
+															<span>Data Penduduk</span>
+														</a>
+													</li>
+												</ul>
 							</nav>
 				<div class="p-4 border-t border-gray-200">
-					<a
-						href="/login"
-						class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-100 hover:text-gray-900 rounded-lg font-medium transition-colors"
-					>
-						<i class="fa-solid fa-right-from-bracket w-5"></i>
-						<span>Logout</span>
-					</a>
-				</div>
+							<a
+								href="/login"
+								onclick={closeSidebar}
+								class="flex items-center gap-3 px-4 py-3 text-gray-600 hover:bg-gray-100 hover:text-gray-900 rounded-lg font-medium transition-colors"
+							>
+								<i class="fa-solid fa-right-from-bracket w-5"></i>
+								<span>Logout</span>
+							</a>
+						</div>
 			</div>
 		</aside>
 

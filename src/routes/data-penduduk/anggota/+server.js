@@ -40,6 +40,6 @@ export const GET = async ({ url, cookies }) => {
 			{ status: 500, headers: { 'Content-Type': 'application/json' } }
 		);
 	} finally {
-		await conn.end();
+		conn.release();
 	}
 };
