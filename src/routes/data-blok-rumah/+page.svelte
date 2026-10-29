@@ -28,6 +28,11 @@
 	// Error dari server
 	let serverError = $state('');
 
+	// Error state untuk validasi client-side per field
+	let formErrors = $state({
+		no_blok: ''
+	});
+
 	let toast = $state(null); // { type: 'success'|'error', message: string }
 
 	function openAddModal() {
@@ -74,6 +79,27 @@
 		document.addEventListener('click', handleClickOutside);
 		return () => document.removeEventListener('click', handleClickOutside);
 	});
+
+	// Bersihkan error server saat modal dibuka agar tidak muncul lagi saat dibuka ulang
+	$effect(() => {
+		if (showModal) {
+			serverError = '';
+			formErrors.no_blok = '';
+		}
+	});
+
+	function validateForm() {
+		let valid = true;
+
+		formErrors.no_blok = '';
+
+		if (!noBlok.trim()) {
+			formErrors.no_blok = 'No. Blok wajib diisi';
+			valid = false;
+		}
+
+		return valid;
+	}
 
 	// Data dari server sudah dipaginasi, difilter, dan diurutkan
 	// Client hanya tampilkan langsung
@@ -123,6 +149,8 @@
 
 	async function handleFormSubmit(e) {
 		e.preventDefault();
+
+		if (!validateForm()) return;
 
 		// Reset server error
 		serverError = '';
@@ -345,26 +373,26 @@
 														<i class="fa-solid fa-ellipsis-v"></i>
 													</button>
 													{#if openDropdownIndex === index}
-														<div class="absolute right-0 top-full mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg animate-in fade-in zoom-in-95 z-50" role="menu">
-															<button
-																onclick={() => { openEditModal(blok.id, blok.no_blok); openDropdownIndex = -1; }}
-																class="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg flex items-center gap-2"
-																role="menuitem"
-															>
-																<i class="fa-regular fa-pen-to-square text-blue-600 w-4"></i>
-																<span>Edit</span>
-															</button>
-															<button
-																type="button"
-																onclick={() => { handleDeleteBlok(blok.id); openDropdownIndex = -1; }}
-																class="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 rounded-b-lg flex items-center gap-2"
-																role="menuitem"
-															>
-																<i class="fa-regular fa-trash-can w-4"></i>
-																<span>Hapus</span>
-															</button>
-														</div>
-													{/if}
+																				<div class="absolute right-0 top-full mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg animate-in fade-in zoom-in-95 z-50" role="menu">
+																					<button
+																						onclick={() => { openEditModal(blok.id, blok.no_blok); openDropdownIndex = -1; }}
+																						class="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 rounded-t-lg flex items-center gap-2"
+																						role="menuitem"
+																					>
+																						<i class="fa-regular fa-pen-to-square text-blue-600 w-4"></i>
+																						<span class="text-blue-600">Edit</span>
+																					</button>
+																					<button
+																						type="button"
+																						onclick={() => { handleDeleteBlok(blok.id); openDropdownIndex = -1; }}
+																						class="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 rounded-b-lg flex items-center gap-2"
+																						role="menuitem"
+																					>
+																						<i class="fa-regular fa-trash-can w-4"></i>
+																						<span class="text-red-600">Hapus</span>
+																					</button>
+																				</div>
+																			{/if}
 												</div>
 											</div>
 										</td>
@@ -473,24 +501,27 @@
 				</div>
 
 				<form onsubmit={handleFormSubmit} class="space-y-4">
-					{#if serverError}
-						<div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-4">
-							{serverError}
-						</div>
-					{/if}
-					<input type="hidden" name="id" value={editingId} />
-					<div>
-						<label for="no_blok_input" class="block text-sm font-medium text-gray-700 mb-2">No. Blok</label>
-						<input
-							id="no_blok_input"
-							type="text"
-							name="no_blok"
-							bind:value={noBlok}
-							placeholder="Contoh: U-10"
-							required
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-						/>
-					</div>
+							{#if serverError}
+								<div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-4">
+									{serverError}
+								</div>
+							{/if}
+							<input type="hidden" name="id" value={editingId} />
+							<div>
+								<label for="no_blok_input" class="block text-sm font-medium text-gray-700 mb-2">No. Blok <span class="text-red-500">*</span></label>
+								<input
+									id="no_blok_input"
+									type="text"
+									name="no_blok"
+									bind:value={noBlok}
+									placeholder="Contoh: U-10"
+									required
+									class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+								/>
+								{#if formErrors.no_blok}
+									<p class="text-red-500 text-xs mt-1">{formErrors.no_blok}</p>
+								{/if}
+							</div>
 					<div class="flex items-center justify-end gap-3 pt-4">
 						<button type="button" onclick={closeModal} class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
 							Batal

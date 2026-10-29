@@ -14,7 +14,7 @@ async function run() {
         \`id\` INT AUTO_INCREMENT PRIMARY KEY,
         \`blok_rumah_id\` INT NOT NULL,
         \`nama\` VARCHAR(100) NOT NULL,
-        \`nik\` VARCHAR(16) NOT NULL UNIQUE,
+        \`nik\` VARCHAR(16) NULL UNIQUE,
         \`no_hp\` VARCHAR(13) NOT NULL,
         \`created_at\` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         \`updated_at\` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

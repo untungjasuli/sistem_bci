@@ -30,6 +30,15 @@
 	let bayarCatatan = $state('');
 	let bayarLoading = $state(false);
 
+	// Error state untuk validasi client-side per field (Bayar Modal)
+	let formErrors = $state({
+		bayar_tanggal: '',
+		bayar_metode: ''
+	});
+
+	// Error dari server (Bayar Modal)
+	let serverError = $state('');
+
 	// Derived: selected tagihan for modal
 	let selectedTagihan = $derived(tagihan.find(t => t.id === bayarTagihanId));
 
@@ -178,10 +187,8 @@
 	// Handle bayar submit
 	async function handleBayarSubmit(e) {
 		e.preventDefault();
-		if (!bayarTanggal || !bayarMetode) {
-			showToast('error', 'Tanggal dan metode bayar wajib diisi');
-			return;
-		}
+
+		if (!validateBayarForm()) return;
 
 		bayarLoading = true;
 
@@ -233,6 +240,36 @@
 
 	function isExpanded(tagihanId) {
 		return !!expandedRows[tagihanId];
+	}
+
+	// Bersihkan error saat bayar modal dibuka
+	$effect(() => {
+		if (showBayarModal) {
+			serverError = '';
+			formErrors = {
+				bayar_tanggal: '',
+				bayar_metode: ''
+			};
+		}
+	});
+
+	function validateBayarForm() {
+		let valid = true;
+
+		formErrors.bayar_tanggal = '';
+		formErrors.bayar_metode = '';
+
+		if (!bayarTanggal) {
+			formErrors.bayar_tanggal = 'Tanggal bayar wajib diisi';
+			valid = false;
+		}
+
+		if (!bayarMetode) {
+			formErrors.bayar_metode = 'Metode bayar wajib dipilih';
+			valid = false;
+		}
+
+		return valid;
 	}
 </script>
 
@@ -607,6 +644,11 @@
 				</div>
 
 				<form onsubmit={handleBayarSubmit} class="space-y-4">
+					{#if serverError}
+						<div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-4">
+							{serverError}
+						</div>
+					{/if}
 					<div>
 						<label class="block text-sm font-medium text-gray-700 mb-2">Nominal Tagihan</label>
 						{#if selectedTagihan}
@@ -616,7 +658,7 @@
 					</div>
 
 					<div>
-						<label for="bayar_tanggal" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Bayar</label>
+						<label for="bayar_tanggal" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Bayar <span class="text-red-500">*</span></label>
 						<input
 							type="date"
 							id="bayar_tanggal"
@@ -624,10 +666,13 @@
 							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
 							required
 						/>
+						{#if formErrors.bayar_tanggal}
+							<p class="text-red-500 text-xs mt-1">{formErrors.bayar_tanggal}</p>
+						{/if}
 					</div>
 
 					<div>
-						<label for="bayar_metode" class="block text-sm font-medium text-gray-700 mb-2">Metode Bayar</label>
+						<label for="bayar_metode" class="block text-sm font-medium text-gray-700 mb-2">Metode Bayar <span class="text-red-500">*</span></label>
 						<select
 							id="bayar_metode"
 							bind:value={bayarMetode}
@@ -638,6 +683,9 @@
 							<option value="transfer">Transfer</option>
 							<option value="qris">QRIS</option>
 						</select>
+						{#if formErrors.bayar_metode}
+							<p class="text-red-500 text-xs mt-1">{formErrors.bayar_metode}</p>
+						{/if}
 					</div>
 
 					<div>

@@ -47,6 +47,7 @@ export async function load({ url, locals }) {
 	let dataSql = `
 		SELECT 
 			pr.id,
+			pr.blok_rumah_id,
 			br.no_blok,
 			pr.nama,
 			pr.nik,
@@ -90,14 +91,14 @@ export const actions = {
 		const formData = await request.formData();
 		const blok_rumah_id = formData.get('blok_rumah_id');
 		const nama = formData.get('nama');
-		const nik = formData.get('nik');
+		const nik = formData.get('nik') || null;
 		const no_hp = formData.get('no_hp');
 
-		if (!blok_rumah_id || !nama || !nik || !no_hp) {
-			return { error: 'Semua field wajib diisi' };
+		if (!blok_rumah_id || !nama || !no_hp) {
+			return { error: 'Blok Rumah, Nama, dan Nomor HP wajib diisi' };
 		}
 
-		if (nik.length !== 16 || !/^\d+$/.test(nik)) {
+		if (nik && (nik.length !== 16 || !/^\d+$/.test(nik))) {
 			return { error: 'NIK harus 16 digit angka' };
 		}
 
@@ -132,14 +133,14 @@ export const actions = {
 		const formData = await request.formData();
 		const id = formData.get('id');
 		const nama = formData.get('nama');
-		const nik = formData.get('nik');
+		const nik = formData.get('nik') || null;
 		const no_hp = formData.get('no_hp');
 
-		if (!id || !nama || !nik || !no_hp) {
-			return { error: 'Semua field wajib diisi' };
+		if (!id || !nama || !no_hp) {
+			return { error: 'Blok Rumah, Nama, dan Nomor HP wajib diisi' };
 		}
 
-		if (nik.length !== 16 || !/^\d+$/.test(nik)) {
+		if (nik && (nik.length !== 16 || !/^\d+$/.test(nik))) {
 			return { error: 'NIK harus 16 digit angka' };
 		}
 
