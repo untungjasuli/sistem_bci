@@ -165,7 +165,8 @@
 					nama: a.nama || '',
 					jenis_kelamin: a.jenis_kelamin || 'Laki-laki',
 					tanggal_lahir: a.tanggal_lahir ? new Date(a.tanggal_lahir).toISOString().split('T')[0] : '',
-					hub_keluarga: a.hub_keluarga || 'Anak'
+					hub_keluarga: a.hub_keluarga || 'Anak',
+					nomor_hp: a.nomor_hp || ''
 				}));
 			} else {
 				anggotaFormRaw = [];
