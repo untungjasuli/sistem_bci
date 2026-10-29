@@ -1,9 +1,18 @@
 <script>
+	import { invalidateAll } from '$app/navigation';
+
 	let { data } = $props();
 
 	let stats = $derived(data?.stats || { blok: 0, keluarga: 0, penduduk: 0, users: 0 });
 	let user = $derived(data?.user);
+	
+	// Local form state (initialized from server data)
+	let jatuh_tempo = $state(data?.iuranSettings?.jatuh_tempo || 10);
+	let nominal_penuh = $state(data?.iuranSettings?.nominal_penuh || 50000);
+	let nominal_keamanan = $state(data?.iuranSettings?.nominal_keamanan || 25000);
+
 	let toast = $state(null);
+	let saving = $state(false);
 
 	function showToast(type, message) {
 		toast = { type, message };
@@ -16,6 +25,49 @@
 		if (data?.success) showToast('success', data.success);
 		if (data?.error) showToast('error', data.error);
 	});
+
+	async function handleSaveIuranSettings(e) {
+		e.preventDefault();
+		
+		// Validasi client-side
+		if (jatuh_tempo < 1 || jatuh_tempo > 28) {
+			showToast('error', 'Jatuh tempo harus antara 1-28');
+			return;
+		}
+		if (nominal_penuh < 0 || nominal_keamanan < 0) {
+			showToast('error', 'Nominal tidak boleh negatif');
+			return;
+		}
+
+		saving = true;
+
+		const formData = new FormData();
+		formData.append('iuran_jatuh_tempo', jatuh_tempo.toString());
+		formData.append('iuran_nominal_penuh', nominal_penuh.toString());
+		formData.append('iuran_nominal_keamanan', nominal_keamanan.toString());
+
+		try {
+			const res = await fetch('?/updateIuranSettings', {
+				method: 'POST',
+				body: formData,
+				credentials: 'include'
+			});
+			const result = await res.json();
+
+			if (!res.ok || result.error) {
+				showToast('error', result.error || 'Gagal menyimpan pengaturan');
+				return;
+			}
+
+			showToast('success', result.success || 'Pengaturan iuran berhasil disimpan');
+			await invalidateAll(); // Refresh data from server
+		} catch (err) {
+			console.error('Save iuran settings error:', err);
+			showToast('error', 'Gagal menyimpan pengaturan');
+		} finally {
+			saving = false;
+		}
+	}
 </script>
 
 {#if toast}
@@ -41,6 +93,83 @@
 	<div class="mb-6">
 		<h1 class="text-2xl font-bold text-gray-900">Pengaturan Sistem</h1>
 		<p class="text-gray-500 text-sm">Konfigurasi umum dan informasi sistem</p>
+	</div>
+
+	<!-- Pengaturan Iuran Bulanan (Paling Atas) -->
+	<div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6 mb-6">
+		<h2 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+			<i class="fa-solid fa-money-bill-wave text-orange-600"></i> Pengaturan Iuran Bulanan
+		</h2>
+		<form onsubmit={handleSaveIuranSettings} class="space-y-6">
+			<div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+				<div>
+					<label for="iuran_jatuh_tempo" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Jatuh Tempo</label>
+					<div class="relative">
+						<input
+							type="number"
+							id="iuran_jatuh_tempo"
+							name="iuran_jatuh_tempo"
+							bind:value={jatuh_tempo}
+							min="1"
+							max="28"
+							class="w-full pl-10 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+							required
+						/>
+						<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+							<i class="fa-solid fa-calendar-day"></i>
+						</div>
+					</div>
+					<p class="mt-1 text-xs text-gray-500">Tanggal jatuh tempo pembayaran iuran (1-28)</p>
+				</div>
+				<div>
+					<label for="iuran_nominal_penuh" class="block text-sm font-medium text-gray-700 mb-2">Nominal Iuran Penuh</label>
+					<div class="relative">
+						<span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">Rp</span>
+						<input
+							type="number"
+							id="iuran_nominal_penuh"
+							name="iuran_nominal_penuh"
+							bind:value={nominal_penuh}
+							min="0"
+							step="1000"
+							class="w-full pl-8 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+							required
+						/>
+					</div>
+					<p class="mt-1 text-xs text-gray-500">Untuk keluarga penghuni (keamanan + kematian + sampah + lampu)</p>
+				</div>
+				<div>
+					<label for="iuran_nominal_keamanan" class="block text-sm font-medium text-gray-700 mb-2">Nominal Iuran Keamanan</label>
+					<div class="relative">
+						<span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">Rp</span>
+						<input
+							type="number"
+							id="iuran_nominal_keamanan"
+							name="iuran_nominal_keamanan"
+							bind:value={nominal_keamanan}
+							min="0"
+							step="1000"
+							class="w-full pl-8 pr-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+							required
+						/>
+					</div>
+					<p class="mt-1 text-xs text-gray-500">Untuk pemilik rumah kosong (hanya keamanan)</p>
+				</div>
+			</div>
+			<div class="flex justify-end pt-4 border-t border-gray-100">
+				<button
+					type="submit"
+					disabled={saving}
+					class="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+				>
+					{#if saving}
+						<i class="fa-solid fa-spinner fa-spin mr-2"></i> Menyimpan...
+					{:else}
+						<i class="fa-solid fa-save mr-2"></i> Simpan Pengaturan
+					{/if}
+				</button>
+			</div>
+		</form>
 	</div>
 
 	<!-- System Info -->

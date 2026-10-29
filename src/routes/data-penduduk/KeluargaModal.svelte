@@ -424,8 +424,8 @@
 						Batal
 					</button>
 					<button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
-						{isEditKeluarga ? 'Perbarui' : 'Simpan Keluarga'}
-					</button>
+									<i class="fa-solid fa-save mr-2"></i> {isEditKeluarga ? 'Perbarui' : 'Simpan Keluarga'}
+								</button>
 				</div>
 			</form>
 		</div>

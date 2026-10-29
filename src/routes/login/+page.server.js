@@ -12,6 +12,7 @@ export const actions = {
 		}
 
 		let loginOk = false;
+		let redirectTo = '/';
 
 		try {
 			const conn = await getConnection();
@@ -26,6 +27,13 @@ export const actions = {
 			}
 
 			const user = rows[0];
+
+			// Tentukan redirect berdasarkan role
+			if (user.role === 'petugas') {
+				redirectTo = '/iuran-bulanan';
+			} else {
+				redirectTo = '/';
+			}
 
 			cookies.set('session_user', JSON.stringify({
 				id: user.id,
@@ -47,7 +55,7 @@ export const actions = {
 		}
 
 		if (loginOk) {
-			redirect(303, '/');
+			redirect(303, redirectTo);
 		}
 	}
 };
