@@ -1,17 +1,5 @@
-import mysql from 'mysql2/promise';
 import { redirect } from '@sveltejs/kit';
-
-const dbConfig = {
-	host: '172.17.0.1',
-	port: 3306,
-	user: 'victor',
-	password: 'VictorAI2026!',
-	database: 'sistem_bci'
-};
-
-async function getConnection() {
-	return mysql.createConnection(dbConfig);
-}
+import { getConnection } from '#lib/server/db';
 
 export const load = async (event) => {
 	const cookies = event.cookies;

@@ -1,6 +1,7 @@
 <script>
 	import { page } from '$app/state';
 	import { enhance } from '$app/forms';
+	import { goto } from '$app/navigation';
 
 	let { data } = $props();
 
@@ -9,6 +10,11 @@
 	let search = $state(data.search || '');
 	let sort = $state(data.sort || 'asc');
 	let sortBy = $state(data.sortBy || 'no_blok');
+
+	// Pagination state - baca dari URL
+	let currentPage = $state(data.page || 1);
+	let itemsPerPage = $state(data.itemsPerPage || 10);
+	const itemsPerPageOptions = [10, 25, 50, 100];
 
 	let showModal = $state(false);
 	let isEdit = $state(false);
@@ -67,25 +73,45 @@
 		showToast('error', data.error);
 	}
 
-	// Data terurut dan difilter di sisi klien
-	let sortedItems = $derived(
-		items
-			.filter((b) => !search || b.no_blok.toLowerCase().includes(search.toLowerCase()))
-			.slice()
-			.sort((a, b) => {
-				const field = sortBy === 'status' ? 'status' : 'no_blok';
-				const na = (a[field] || '').toLowerCase();
-				const nb = (b[field] || '').toLowerCase();
-				return sort === 'asc' ? na.localeCompare(nb) : nb.localeCompare(na);
-			})
-	);
+	// Data dari server sudah dipaginasi, difilter, dan diurutkan
+	// Client hanya tampilkan langsung
+	let displayItems = $derived(items);
+
+	let totalPages = $derived(Math.ceil((data.total || items.length) / itemsPerPage) || 1);
+
+	// Reset page saat search/sort/itemsPerPage berubah (bukan mount awal)
+	let prevSearch = $state(search);
+	let prevSort = $state(sort);
+	let prevSortBy = $state(sortBy);
+	let prevItemsPerPage = $state(itemsPerPage);
+	let isFirstMount = $state(true);
+
+	$effect(() => {
+		if (isFirstMount) {
+			isFirstMount = false;
+			prevSearch = search;
+			prevSort = sort;
+			prevSortBy = sortBy;
+			prevItemsPerPage = itemsPerPage;
+			return;
+		}
+		if (search !== prevSearch || sort !== prevSort || sortBy !== prevSortBy || itemsPerPage !== prevItemsPerPage) {
+			currentPage = 1;
+		}
+		prevSearch = search;
+		prevSort = sort;
+		prevSortBy = sortBy;
+		prevItemsPerPage = itemsPerPage;
+	});
 
 	function updateUrl() {
 		const params = new URLSearchParams();
 		if (search) params.set('search', search);
 		params.set('sort', sort);
 		params.set('sortBy', sortBy);
-		window.history.pushState(null, '', `?${params.toString()}`);
+		params.set('page', currentPage.toString());
+		params.set('itemsPerPage', itemsPerPage.toString());
+		goto(`?${params.toString()}`);
 	}
 
 	function onSearchInput(e) {
@@ -173,13 +199,13 @@
 			<h1 class="text-2xl font-bold text-gray-900">Data Blok Rumah</h1>
 			<p class="text-gray-500 text-sm">Kelola data blok rumah dalam sistem</p>
 		</div>
-		<div class="flex items-center gap-3">
+		<div class="flex items-center gap-3 w-full lg:w-auto">
 			<form
 				onsubmit={(e) => e.preventDefault()}
-				class="relative flex items-center"
+				class="relative flex items-center flex-1 min-w-0"
 			>
 				<label class="sr-only">Cari No. Blok</label>
-				<div class="relative w-64">
+				<div class="relative w-full">
 					<input
 						type="text"
 						name="search"
@@ -211,116 +237,164 @@
 			</form>
 			<button
 				onclick={openAddModal}
-				class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+				class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex-shrink-0"
+				aria-label="Tambah Blok"
 			>
 				<i class="fa-solid fa-plus"></i>
-				<span>Tambah Blok</span>
+				<span class="hidden lg:inline">Tambah Blok</span>
 			</button>
 		</div>
 	</div>
 
-	{#if sortedItems.length > 0}
-		<div class="bg-white rounded-lg shadow border border-gray-200 overflow-x-auto">
-			<table class="w-full text-left border-collapse min-w-full">
-				<thead>
-								<tr class="bg-gray-50 border-b border-gray-200">
-									<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-									<th
-															class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:bg-gray-100 transition-colors"
-															onclick={() => onSortClick('no_blok')}
-														>
-															<div class="flex items-center gap-1">
-																<span>No. Blok</span>
-																<i class="fa-solid text-xs text-gray-400" class:fa-sort-up={sort === 'asc' && sortBy === 'no_blok'} class:fa-sort-down={sort === 'desc' && sortBy === 'no_blok'}></i>
-															</div>
-														</th>
-									<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:bg-gray-100 transition-colors" onclick={() => onSortClick('status')}>
-						<div class="flex items-center gap-1">
-							<span>Status</span>
-							<i class="fa-solid text-xs text-gray-400" class:fa-sort-up={sort === 'asc' && sortBy === 'status'} class:fa-sort-down={sort === 'desc' && sortBy === 'status'}></i>
-						</div>
-					</th>
-									<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Aksi</th>
-								</tr>
-							</thead>
-				<tbody class="divide-y divide-gray-100">
-							{#each sortedItems as blok, index}
-								<tr class="hover:bg-gray-50 transition-colors">
-									<td class="px-6 py-4 text-sm text-gray-600">{index + 1}</td>
-									<td class="px-6 py-4 text-sm text-gray-900 font-medium">{blok.no_blok}</td>
-									<td class="px-6 py-4">
-										<span
-											class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-												blok.status === 'Dihuni'
-													? 'bg-green-100 text-green-800'
-													: 'bg-gray-100 text-gray-800'
-											}`}
-										>
-											{blok.status}
-										</span>
-									</td>
-									<td class="px-6 py-4 text-right">
-														<div class="flex items-center justify-end gap-1 lg:gap-2">
-															<!-- Desktop: Horizontal buttons -->
-															<div class="hidden lg:flex items-center gap-1">
-																<button
-																	onclick={() => openEditModal(blok.id, blok.no_blok)}
-																	class="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors"
-																	title="Edit"
-																>
-																	<i class="fa-solid fa-pen-to-square"></i>
-																</button>
-																<button
-																	type="button"
-																	onclick={() => handleDeleteBlok(blok.id)}
-																	class="px-3 py-1.5 text-xs font-medium text-white bg-red-600 border border-transparent rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-colors"
-																	title="Hapus"
-																>
-																	<i class="fa-solid fa-trash"></i>
-																</button>
-															</div>
-
-															<!-- Mobile: Dropdown -->
-															<div class="lg:hidden relative" data-dropdown-menu>
-																<button
-																	type="button"
-																	onclick={() => openDropdownIndex = openDropdownIndex === index ? -1 : index}
-																	class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 transition-colors"
-																	aria-expanded={openDropdownIndex === index}
-																	aria-haspopup="true"
-																>
-																	<i class="fa-solid fa-ellipsis-v"></i>
-																</button>
-																{#if openDropdownIndex === index}
-																	<div class="absolute right-0 top-full mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg animate-in fade-in zoom-in-95 z-50" role="menu">
-																		<button
-																			onclick={() => { openEditModal(blok.id, blok.no_blok); openDropdownIndex = -1; }}
-																			class="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg flex items-center gap-2"
-																			role="menuitem"
-																		>
-																			<i class="fa-solid fa-pen-to-square text-blue-600 w-4"></i>
-																			<span>Edit</span>
-																		</button>
-																		<button
-																			type="button"
-																			onclick={() => { handleDeleteBlok(blok.id); openDropdownIndex = -1; }}
-																			class="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 rounded-b-lg flex items-center gap-2"
-																			role="menuitem"
-																		>
-																			<i class="fa-solid fa-trash w-4"></i>
-																			<span>Hapus</span>
-																		</button>
-																	</div>
-																{/if}
-															</div>
-														</div>
-													</td>
+	{#if displayItems.length > 0}
+			<div class="bg-white rounded-lg shadow border border-gray-200 overflow-x-auto">
+				<table class="w-full text-left border-collapse min-w-full">
+					<thead>
+						<tr class="bg-gray-50 border-b border-gray-200">
+							<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+							<th
+								class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:bg-gray-100 transition-colors"
+								onclick={() => onSortClick('no_blok')}
+							>
+								<div class="flex items-center gap-1">
+									<span>No. Blok</span>
+									<i class="fa-solid text-xs text-gray-400" class:fa-sort-up={sort === 'asc' && sortBy === 'no_blok'} class:fa-sort-down={sort === 'desc' && sortBy === 'no_blok'}></i>
+								</div>
+							</th>
+							<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:bg-gray-100 transition-colors" onclick={() => onSortClick('status')}>
+								<div class="flex items-center gap-1">
+									<span>Status</span>
+									<i class="fa-solid text-xs text-gray-400" class:fa-sort-up={sort === 'asc' && sortBy === 'status'} class:fa-sort-down={sort === 'desc' && sortBy === 'status'}></i>
+								</div>
+							</th>
+							<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Aksi</th>
 						</tr>
-					{/each}
-				</tbody>
-			</table>
-		</div>
-	{:else}
+					</thead>
+					<tbody class="divide-y divide-gray-100">
+						{#each displayItems as blok, index}
+							<tr class="hover:bg-gray-50 transition-colors">
+								<td class="px-6 py-4 text-sm text-gray-600">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+								<td class="px-6 py-4 text-sm text-gray-900 font-medium">{blok.no_blok}</td>
+								<td class="px-6 py-4">
+									<span
+										class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+											blok.status === 'Dihuni'
+												? 'bg-green-100 text-green-800'
+												: 'bg-gray-100 text-gray-800'
+										}`}
+									>
+										{blok.status}
+									</span>
+								</td>
+								<td class="px-6 py-4 text-right">
+									<div class="flex items-center justify-end gap-1 lg:gap-2">
+										<!-- Desktop: Horizontal buttons -->
+										<div class="hidden lg:flex items-center gap-1">
+											<button
+												onclick={() => openEditModal(blok.id, blok.no_blok)}
+												class="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors"
+												title="Edit"
+											>
+												<i class="fa-solid fa-pen-to-square"></i>
+											</button>
+											<button
+												type="button"
+												onclick={() => handleDeleteBlok(blok.id)}
+												class="px-3 py-1.5 text-xs font-medium text-white bg-red-600 border border-transparent rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-colors"
+												title="Hapus"
+											>
+												<i class="fa-solid fa-trash"></i>
+											</button>
+										</div>
+
+										<!-- Mobile: Dropdown -->
+										<div class="lg:hidden relative" data-dropdown-menu>
+											<button
+												type="button"
+												onclick={() => openDropdownIndex = openDropdownIndex === index ? -1 : index}
+												class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 transition-colors"
+												aria-expanded={openDropdownIndex === index}
+												aria-haspopup="true"
+											>
+												<i class="fa-solid fa-ellipsis-v"></i>
+											</button>
+											{#if openDropdownIndex === index}
+												<div class="absolute right-0 top-full mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg animate-in fade-in zoom-in-95 z-50" role="menu">
+													<button
+														onclick={() => { openEditModal(blok.id, blok.no_blok); openDropdownIndex = -1; }}
+														class="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg flex items-center gap-2"
+														role="menuitem"
+													>
+														<i class="fa-solid fa-pen-to-square text-blue-600 w-4"></i>
+														<span>Edit</span>
+													</button>
+													<button
+														type="button"
+														onclick={() => { handleDeleteBlok(blok.id); openDropdownIndex = -1; }}
+														class="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 rounded-b-lg flex items-center gap-2"
+														role="menuitem"
+													>
+														<i class="fa-solid fa-trash w-4"></i>
+														<span>Hapus</span>
+													</button>
+												</div>
+											{/if}
+										</div>
+									</div>
+								</td>
+							</tr>
+						{/each}
+					</tbody>
+				</table>
+			</div>
+
+			<!-- Pagination Controls -->
+			<div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-4 py-3 bg-white border border-gray-200 rounded-lg">
+				<div class="flex items-center gap-3">
+					<label class="text-sm text-gray-700">Tampilkan</label>
+					<select
+									bind:value={itemsPerPage}
+									onchange={updateUrl}
+									class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+								>
+						{#each itemsPerPageOptions as opt}
+							<option value={opt}>{opt} per halaman</option>
+						{/each}
+					</select>
+				</div>
+				<div class="flex items-center gap-2">
+							<span class="text-sm text-gray-700">
+								Halaman {currentPage} dari {totalPages} (Total: {data.total ?? displayItems.length} data)
+							</span>
+							<button
+								onclick={() => {
+									if (currentPage > 1) {
+										currentPage = currentPage - 1;
+										updateUrl();
+									}
+								}}
+								disabled={currentPage === 1}
+								class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+								aria-label="Halaman sebelumnya"
+							>
+								<i class="fa-solid fa-chevron-left"></i>
+							</button>
+									<button
+										onclick={() => {
+											if (currentPage < totalPages) {
+												currentPage = currentPage + 1;
+												updateUrl();
+											}
+										}}
+										disabled={currentPage === totalPages}
+										class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+										aria-label="Halaman selanjutnya"
+									>
+										<i class="fa-solid fa-chevron-right"></i>
+									</button>
+				</div>
+			</div>
+		{:else}
 		<div class="bg-red-50 border border-red-200 rounded-lg p-6 flex items-center gap-3">
 			<i class="fa-solid fa-circle-exclamation text-red-500"></i>
 			<div>

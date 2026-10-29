@@ -1,17 +1,5 @@
-import mysql from 'mysql2/promise';
-import { redirect } from '@sveltejs/kit';
-
-const dbConfig = {
-	host: '172.17.0.1',
-	port: 3306,
-	user: 'victor',
-	password: 'VictorAI2026!',
-	database: 'sistem_bci'
-};
-
-async function getConnection() {
-	return mysql.createConnection(dbConfig);
-}
+import { redirect, error } from '@sveltejs/kit';
+import { getConnection, executeQuery } from '#lib/server/db';
 
 export const load = async ({ cookies, url }) => {
 	const user = cookies.get('session_user');
@@ -21,6 +9,13 @@ export const load = async ({ cookies, url }) => {
 
 	const search = url.searchParams.get('search')?.trim() || '';
 	const sort = url.searchParams.get('sort') || 'asc';
+	const sortBy = url.searchParams.get('sortBy') || 'nama';
+	const page = parseInt(url.searchParams.get('page') || '1');
+	const itemsPerPage = parseInt(url.searchParams.get('itemsPerPage') || '10');
+
+	// Validasi sortBy untuk mencegah SQL injection
+	const allowedSortBy = ['nama', 'no_blok', 'nik', 'no_kk'];
+	const safeSortBy = allowedSortBy.includes(sortBy) ? sortBy : 'nama';
 
 	const conn = await getConnection();
 	try {
@@ -41,7 +36,8 @@ export const load = async ({ cookies, url }) => {
 			params.push(searchTerm, searchTerm, searchTerm, searchTerm);
 		}
 
-		sql += ` ORDER BY a.nama ${sort === 'desc' ? 'DESC' : 'ASC'}`;
+		const orderField = safeSortBy === 'no_blok' ? 'b.no_blok' : 'a.nama';
+		sql += ` ORDER BY ${orderField} ${sort === 'desc' ? 'DESC' : 'ASC'}`;
 
 		const [rows] = await conn.execute(sql, params);
 
@@ -51,8 +47,14 @@ export const load = async ({ cookies, url }) => {
 			penduduk: rows,
 			blokRumah,
 			search,
-			sort
+			sort,
+			sortBy: safeSortBy,
+			page,
+			itemsPerPage
 		};
+	} catch (e) {
+		console.error('LOAD data-penduduk error:', e);
+		throw error(500, 'Gagal memuat data penduduk');
 	} finally {
 		await conn.end();
 	}

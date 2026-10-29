@@ -12,6 +12,11 @@
 	let sort = $state(data.sort || 'asc');
 	let sortBy = $state(data.sortBy || 'nama');
 
+	// Pagination state - baca dari URL
+	let currentPage = $state(data.page || 1);
+	let itemsPerPage = $state(data.itemsPerPage || 10);
+	const itemsPerPageOptions = [10, 25, 50, 100];
+
 	let showModal = $state(false);
 	let isEditKeluarga = $state(false);
 	let editingKeluargaId = $state('');
@@ -69,11 +74,48 @@
 			})
 	);
 
+	// Paginated data
+	let paginatedPenduduk = $derived(
+		sortedPenduduk.slice(
+			(currentPage - 1) * itemsPerPage,
+			currentPage * itemsPerPage
+		)
+	);
+
+	let totalPages = $derived(Math.ceil(sortedPenduduk.length / itemsPerPage) || 1);
+
+	// Reset page saat search/sort/itemsPerPage berubah (bukan mount awal)
+	let prevSearch = $state(search);
+	let prevSort = $state(sort);
+	let prevSortBy = $state(sortBy);
+	let prevItemsPerPage = $state(itemsPerPage);
+	let isFirstMount = $state(true);
+
+	$effect(() => {
+		if (isFirstMount) {
+			isFirstMount = false;
+			prevSearch = search;
+			prevSort = sort;
+			prevSortBy = sortBy;
+			prevItemsPerPage = itemsPerPage;
+			return;
+		}
+		if (search !== prevSearch || sort !== prevSort || sortBy !== prevSortBy || itemsPerPage !== prevItemsPerPage) {
+			currentPage = 1;
+		}
+		prevSearch = search;
+		prevSort = sort;
+		prevSortBy = sortBy;
+		prevItemsPerPage = itemsPerPage;
+	});
+
 	function updateUrl() {
 		const params = new URLSearchParams();
 		if (search) params.set('search', search);
 		params.set('sort', sort);
 		params.set('sortBy', sortBy);
+		params.set('page', currentPage.toString());
+		params.set('itemsPerPage', itemsPerPage.toString());
 		window.history.pushState(null, '', `?${params.toString()}`);
 	}
 
@@ -270,13 +312,13 @@
 			<h1 class="text-2xl font-bold text-gray-900">Data Penduduk</h1>
 			<p class="text-gray-500 text-sm">Kelola data anggota penduduk secara individual</p>
 		</div>
-		<div class="flex items-center gap-3">
+		<div class="flex items-center gap-3 w-full lg:w-auto">
 			<form
 				onsubmit={(e) => e.preventDefault()}
-				class="relative flex items-center"
+				class="relative flex items-center flex-1 min-w-0"
 			>
 				<label class="sr-only">Cari NIK / Nama / KK / Blok</label>
-				<div class="relative w-64">
+				<div class="relative w-full">
 					<input
 						type="text"
 						name="search"
@@ -308,132 +350,170 @@
 			</form>
 			<button
 				onclick={openAddModal}
-				class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+				class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex-shrink-0"
+				aria-label="Tambah Keluarga"
 			>
 				<i class="fa-solid fa-plus"></i>
-				<span>Tambah Keluarga</span>
+				<span class="hidden lg:inline">Tambah Keluarga</span>
 			</button>
 		</div>
 	</div>
 
-	{#if sortedPenduduk.length > 0}
-		<div class="bg-white rounded-lg shadow border border-gray-200 overflow-x-auto">
-			<table class="w-full text-left border-collapse min-w-full">
-				<thead>
-					<tr class="bg-gray-50 border-b border-gray-200">
-						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">KK</th>
-						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">NIK</th>
-						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:bg-gray-100 transition-colors" onclick={() => onSortClick('nama')}>
-							<div class="flex items-center gap-1">
-								<span>Nama</span>
-								<i class="fa-solid text-xs text-gray-400" class:fa-sort-up={sort === 'asc' && sortBy === 'nama'} class:fa-sort-down={sort === 'desc' && sortBy === 'nama'}></i>
-							</div>
-						</th>
-						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Kelamin</th>
-						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Tgl Lahir</th>
-						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:bg-gray-100 transition-colors" onclick={() => onSortClick('no_blok')}>
-							<div class="flex items-center gap-1">
-								<span>Blok</span>
-								<i class="fa-solid text-xs text-gray-400" class:fa-sort-up={sort === 'asc' && sortBy === 'no_blok'} class:fa-sort-down={sort === 'desc' && sortBy === 'no_blok'}></i>
-							</div>
-						</th>
-						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Nomor HP</th>
-						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Aksi</th>
-					</tr>
-				</thead>
-				<tbody class="divide-y divide-gray-100">
-							{#each sortedPenduduk as p, index}
-								<tr class="hover:bg-gray-50 transition-colors">
-									<td class="px-6 py-4 text-sm text-gray-600">{index + 1}</td>
-									<td class="px-6 py-4 text-sm text-gray-900 font-medium">{p.no_kk || '-'}</td>
-									<td class="px-6 py-4 text-sm text-gray-900">{p.nik || '-'}</td>
-									<td class="px-6 py-4 text-sm text-gray-900 font-medium">{p.nama}</td>
-									<td class="px-6 py-4 text-sm text-gray-600">{p.jenis_kelamin}</td>
-									<td class="px-6 py-4 text-sm text-gray-600">
-										{#if p.tanggal_lahir}
-											{new Date(p.tanggal_lahir).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-										{:else}
-											-
-										{/if}
-									</td>
-									<td class="px-6 py-4 text-sm text-gray-600">{p.no_blok || '-'}</td>
-									<td class="px-6 py-4 text-sm text-gray-600">{p.nomor_hp || '-'}</td>
-									<td class="px-6 py-4 text-right">
-										<div class="flex items-center justify-end gap-1 lg:gap-2">
-											<!-- Desktop: Horizontal buttons -->
-											<div class="hidden lg:flex items-center gap-1">
-												<button
-													onclick={() => openKeluargaFromTable(p.keluarga_id, p.no_kk, p.blok_rumah_id, p.status_rumah)}
-													class="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors"
-													title="Lihat Keluarga"
-												>
-													<i class="fa-solid fa-users"></i>
-												</button>
-												<button
-													onclick={() => openEditIndividu(p.id, p.nik, p.nama, p.jenis_kelamin, p.tanggal_lahir, p.nomor_hp)}
-													class="px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 border border-transparent rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 transition-colors"
-													title="Edit"
-												>
-													<i class="fa-solid fa-pen-to-square"></i>
-												</button>
-												<button
-													onclick={() => handleDeleteIndividu(p.id)}
-													class="px-3 py-1.5 text-xs font-medium text-white bg-red-600 border border-transparent rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-colors"
-													title="Hapus"
-												>
-													<i class="fa-solid fa-trash"></i>
-												</button>
-											</div>
-
-											<!-- Mobile: Dropdown -->
-											<div class="lg:hidden relative" data-dropdown-menu>
-												<button
-													type="button"
-													onclick={() => openDropdownIndex = openDropdownIndex === index ? -1 : index}
-													class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 transition-colors"
-													aria-expanded={openDropdownIndex === index}
-													aria-haspopup="true"
-												>
-													<i class="fa-solid fa-ellipsis-v"></i>
-												</button>
-												{#if openDropdownIndex === index}
-																					<div class="absolute right-0 top-full mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg animate-in fade-in zoom-in-95 z-50" role="menu">
-														<button
-															onclick={() => { openKeluargaFromTable(p.keluarga_id, p.no_kk, p.blok_rumah_id, p.status_rumah); openDropdownIndex = -1; }}
-															class="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg flex items-center gap-2"
-															role="menuitem"
-														>
-															<i class="fa-solid fa-users text-blue-600 w-4"></i>
-															<span>Lihat Keluarga</span>
-														</button>
-														<button
-															onclick={() => { openEditIndividu(p.id, p.nik, p.nama, p.jenis_kelamin, p.tanggal_lahir, p.nomor_hp); openDropdownIndex = -1; }}
-															class="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-															role="menuitem"
-														>
-															<i class="fa-solid fa-pen-to-square text-indigo-600 w-4"></i>
-															<span>Edit</span>
-														</button>
-														<button
-															onclick={() => { handleDeleteIndividu(p.id); openDropdownIndex = -1; }}
-															class="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 rounded-b-lg flex items-center gap-2"
-															role="menuitem"
-														>
-															<i class="fa-solid fa-trash w-4"></i>
-															<span>Hapus</span>
-														</button>
-													</div>
-												{/if}
-											</div>
+	{#if paginatedPenduduk.length > 0}
+			<div class="bg-white rounded-lg shadow border border-gray-200 overflow-x-auto">
+				<table class="w-full text-left border-collapse min-w-full">
+					<thead>
+						<tr class="bg-gray-50 border-b border-gray-200">
+							<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+							<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">KK</th>
+							<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">NIK</th>
+							<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:bg-gray-100 transition-colors" onclick={() => onSortClick('nama')}>
+								<div class="flex items-center gap-1">
+									<span>Nama</span>
+									<i class="fa-solid text-xs text-gray-400" class:fa-sort-up={sort === 'asc' && sortBy === 'nama'} class:fa-sort-down={sort === 'desc' && sortBy === 'nama'}></i>
+								</div>
+							</th>
+							<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Kelamin</th>
+							<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Tgl Lahir</th>
+							<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:bg-gray-100 transition-colors" onclick={() => onSortClick('no_blok')}>
+								<div class="flex items-center gap-1">
+									<span>Blok</span>
+									<i class="fa-solid text-xs text-gray-400" class:fa-sort-up={sort === 'asc' && sortBy === 'no_blok'} class:fa-sort-down={sort === 'desc' && sortBy === 'no_blok'}></i>
+								</div>
+							</th>
+							<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Nomor HP</th>
+							<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Aksi</th>
+						</tr>
+					</thead>
+					<tbody class="divide-y divide-gray-100">
+						{#each paginatedPenduduk as p, index}
+							<tr class="hover:bg-gray-50 transition-colors">
+								<td class="px-6 py-4 text-sm text-gray-600">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+								<td class="px-6 py-4 text-sm text-gray-900 font-medium">{p.no_kk || '-'}</td>
+								<td class="px-6 py-4 text-sm text-gray-900">{p.nik || '-'}</td>
+								<td class="px-6 py-4 text-sm text-gray-900 font-medium">{p.nama}</td>
+								<td class="px-6 py-4 text-sm text-gray-600">{p.jenis_kelamin}</td>
+								<td class="px-6 py-4 text-sm text-gray-600">
+									{#if p.tanggal_lahir}
+										{new Date(p.tanggal_lahir).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+									{:else}
+										-
+									{/if}
+								</td>
+								<td class="px-6 py-4 text-sm text-gray-600">{p.no_blok || '-'}</td>
+								<td class="px-6 py-4 text-sm text-gray-600">{p.nomor_hp || '-'}</td>
+								<td class="px-6 py-4 text-right">
+									<div class="flex items-center justify-end gap-1 lg:gap-2">
+										<!-- Desktop: Horizontal buttons -->
+										<div class="hidden lg:flex items-center gap-1">
+											<button
+												onclick={() => openKeluargaFromTable(p.keluarga_id, p.no_kk, p.blok_rumah_id, p.status_rumah)}
+												class="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors"
+												title="Lihat Keluarga"
+											>
+												<i class="fa-solid fa-users"></i>
+											</button>
+											<button
+												onclick={() => openEditIndividu(p.id, p.nik, p.nama, p.jenis_kelamin, p.tanggal_lahir, p.nomor_hp)}
+												class="px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 border border-transparent rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 transition-colors"
+												title="Edit"
+											>
+												<i class="fa-solid fa-pen-to-square"></i>
+											</button>
+											<button
+												onclick={() => handleDeleteIndividu(p.id)}
+												class="px-3 py-1.5 text-xs font-medium text-white bg-red-600 border border-transparent rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-colors"
+												title="Hapus"
+											>
+												<i class="fa-solid fa-trash"></i>
+											</button>
 										</div>
-									</td>
-								</tr>
-							{/each}
-						</tbody>
-			</table>
-		</div>
-	{:else}
+
+										<!-- Mobile: Dropdown -->
+										<div class="lg:hidden relative" data-dropdown-menu>
+											<button
+												type="button"
+												onclick={() => openDropdownIndex = openDropdownIndex === index ? -1 : index}
+												class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 transition-colors"
+												aria-expanded={openDropdownIndex === index}
+												aria-haspopup="true"
+											>
+												<i class="fa-solid fa-ellipsis-v"></i>
+											</button>
+											{#if openDropdownIndex === index}
+												<div class="absolute right-0 top-full mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg animate-in fade-in zoom-in-95 z-50" role="menu">
+													<button
+														onclick={() => { openKeluargaFromTable(p.keluarga_id, p.no_kk, p.blok_rumah_id, p.status_rumah); openDropdownIndex = -1; }}
+														class="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg flex items-center gap-2"
+														role="menuitem"
+													>
+														<i class="fa-solid fa-users text-blue-600 w-4"></i>
+														<span>Lihat Keluarga</span>
+													</button>
+													<button
+														onclick={() => { openEditIndividu(p.id, p.nik, p.nama, p.jenis_kelamin, p.tanggal_lahir, p.nomor_hp); openDropdownIndex = -1; }}
+														class="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+														role="menuitem"
+													>
+														<i class="fa-solid fa-pen-to-square text-indigo-600 w-4"></i>
+														<span>Edit</span>
+													</button>
+													<button
+														onclick={() => { handleDeleteIndividu(p.id); openDropdownIndex = -1; }}
+														class="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 rounded-b-lg flex items-center gap-2"
+														role="menuitem"
+													>
+														<i class="fa-solid fa-trash w-4"></i>
+														<span>Hapus</span>
+													</button>
+												</div>
+											{/if}
+										</div>
+									</div>
+								</td>
+							</tr>
+						{/each}
+										</tbody>
+									</table>
+								</div>
+
+								<!-- Pagination Controls -->
+								<div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-4 py-3 bg-white border border-gray-200 rounded-lg">
+									<div class="flex items-center gap-3">
+										<label class="text-sm text-gray-700">Tampilkan</label>
+										<select
+											bind:value={itemsPerPage}
+											onchange={updateUrl}
+											class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+										>
+											{#each itemsPerPageOptions as opt}
+												<option value={opt}>{opt} per halaman</option>
+											{/each}
+										</select>
+									</div>
+									<div class="flex items-center gap-2">
+										<span class="text-sm text-gray-700">
+											Halaman {currentPage} dari {totalPages} (Total: {sortedPenduduk.length} data)
+										</span>
+										<button
+											onclick={() => { if (currentPage > 1) { currentPage = currentPage - 1; updateUrl(); }}}
+											disabled={currentPage === 1}
+											class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+											aria-label="Halaman sebelumnya"
+										>
+											<i class="fa-solid fa-chevron-left"></i>
+										</button>
+										<button
+											onclick={() => { if (currentPage < totalPages) { currentPage = currentPage + 1; updateUrl(); }}}
+											disabled={currentPage === totalPages}
+											class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+											aria-label="Halaman selanjutnya"
+										>
+											<i class="fa-solid fa-chevron-right"></i>
+										</button>
+									</div>
+								</div>
+							{:else}
 		<div class="bg-red-50 border border-red-200 rounded-lg p-6 flex items-center gap-3">
 			<i class="fa-solid fa-circle-exclamation text-red-500"></i>
 			<div>

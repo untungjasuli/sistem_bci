@@ -1,17 +1,5 @@
-import mysql from 'mysql2/promise';
 import { redirect } from '@sveltejs/kit';
-
-const dbConfig = {
-	host: '172.17.0.1',
-	port: 3306,
-	user: 'victor',
-	password: 'VictorAI2026!',
-	database: 'sistem_bci'
-};
-
-async function getConnection() {
-	return mysql.createConnection(dbConfig);
-}
+import { getConnection, executeQuery } from '#lib/server/db';
 
 export const load = async ({ cookies, url }) => {
 	const user = cookies.get('session_user');
@@ -22,6 +10,8 @@ export const load = async ({ cookies, url }) => {
 	const search = url.searchParams.get('search')?.trim() || '';
 	const sort = url.searchParams.get('sort') || 'asc'; // 'asc' | 'desc'
 	const sortBy = url.searchParams.get('sortBy') || 'no_blok'; // 'no_blok' | 'status'
+	const page = Math.max(1, parseInt(url.searchParams.get('page') || '1'));
+	const itemsPerPage = Math.max(1, parseInt(url.searchParams.get('itemsPerPage') || '10'));
 
 	let sql = `
 		SELECT b.id, b.no_blok, b.created_at,
@@ -40,14 +30,26 @@ export const load = async ({ cookies, url }) => {
 	const orderField = sortBy === 'status' ? 'status' : 'b.no_blok';
 	sql += ` ORDER BY ${orderField} ${sort === 'desc' ? 'DESC' : 'ASC'}`;
 
+	// Hitung total untuk pagination
+	const countSql = `SELECT COUNT(*) as total FROM (${sql}) as sub`;
 	const conn = await getConnection();
 	try {
+		const [countRows] = await conn.execute(countSql, params);
+		const total = countRows[0]?.total || 0;
+
+		// Apply limit/offset
+		sql += ` LIMIT ? OFFSET ?`;
+		params.push(itemsPerPage, (page - 1) * itemsPerPage);
+
 		const [rows] = await conn.execute(sql, params);
 		return {
 			blokRumah: rows,
 			search,
 			sort,
-			sortBy
+			sortBy,
+			page,
+			itemsPerPage,
+			total
 		};
 	} finally {
 		await conn.end();
