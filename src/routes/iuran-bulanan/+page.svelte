@@ -569,12 +569,12 @@
 											<button
 												type="button"
 												onclick={() => openBayarModal(t)}
-												class="w-full p-3 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors text-center"
+												class="w-full p-2 text-blue-600 hover:bg-blue-50 rounded-lg border border-blue-600 transition-colors text-center"
 												title="Bayar Tagihan"
 												aria-label="Bayar Tagihan"
 											>
-												<i class="fa-solid fa-money-bill-wave text-2xl"></i>
-												<div class="text-xs mt-1">Bayar Tagihan</div>
+												<i class="fa-solid fa-money-bill-wave "></i>
+												Bayar Tagihan
 											</button>
 										{/if}
 						</div>
