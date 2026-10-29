@@ -184,7 +184,9 @@
 				return;
 			}
 
-			showToast('success', successMessage || result.success || 'Data berhasil disimpan');
+			// Fallback message jika result.success undefined
+			const msg = successMessage || result.success || (editMode ? 'Data berhasil diupdate' : 'Data berhasil disimpan');
+			showToast('success', msg);
 			closeModal();
 			await invalidateAll();
 		} catch (err) {
@@ -213,7 +215,7 @@
 				return;
 			}
 
-			showToast('success', result.success);
+			showToast('success', result.success || 'Data berhasil dihapus');
 			await invalidateAll();
 		} catch (err) {
 			console.error('Delete error:', err);

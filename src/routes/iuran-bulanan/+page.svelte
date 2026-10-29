@@ -125,46 +125,46 @@
 			});
 			const result = await res.json();
 
-			if (!res.ok || result.error) {
-				showToast('error', result.error || 'Gagal generate tagihan');
-				return;
-			}
+						if (!res.ok || result.error) {
+							showToast('error', result.error || 'Gagal generate tagihan');
+							return;
+						}
 
-			showToast('success', result.success);
-			await invalidateAll();
-		} catch (e) {
-					console.error('Generate error:', e);
-					showToast('error', 'Gagal generate tagihan');
-				}
-			}
-
-			// Generate Missing tagihan (admin only)
-			async function handleGenerateMissing() {
-				if (!confirm(`Generate tagihan missing untuk periode ${periode}?`)) return;
-
-				const formData = new FormData();
-				formData.append('periode', periode);
-
-				try {
-					const res = await fetch('?/generateMissing', {
-						method: 'POST',
-						body: formData,
-						credentials: 'include'
-					});
-					const result = await res.json();
-
-					if (!res.ok || result.error) {
-						showToast('error', result.error || 'Gagal generate missing');
-						return;
+						showToast('success', result.success || 'Tagihan berhasil digenerate');
+						await invalidateAll();
+					} catch (e) {
+						console.error('Generate error:', e);
+						showToast('error', 'Gagal generate tagihan');
 					}
-
-					showToast('success', result.success);
-					await invalidateAll();
-				} catch (e) {
-					console.error('Generate missing error:', e);
-					showToast('error', 'Gagal generate missing');
 				}
-			}
+
+				// Generate Missing tagihan (admin only)
+				async function handleGenerateMissing() {
+					if (!confirm(`Generate tagihan missing untuk periode ${periode}?`)) return;
+
+					const formData = new FormData();
+					formData.append('periode', periode);
+
+					try {
+						const res = await fetch('?/generateMissing', {
+							method: 'POST',
+							body: formData,
+							credentials: 'include'
+						});
+						const result = await res.json();
+
+						if (!res.ok || result.error) {
+							showToast('error', result.error || 'Gagal generate missing');
+							return;
+						}
+
+						showToast('success', result.success || 'Tagihan missing berhasil digenerate');
+						await invalidateAll();
+					} catch (e) {
+						console.error('Generate missing error:', e);
+						showToast('error', 'Gagal generate missing');
+					}
+				}
 
 			// Open bayar modal
 	function openBayarModal(tagihan) {
@@ -211,7 +211,7 @@
 				return;
 			}
 
-			showToast('success', result.success);
+			showToast('success', result.success || 'Pembayaran berhasil');
 			closeBayarModal();
 			await invalidateAll();
 		} catch (e) {
