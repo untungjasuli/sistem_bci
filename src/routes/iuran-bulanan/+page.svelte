@@ -19,6 +19,9 @@
 	const itemsPerPageOptions = [10, 25, 50, 100];
 	let totalPages = $derived(data?.totalPages || 1);
 
+	// Expandable rows state (mobile)
+	let expandedRows = $state({});
+
 	// Modal state
 	let showBayarModal = $state(false);
 	let bayarTagihanId = $state(0);
@@ -216,6 +219,21 @@
 	function isAdmin() {
 		return data?.user?.role === 'admin';
 	}
+
+	// Toggle expanded row (mobile)
+	function toggleExpand(tagihanId) {
+		if (expandedRows[tagihanId]) {
+			delete expandedRows[tagihanId];
+		} else {
+			expandedRows[tagihanId] = true;
+		}
+		// Force reactivity by reassigning
+		expandedRows = { ...expandedRows };
+	}
+
+	function isExpanded(tagihanId) {
+		return !!expandedRows[tagihanId];
+	}
 </script>
 
 {#if toast}
@@ -286,8 +304,43 @@
 		</div>
 	</div>
 
-	<!-- Summary Cards -->
-	<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+	<!-- Summary Cards - Mobile: Combined horizontal cards like dashboard age groups -->
+	{#if true}
+		<!-- Mobile: Summary cards wrapped in single card -->
+		<div class="lg:hidden -mx-4 px-4 mb-4">
+			<div class="bg-white rounded-lg border border-gray-200 shadow-sm p-4">
+				<!-- Row 1: 3 columns -->
+				<div class="grid grid-cols-3 gap-2 mb-3">
+					<div class="text-center p-3 bg-green-50 rounded-lg">
+						<p class="text-xl font-bold text-green-600">{summary.total_tagihan || 0}</p>
+						<p class="text-xs text-gray-500 mt-1">Total Tagihan</p>
+					</div>
+					<div class="text-center p-3 bg-emerald-50 rounded-lg">
+						<p class="text-xl font-bold text-emerald-600">{summary.total_lunas || 0}</p>
+						<p class="text-xs text-gray-500 mt-1">Lunas</p>
+					</div>
+					<div class="text-center p-3 bg-amber-50 rounded-lg">
+						<p class="text-xl font-bold text-amber-600">{summary.total_belum_bayar || 0}</p>
+						<p class="text-xs text-gray-500 mt-1">Belum Bayar</p>
+					</div>
+				</div>
+				<!-- Row 2: 2 columns -->
+				<div class="grid grid-cols-2 gap-2">
+					<div class="text-center p-3 bg-blue-50 rounded-lg">
+						<p class="text-lg font-bold text-blue-600">{formatRupiah(summary.total_nominal)}</p>
+						<p class="text-xs text-gray-500 mt-1">Total Nominal</p>
+					</div>
+					<div class="text-center p-3 bg-indigo-50 rounded-lg">
+						<p class="text-lg font-bold text-indigo-600">{formatRupiah(summary.nominal_lunas)}</p>
+						<p class="text-xs text-gray-500 mt-1">Terkumpul</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	{/if}
+
+	<!-- Desktop: Original 5-card grid -->
+	<div class="hidden lg:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
 		<div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
 			<p class="text-sm text-gray-500">Total Tagihan</p>
 			<p class="text-2xl font-bold text-gray-900 mt-1">{summary.total_tagihan || 0}</p>
@@ -313,28 +366,27 @@
 	<!-- Filters -->
 	<div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm mb-6">
 		<div class="flex flex-col sm:flex-row gap-4">
-			<div class="flex items-center gap-2">
-				<label for="status-filter" class="text-sm text-gray-700">Status:</label>
+			<!-- Mobile: Dropdown only, no label -->
+			<div class="flex-1 lg:w-auto">
 				<select
 					id="status-filter"
 					bind:value={statusFilter}
 					onchange={updateFilters}
-					class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+					class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
 				>
-					<option value="semua">Semua</option>
+					<option value="semua">Semua Status</option>
 					<option value="belum_bayar">Belum Bayar</option>
 					<option value="lunas">Lunas</option>
 				</select>
 			</div>
-			<div class="flex items-center gap-2">
-				<label for="tipe-filter" class="text-sm text-gray-700">Tipe:</label>
+			<div class="flex-1 lg:w-auto">
 				<select
 					id="tipe-filter"
 					bind:value={tipeFilter}
 					onchange={updateFilters}
-					class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+					class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
 				>
-					<option value="semua">Semua</option>
+					<option value="semua">Semua Tipe</option>
 					<option value="keluarga">Keluarga (50k)</option>
 					<option value="pemilik_kosong">Pemilik Kosong (25k)</option>
 				</select>
@@ -344,14 +396,15 @@
 
 	<!-- Table -->
 	{#if tagihan.length > 0}
-		<div class="bg-white rounded-lg shadow border border-gray-200 overflow-x-auto">
+		<!-- Desktop Table -->
+		<div class="hidden lg:block bg-white rounded-lg shadow border border-gray-200 overflow-x-auto">
 			<table class="w-full text-left border-collapse min-w-full">
 				<thead>
 					<tr class="bg-gray-50 border-b border-gray-200">
 						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
 						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">No Blok</th>
-										<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Pemilik</th>
-										<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Tipe</th>
+						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Pemilik</th>
+						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Tipe</th>
 						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Nominal</th>
 						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Jatuh Tempo</th>
 						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -364,14 +417,14 @@
 							<td class="px-6 py-4 text-sm text-gray-600">{(currentPage - 1) * itemsPerPage + index + 1}</td>
 							<td class="px-6 py-4 text-sm text-gray-900 font-medium">{t.no_blok}</td>
 							<td class="px-6 py-4 text-sm text-gray-600">
-												{#if t.tipe_pembayar === 'keluarga'}
-													{t.keluarga_nama || '-'}<br>
-													<span class="text-xs text-gray-400">{t.keluarga_hp || '-'}</span>
-												{:else}
-													{t.pemilik_nama || '-'}<br>
-													<span class="text-xs text-gray-400">{t.pemilik_hp || '-'}</span>
-												{/if}
-											</td>
+								{#if t.tipe_pembayar === 'keluarga'}
+									{t.keluarga_nama || '-'}<br>
+									<span class="text-xs text-gray-400">{t.keluarga_hp || '-'}</span>
+								{:else}
+									{t.pemilik_nama || '-'}<br>
+									<span class="text-xs text-gray-400">{t.pemilik_hp || '-'}</span>
+								{/if}
+							</td>
 							<td class="px-6 py-4">
 								<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {getTipeBadge(t.tipe_pembayar).class}">
 									{getTipeBadge(t.tipe_pembayar).label}
@@ -400,6 +453,92 @@
 					{/each}
 				</tbody>
 			</table>
+		</div>
+
+		<!-- Mobile Expandable Cards -->
+		<div class="lg:hidden space-y-3 -mx-4 px-4">
+			{#each tagihan as t, index}
+				<div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+					<!-- Card Header (always visible) -->
+					<button
+						type="button"
+						onclick={() => toggleExpand(t.id)}
+						class="w-full p-4 flex items-center justify-between gap-4 text-left hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+					>
+						<div class="flex-1 min-w-0">
+							<div class="flex items-center gap-2 flex-wrap">
+								<span class="text-sm font-medium text-gray-900">{t.no_blok}</span>
+								<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {getTipeBadge(t.tipe_pembayar).class}">
+									{getTipeBadge(t.tipe_pembayar).label}
+								</span>
+								<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {getStatusBadge(t.status).class}">
+									{getStatusBadge(t.status).label}
+								</span>
+							</div>
+							<div class="mt-1 text-sm text-gray-600">
+								{#if t.tipe_pembayar === 'keluarga'}
+									{t.keluarga_nama || '-'}
+								{:else}
+									{t.pemilik_nama || '-'}
+								{/if}
+							</div>
+						</div>
+						<div class="flex items-center gap-3 shrink-0">
+							<div class="text-right hidden sm:block">
+								<div class="text-sm font-bold text-gray-900">{formatRupiah(t.nominal)}</div>
+								<div class="text-xs text-gray-500">{formatDate(t.jatuh_tempo)}</div>
+							</div>
+							<i class="fa-solid fa-chevron-down text-gray-400 transition-transform duration-200"
+								class:rotate-180={isExpanded(t.id)}></i>
+						</div>
+					</button>
+
+					<!-- Expanded Content -->
+					{#if isExpanded(t.id)}
+						<div class="border-t border-gray-100 p-4 space-y-3 bg-gray-50">
+							<div class="grid grid-cols-2 gap-3 text-sm">
+								<div>
+									<span class="text-gray-500">Pemilik</span>
+									<div class="font-medium text-gray-900">
+										{#if t.tipe_pembayar === 'keluarga'}
+											{t.keluarga_nama || '-'}
+										{:else}
+											{t.pemilik_nama || '-'}
+										{/if}
+									</div>
+								</div>
+								<div>
+									<span class="text-gray-500">No HP</span>
+									<div class="font-medium text-gray-900">
+										{#if t.tipe_pembayar === 'keluarga'}
+											{t.keluarga_hp || '-'}
+										{:else}
+											{t.pemilik_hp || '-'}
+										{/if}
+									</div>
+								</div>
+								<div>
+									<span class="text-gray-500">Nominal</span>
+									<div class="font-bold text-gray-900">{formatRupiah(t.nominal)}</div>
+								</div>
+								<div>
+									<span class="text-gray-500">Jatuh Tempo</span>
+									<div class="font-medium text-gray-900">{formatDate(t.jatuh_tempo)}</div>
+								</div>
+							</div>
+							{#if t.status === 'belum_bayar'}
+								<button
+									type="button"
+									onclick={() => openBayarModal(t)}
+									class="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors"
+								>
+									<i class="fa-solid fa-money-bill-wave mr-2"></i> Bayar Tagihan
+								</button>
+							{/if}
+						</div>
+					{/if}
+				</div>
+			{/each}
 		</div>
 
 		<!-- Pagination -->
