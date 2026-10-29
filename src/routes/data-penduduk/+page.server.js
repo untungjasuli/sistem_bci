@@ -26,9 +26,9 @@ export const load = async ({ cookies, url }) => {
 	try {
 		let sql = `
 			SELECT a.id, a.nik, a.nama, a.jenis_kelamin, a.tanggal_lahir,
-				a.hub_keluarga, a.keluarga_id,
-				k.no_kk, k.blok_rumah_id, k.status_rumah,
-				b.no_blok
+			a.hub_keluarga, a.keluarga_id, a.nomor_hp,
+			k.no_kk, k.blok_rumah_id, k.status_rumah,
+			b.no_blok
 			FROM anggota_keluarga a
 			JOIN keluarga k ON a.keluarga_id = k.id
 			LEFT JOIN blok_rumah b ON k.blok_rumah_id = b.id
@@ -71,8 +71,14 @@ export const actions = {
 		const blokRumahId = form.get('blok_rumah_id')?.toString() || '';
 		const statusRumah = form.get('status_rumah')?.toString() || 'sendiri';
 
+		const nikRegex = /^\d{16}$/;
+		const hpRegex = /^\d{11,13}$/;
+
 		if (!noKk) {
 			return { error: 'No. KK wajib diisi' };
+		}
+		if (!nikRegex.test(noKk)) {
+			return { error: 'No. KK harus berupa 16 digit angka' };
 		}
 		if (!blokRumahId) {
 			return { error: 'Blok Rumah wajib dipilih' };
@@ -83,6 +89,7 @@ export const actions = {
 		const jks = form.getAll('jenis_kelamin[]')?.map((v) => v.toString()) || [];
 		const tglLahir = form.getAll('tanggal_lahir[]')?.map((v) => v.toString()) || [];
 		const hubs = form.getAll('hub_keluarga[]')?.map((v) => v.toString()) || [];
+		const nomorHps = form.getAll('nomor_hp[]')?.map((v) => v.toString().trim()) || [];
 
 		if (niks.length === 0) {
 			return { error: 'Minimal harus ada 1 anggota keluarga' };
@@ -90,10 +97,12 @@ export const actions = {
 
 		for (let i = 0; i < niks.length; i++) {
 			if (!niks[i]) return { error: `NIK anggota ke-${i + 1} wajib diisi` };
+			if (!nikRegex.test(niks[i])) return { error: `NIK anggota ke-${i + 1} harus berupa 16 digit angka` };
 			if (!namas[i]) return { error: `Nama anggota ke-${i + 1} wajib diisi` };
 			if (!jks[i]) return { error: `Jenis kelamin anggota ke-${i + 1} wajib diisi` };
 			if (!tglLahir[i]) return { error: `Tanggal lahir anggota ke-${i + 1} wajib diisi` };
 			if (!hubs[i]) return { error: `Hubungan keluarga anggota ke-${i + 1} wajib diisi` };
+			if (nomorHps[i] && !hpRegex.test(nomorHps[i])) return { error: `Nomor HP anggota ke-${i + 1} harus berupa 11-13 digit angka` };
 		}
 
 		const conn = await getConnection();
@@ -121,13 +130,22 @@ export const actions = {
 			}
 
 			// Insert semua anggota
-			for (let i = 0; i < niks.length; i++) {
-				await conn.execute(
-					`INSERT INTO anggota_keluarga (nik, nama, jenis_kelamin, tanggal_lahir, hub_keluarga, keluarga_id)
-					 VALUES (?, ?, ?, ?, ?, ?)`,
-					[niks[i], namas[i], jks[i], tglLahir[i], hubs[i], keluargaId]
-				);
-			}
+					for (let i = 0; i < niks.length; i++) {
+						try {
+							await conn.execute(
+								`INSERT INTO anggota_keluarga (nik, nama, jenis_kelamin, tanggal_lahir, hub_keluarga, nomor_hp, keluarga_id)
+								 VALUES (?, ?, ?, ?, ?, ?, ?)`,
+								[niks[i], namas[i], jks[i], tglLahir[i], hubs[i], nomorHps[i] || null, keluargaId]
+							);
+						} catch (insertError) {
+							await conn.rollback();
+							if (insertError.code === 'ER_DUP_ENTRY') {
+								const namaInfo = namas[i] ? ` (${namas[i]})` : '';
+								return { error: `NIK anggota ke-${i + 1}${namaInfo} sudah terdaftar` };
+							}
+							throw insertError;
+						}
+					}
 
 			await conn.commit();
 			return { success: id ? 'Data keluarga dan anggota berhasil diperbarui' : 'Data keluarga dan anggota berhasil disimpan' };
@@ -137,7 +155,6 @@ export const actions = {
 				if (e.message.includes('no_kk')) {
 					return { error: 'No. KK sudah terdaftar' };
 				}
-				return { error: 'NIK sudah terdaftar' };
 			}
 			return { error: 'Gagal menyimpan data: ' + e.message };
 		} finally {
@@ -157,18 +174,29 @@ export const actions = {
 		const nama = form.get('nama')?.toString().trim();
 		const jenis_kelamin = form.get('jenis_kelamin')?.toString();
 		const tanggal_lahir = form.get('tanggal_lahir')?.toString() || null;
+		const nomor_hp = form.get('nomor_hp')?.toString().trim() || null;
+
+		const nikRegex = /^\d{16}$/;
+		const hpRegex = /^\d{11,13}$/;
 
 		if (!id || !nik || !nama || !jenis_kelamin) {
 			return { error: 'Data tidak lengkap' };
+		}
+		if (!nikRegex.test(nik)) {
+			return { error: 'NIK harus berupa 16 digit angka' };
+		}
+		if (nomor_hp && !hpRegex.test(nomor_hp)) {
+			return { error: 'Nomor HP harus berupa 11-13 digit angka' };
 		}
 
 		const conn = await getConnection();
 		try {
 			const [result] = await conn.execute(
-				'UPDATE anggota_keluarga SET nik = ?, nama = ?, jenis_kelamin = ?, tanggal_lahir = ? WHERE id = ?',
-				[nik, nama, jenis_kelamin, tanggal_lahir, id]
+				'UPDATE anggota_keluarga SET nik = ?, nama = ?, jenis_kelamin = ?, tanggal_lahir = ?, nomor_hp = ? WHERE id = ?',
+				[nik, nama, jenis_kelamin, tanggal_lahir, nomor_hp, id]
 			);
 
+			console.log("nilai:", result.affectedRows);
 			if (result.affectedRows === 0) {
 				return { error: 'Anggota tidak ditemukan' };
 			}

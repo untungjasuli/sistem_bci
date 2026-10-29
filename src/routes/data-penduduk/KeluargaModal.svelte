@@ -1,6 +1,5 @@
 <script>
 	import { page } from '$app/state';
-	import { enhance } from '$app/forms';
 
 	let {
 		showModal = false,
@@ -17,6 +16,15 @@
 
 	let anggotaForm = $state([]);
 	let activeAnggotaIndex = $state(0);
+
+	// Error state untuk validasi client-side
+	let formErrors = $state({
+		noKk: '',
+		anggota: []
+	});
+
+	// Error dari server (misal No. KK sudah terdaftar)
+	let serverError = $state('');
 
 	// Konversi tanggal ke format YYYY-MM-DD dalam timezone GMT+7 (WIB)
 	function toWibDateString(dateVal) {
@@ -38,20 +46,75 @@
 				nama: a.nama || '',
 				jenis_kelamin: a.jenis_kelamin || 'Laki-laki',
 				tanggal_lahir: toWibDateString(a.tanggal_lahir),
-				hub_keluarga: a.hub_keluarga || 'Anak'
+				hub_keluarga: a.hub_keluarga || 'Anak',
+				nomor_hp: a.nomor_hp || ''
 			}));
 		} else {
 			anggotaForm = [
-				{ nik: '', nama: '', jenis_kelamin: 'Laki-laki', tanggal_lahir: '', hub_keluarga: 'Kepala Keluarga' }
+				{ nik: '', nama: '', jenis_kelamin: 'Laki-laki', tanggal_lahir: '', hub_keluarga: 'Kepala Keluarga', nomor_hp: '' }
 			];
 		}
 		activeAnggotaIndex = 0;
 	});
 
+	// Bersihkan error server saat modal dibuka agar tidak muncul lagi saat dibuka ulang
+	$effect(() => {
+		if (showModal) {
+			serverError = '';
+		}
+	});
+
+	function hanyaAngka(e) {
+		const t = e.target;
+		if (t instanceof HTMLInputElement) {
+			t.value = t.value.replace(/\D/g, '');
+		}
+	}
+
+	function validateForm() {
+		const nikRegex = /^\d{16}$/;
+		const hpRegex = /^\d{11,13}$/;
+
+		let valid = true;
+
+		// Reset errors
+		formErrors.noKk = '';
+		formErrors.anggota = anggotaForm.map(() => ({ nik: '', nomorHp: '' }));
+
+		if (!noKk) {
+			formErrors.noKk = 'No. KK wajib diisi';
+			valid = false;
+		} else if (!nikRegex.test(noKk)) {
+			formErrors.noKk = 'No. KK harus berupa 16 digit angka';
+			valid = false;
+		}
+
+		for (let i = 0; i < anggotaForm.length; i++) {
+			const a = anggotaForm[i];
+			if (!a.nik) {
+				formErrors.anggota[i].nik = 'NIK wajib diisi';
+				valid = false;
+			} else if (!nikRegex.test(a.nik)) {
+				formErrors.anggota[i].nik = 'NIK harus berupa 16 digit angka';
+				valid = false;
+			}
+			if (a.nomor_hp && !hpRegex.test(a.nomor_hp)) {
+				formErrors.anggota[i].nomorHp = 'Nomor HP harus berupa 11-13 digit angka';
+				valid = false;
+			}
+		}
+
+		return valid;
+	}
+
 	function addAnggota() {
 		anggotaForm = [
 			...anggotaForm,
-			{ nik: '', nama: '', jenis_kelamin: 'Laki-laki', tanggal_lahir: '', hub_keluarga: 'Anak' }
+			{ nik: '', nama: '', jenis_kelamin: 'Laki-laki', tanggal_lahir: '', hub_keluarga: 'Anak', nomor_hp: '' }
+		];
+		formErrors.anggota = [
+			...formErrors.anggota,
+			{ nik: '', nomorHp: '' }
 		];
 		activeAnggotaIndex = anggotaForm.length - 1;
 	}
@@ -59,6 +122,7 @@
 	function removeAnggota(index) {
 		if (anggotaForm.length <= 1) return;
 		anggotaForm = anggotaForm.filter((_, i) => i !== index);
+		formErrors.anggota = formErrors.anggota.filter((_, i) => i !== index);
 		if (activeAnggotaIndex >= anggotaForm.length) {
 			activeAnggotaIndex = anggotaForm.length - 1;
 		}
@@ -73,18 +137,60 @@
 		});
 	}
 
-	function handleFormSubmit() {
-		return async ({ update }) => {
-			await update();
-			if (page.form?.success) {
-				onClose();
-				onSave(true, page.form.success);
+	async function handleSubmit(e) {
+		e.preventDefault();
+
+		if (!validateForm()) return;
+
+		const formData = new FormData();
+		formData.append('id', editingKeluargaId);
+		formData.append('no_kk', noKk);
+		formData.append('blok_rumah_id', blokRumahId);
+		formData.append('status_rumah', statusRumah);
+
+		for (let i = 0; i < anggotaForm.length; i++) {
+			const a = anggotaForm[i];
+			formData.append('nik[]', a.nik);
+			formData.append('nama[]', a.nama);
+			formData.append('jenis_kelamin[]', a.jenis_kelamin);
+			formData.append('tanggal_lahir[]', a.tanggal_lahir);
+			formData.append('hub_keluarga[]', a.hub_keluarga);
+			formData.append('nomor_hp[]', a.nomor_hp || '');
+		}
+
+		try {
+			const res = await fetch('?/create', {
+				method: 'POST',
+				body: formData,
+				credentials: 'include'
+			});
+			const result = await res.json();
+			// SvelteKit form action response: { type, status, data: '[{"error":1},"message"]' } or '[{"success":1},"message"]'
+			let errorMessage = '';
+			let successMessage = '';
+			if (result.data) {
+				try {
+					const parsed = JSON.parse(result.data);
+					if (Array.isArray(parsed) && parsed[1]) {
+						if (parsed[0]?.error) {
+							errorMessage = parsed[1];
+						} else if (parsed[0]?.success) {
+							successMessage = parsed[1];
+						}
+					}
+				} catch {}
 			}
-			if (page.form?.error) {
-				onClose();
-				onSave(false, page.form.error);
+			const hasError = !res.ok || result.error || errorMessage;
+			if (hasError) {
+				serverError = errorMessage || result.error || 'Gagal menyimpan data keluarga';
+				return;
 			}
-		};
+			onClose();
+			onSave(true, successMessage || result.success || 'Data keluarga berhasil disimpan');
+		} catch (e) {
+			console.error('Save keluarga error:', e);
+			serverError = 'Gagal menyimpan data keluarga';
+		}
 	}
 </script>
 
@@ -101,7 +207,12 @@
 				</button>
 			</div>
 
-			<form method="POST" action="?/create" use:enhance={handleFormSubmit} class="space-y-6">
+			<form onsubmit={handleSubmit} class="space-y-6">
+				{#if serverError}
+					<div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm mb-4">
+						{serverError}
+					</div>
+				{/if}
 				<input type="hidden" name="id" value={editingKeluargaId} />
 
 				<div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
@@ -119,8 +230,12 @@
 								placeholder="Contoh: 1234567890123456"
 								required
 								maxlength="16"
+								oninput={hanyaAngka}
 								class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
 							/>
+							{#if formErrors.noKk}
+								<p class="text-red-500 text-xs mt-1">{formErrors.noKk}</p>
+							{/if}
 						</div>
 						<div>
 							<label class="block text-sm font-medium text-gray-700 mb-1">Blok Rumah</label>
@@ -186,20 +301,20 @@
 									} ${activeAnggotaIndex === idx ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-700'}`}
 								>
 									{anggota.nama || `Anggota ${idx + 1}`}
-									{#if anggotaForm.length > 1}
-										<button
-											onclick={(e) => {
-												e.stopPropagation();
-												removeAnggota(idx);
-											}}
-											type="button"
-											class="ml-1 px-1.5 py-1 text-xs text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
-											title="Hapus anggota"
-										>
-											<i class="fa-solid fa-times"></i>
-										</button>
-									{/if}
 								</button>
+								{#if anggotaForm.length > 1}
+									<button
+										onclick={(e) => {
+											e.stopPropagation();
+											removeAnggota(idx);
+										}}
+										type="button"
+										class="ml-1 px-1.5 py-1 text-xs text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+										title="Hapus anggota"
+									>
+										<i class="fa-solid fa-times"></i>
+									</button>
+								{/if}
 							{/each}
 							<button
 								onclick={addAnggota}
@@ -238,8 +353,12 @@
 											placeholder="1234567890123456"
 											required
 											maxlength="16"
+											oninput={hanyaAngka}
 											class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
 										/>
+										{#if formErrors.anggota[idx]?.nik}
+											<p class="text-red-500 text-xs mt-1">{formErrors.anggota[idx].nik}</p>
+										{/if}
 									</div>
 
 									<div>
@@ -277,6 +396,22 @@
 											required
 											class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
 										/>
+									</div>
+
+									<div>
+										<label class="block text-xs font-medium text-gray-700 mb-1">Nomor HP</label>
+										<input
+											type="text"
+											name="nomor_hp[]"
+											bind:value={anggota.nomor_hp}
+											placeholder="081234567890"
+											maxlength="13"
+											oninput={hanyaAngka}
+											class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+										/>
+										{#if formErrors.anggota[idx]?.nomorHp}
+											<p class="text-red-500 text-xs mt-1">{formErrors.anggota[idx].nomorHp}</p>
+										{/if}
 									</div>
 								</div>
 							</div>

@@ -26,8 +26,23 @@
 	let editNama = $state('');
 	let editJenisKelamin = $state('Laki-laki');
 	let editTanggalLahir = $state('');
+	let editNomorHp = $state('');
 
 	let toast = $state(null);
+
+	// Dropdown state untuk mobile
+	let openDropdownIndex = $state(-1);
+
+	// Close dropdown saat klik di luar
+	$effect(() => {
+		function handleClickOutside(e) {
+			if (openDropdownIndex !== -1 && !e.target.closest('[data-dropdown-menu]')) {
+				openDropdownIndex = -1;
+			}
+		}
+		document.addEventListener('click', handleClickOutside);
+		return () => document.removeEventListener('click', handleClickOutside);
+	});
 
 	function showToast(type, message) {
 		toast = { type, message };
@@ -45,7 +60,7 @@
 
 	let sortedPenduduk = $derived(
 		pendudukItems
-			.filter((p) => !search || p.nik.toLowerCase().includes(search.toLowerCase()) || p.nama.toLowerCase().includes(search.toLowerCase()) || (p.no_kk && p.no_kk.toLowerCase().includes(search.toLowerCase())) || (p.no_blok && p.no_blok.toLowerCase().includes(search.toLowerCase())))
+			.filter((p) => !search || p.nik.toLowerCase().includes(search.toLowerCase()) || p.nama.toLowerCase().includes(search.toLowerCase()) || (p.no_kk && p.no_kk.toLowerCase().includes(search.toLowerCase())) || (p.no_blok && p.no_blok.toLowerCase().includes(search.toLowerCase())) || (p.nomor_hp && p.nomor_hp.toLowerCase().includes(search.toLowerCase())))
 			.slice()
 			.sort((a, b) => {
 				const na = sortBy === 'no_blok' ? (a.no_blok || '').toLowerCase() : a.nama.toLowerCase();
@@ -170,13 +185,14 @@
 		return `${y}-${m}-${day}`;
 	}
 
-	function openEditIndividu(id, nik, nama, jenisKelamin, tanggalLahir) {
+	function openEditIndividu(id, nik, nama, jenisKelamin, tanggalLahir, nomorHp) {
 		try {
 			editingIndividuId = id;
 			editNIK = nik || '';
 			editNama = nama || '';
 			editJenisKelamin = jenisKelamin || 'Laki-laki';
 			editTanggalLahir = toWibDateString(tanggalLahir);
+			editNomorHp = nomorHp || '';
 		} catch (e) {
 			console.error('openEditIndividu error:', e);
 		}
@@ -190,6 +206,7 @@
 		editNama = '';
 		editJenisKelamin = 'Laki-laki';
 		editTanggalLahir = '';
+		editNomorHp = '';
 	}
 
 	async function handleSaveIndividu(success, message) {
@@ -321,51 +338,99 @@
 								<i class="fa-solid text-xs text-gray-400" class:fa-sort-up={sort === 'asc' && sortBy === 'no_blok'} class:fa-sort-down={sort === 'desc' && sortBy === 'no_blok'}></i>
 							</div>
 						</th>
+						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Nomor HP</th>
 						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Aksi</th>
 					</tr>
 				</thead>
 				<tbody class="divide-y divide-gray-100">
-					{#each sortedPenduduk as p, index}
-						<tr class="hover:bg-gray-50 transition-colors">
-							<td class="px-6 py-4 text-sm text-gray-600">{index + 1}</td>
-							<td class="px-6 py-4 text-sm text-gray-900 font-medium">{p.no_kk || '-'}</td>
-							<td class="px-6 py-4 text-sm text-gray-900">{p.nik || '-'}</td>
-							<td class="px-6 py-4 text-sm text-gray-900 font-medium">{p.nama}</td>
-							<td class="px-6 py-4 text-sm text-gray-600">{p.jenis_kelamin}</td>
-							<td class="px-6 py-4 text-sm text-gray-600">
-								{#if p.tanggal_lahir}
-									{new Date(p.tanggal_lahir).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-								{:else}
-									-
-								{/if}
-							</td>
-							<td class="px-6 py-4 text-sm text-gray-600">{p.no_blok || '-'}</td>
-							<td class="px-6 py-4 text-right">
-								<button
-									onclick={() => openKeluargaFromTable(p.keluarga_id, p.no_kk, p.blok_rumah_id, p.status_rumah)}
-									class="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors"
-									title="Lihat Keluarga"
-								>
-									<i class="fa-solid fa-users"></i>
-								</button>
-								<button
-									onclick={() => openEditIndividu(p.id, p.nik, p.nama, p.jenis_kelamin, p.tanggal_lahir)}
-									class="px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 border border-transparent rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 transition-colors"
-									title="Edit"
-								>
-									<i class="fa-solid fa-pen-to-square"></i>
-								</button>
-								<button
-									onclick={() => handleDeleteIndividu(p.id)}
-									class="px-3 py-1.5 text-xs font-medium text-white bg-red-600 border border-transparent rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-colors"
-									title="Hapus"
-								>
-									<i class="fa-solid fa-trash"></i>
-								</button>
-							</td>
-						</tr>
-					{/each}
-				</tbody>
+							{#each sortedPenduduk as p, index}
+								<tr class="hover:bg-gray-50 transition-colors">
+									<td class="px-6 py-4 text-sm text-gray-600">{index + 1}</td>
+									<td class="px-6 py-4 text-sm text-gray-900 font-medium">{p.no_kk || '-'}</td>
+									<td class="px-6 py-4 text-sm text-gray-900">{p.nik || '-'}</td>
+									<td class="px-6 py-4 text-sm text-gray-900 font-medium">{p.nama}</td>
+									<td class="px-6 py-4 text-sm text-gray-600">{p.jenis_kelamin}</td>
+									<td class="px-6 py-4 text-sm text-gray-600">
+										{#if p.tanggal_lahir}
+											{new Date(p.tanggal_lahir).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+										{:else}
+											-
+										{/if}
+									</td>
+									<td class="px-6 py-4 text-sm text-gray-600">{p.no_blok || '-'}</td>
+									<td class="px-6 py-4 text-sm text-gray-600">{p.nomor_hp || '-'}</td>
+									<td class="px-6 py-4 text-right">
+										<div class="flex items-center justify-end gap-1 lg:gap-2">
+											<!-- Desktop: Horizontal buttons -->
+											<div class="hidden lg:flex items-center gap-1">
+												<button
+													onclick={() => openKeluargaFromTable(p.keluarga_id, p.no_kk, p.blok_rumah_id, p.status_rumah)}
+													class="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors"
+													title="Lihat Keluarga"
+												>
+													<i class="fa-solid fa-users"></i>
+												</button>
+												<button
+													onclick={() => openEditIndividu(p.id, p.nik, p.nama, p.jenis_kelamin, p.tanggal_lahir, p.nomor_hp)}
+													class="px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 border border-transparent rounded hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 transition-colors"
+													title="Edit"
+												>
+													<i class="fa-solid fa-pen-to-square"></i>
+												</button>
+												<button
+													onclick={() => handleDeleteIndividu(p.id)}
+													class="px-3 py-1.5 text-xs font-medium text-white bg-red-600 border border-transparent rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-colors"
+													title="Hapus"
+												>
+													<i class="fa-solid fa-trash"></i>
+												</button>
+											</div>
+
+											<!-- Mobile: Dropdown -->
+											<div class="lg:hidden relative" data-dropdown-menu>
+												<button
+													type="button"
+													onclick={() => openDropdownIndex = openDropdownIndex === index ? -1 : index}
+													class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 transition-colors"
+													aria-expanded={openDropdownIndex === index}
+													aria-haspopup="true"
+												>
+													<i class="fa-solid fa-ellipsis-v"></i>
+												</button>
+												{#if openDropdownIndex === index}
+																					<div class="absolute right-0 top-full mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg animate-in fade-in zoom-in-95 z-50" role="menu">
+														<button
+															onclick={() => { openKeluargaFromTable(p.keluarga_id, p.no_kk, p.blok_rumah_id, p.status_rumah); openDropdownIndex = -1; }}
+															class="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg flex items-center gap-2"
+															role="menuitem"
+														>
+															<i class="fa-solid fa-users text-blue-600 w-4"></i>
+															<span>Lihat Keluarga</span>
+														</button>
+														<button
+															onclick={() => { openEditIndividu(p.id, p.nik, p.nama, p.jenis_kelamin, p.tanggal_lahir, p.nomor_hp); openDropdownIndex = -1; }}
+															class="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+															role="menuitem"
+														>
+															<i class="fa-solid fa-pen-to-square text-indigo-600 w-4"></i>
+															<span>Edit</span>
+														</button>
+														<button
+															onclick={() => { handleDeleteIndividu(p.id); openDropdownIndex = -1; }}
+															class="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 rounded-b-lg flex items-center gap-2"
+															role="menuitem"
+														>
+															<i class="fa-solid fa-trash w-4"></i>
+															<span>Hapus</span>
+														</button>
+													</div>
+												{/if}
+											</div>
+										</div>
+									</td>
+								</tr>
+							{/each}
+						</tbody>
 			</table>
 		</div>
 	{:else}
@@ -398,6 +463,7 @@
 		{editNama}
 		{editJenisKelamin}
 		{editTanggalLahir}
+		{editNomorHp}
 		onClose={closeEditIndividu}
 		onSave={handleSaveIndividu}
 	/>

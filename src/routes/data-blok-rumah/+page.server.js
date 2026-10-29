@@ -21,16 +21,24 @@ export const load = async ({ cookies, url }) => {
 
 	const search = url.searchParams.get('search')?.trim() || '';
 	const sort = url.searchParams.get('sort') || 'asc'; // 'asc' | 'desc'
+	const sortBy = url.searchParams.get('sortBy') || 'no_blok'; // 'no_blok' | 'status'
 
-	let sql = 'SELECT id, no_blok, created_at FROM blok_rumah';
+	let sql = `
+		SELECT b.id, b.no_blok, b.created_at,
+		       CASE WHEN COUNT(k.id) > 0 THEN 'Dihuni' ELSE 'Kosong' END as status
+		FROM blok_rumah b
+		LEFT JOIN keluarga k ON k.blok_rumah_id = b.id
+		GROUP BY b.id, b.no_blok, b.created_at
+	`;
 	const params = [];
 
 	if (search) {
-		sql += ' WHERE no_blok LIKE ?';
+		sql += ' WHERE b.no_blok LIKE ?';
 		params.push(`%${search}%`);
 	}
 
-	sql += ` ORDER BY no_blok ${sort === 'desc' ? 'DESC' : 'ASC'}`;
+	const orderField = sortBy === 'status' ? 'status' : 'b.no_blok';
+	sql += ` ORDER BY ${orderField} ${sort === 'desc' ? 'DESC' : 'ASC'}`;
 
 	const conn = await getConnection();
 	try {
@@ -38,7 +46,8 @@ export const load = async ({ cookies, url }) => {
 		return {
 			blokRumah: rows,
 			search,
-			sort
+			sort,
+			sortBy
 		};
 	} finally {
 		await conn.end();

@@ -8,6 +8,7 @@
 	let items = $derived(data.blokRumah || []);
 	let search = $state(data.search || '');
 	let sort = $state(data.sort || 'asc');
+	let sortBy = $state(data.sortBy || 'no_blok');
 
 	let showModal = $state(false);
 	let isEdit = $state(false);
@@ -41,8 +42,22 @@
 		toast = { type, message };
 		setTimeout(() => {
 			toast = null;
-		}, 4000);
+		}, 5000); // durasi 5 detik konsisten
 	}
+
+	// Dropdown state untuk mobile
+	let openDropdownIndex = $state(-1);
+
+	// Close dropdown saat klik di luar
+	$effect(() => {
+		function handleClickOutside(e) {
+			if (openDropdownIndex !== -1 && !e.target.closest('[data-dropdown-menu]')) {
+				openDropdownIndex = -1;
+			}
+		}
+		document.addEventListener('click', handleClickOutside);
+		return () => document.removeEventListener('click', handleClickOutside);
+	});
 
 	// Tampilkan toast dari pesan server
 	if (data?.success) {
@@ -58,8 +73,9 @@
 			.filter((b) => !search || b.no_blok.toLowerCase().includes(search.toLowerCase()))
 			.slice()
 			.sort((a, b) => {
-				const na = a.no_blok.toLowerCase();
-				const nb = b.no_blok.toLowerCase();
+				const field = sortBy === 'status' ? 'status' : 'no_blok';
+				const na = (a[field] || '').toLowerCase();
+				const nb = (b[field] || '').toLowerCase();
 				return sort === 'asc' ? na.localeCompare(nb) : nb.localeCompare(na);
 			})
 	);
@@ -68,6 +84,7 @@
 		const params = new URLSearchParams();
 		if (search) params.set('search', search);
 		params.set('sort', sort);
+		params.set('sortBy', sortBy);
 		window.history.pushState(null, '', `?${params.toString()}`);
 	}
 
@@ -76,8 +93,13 @@
 		updateUrl();
 	}
 
-	function onSortClick() {
-		sort = sort === 'asc' ? 'desc' : 'asc';
+	function onSortClick(column) {
+		if (sortBy === column) {
+			sort = sort === 'asc' ? 'desc' : 'asc';
+		} else {
+			sortBy = column;
+			sort = 'asc';
+		}
 		updateUrl();
 	}
 
@@ -99,16 +121,30 @@
 		};
 	}
 
-	function handleDelete() {
-		return async ({ update }) => {
-			await update();
-			if (page.form?.success) {
-				showToast('success', page.form.success);
+	async function handleDeleteBlok(id) {
+		if (!confirm('Hapus blok rumah ini?')) return;
+
+		const formData = new FormData();
+		formData.append('id', id);
+
+		try {
+			const res = await fetch('?/delete', {
+				method: 'POST',
+				body: formData,
+				credentials: 'include'
+			});
+			const result = await res.json();
+			if (!res.ok || result.error) {
+				showToast('error', result.error || 'Gagal menghapus data');
+				return;
 			}
-			if (page.form?.error) {
-				showToast('error', page.form.error);
-			}
-		};
+			showToast('success', result.success || 'Data blok rumah berhasil dihapus');
+			// Hapus dari local state tanpa reload
+			items = items.filter((b) => b.id !== id);
+		} catch (e) {
+			console.error('Delete blok error:', e);
+			showToast('error', 'Gagal menghapus data');
+		}
 	}
 </script>
 
@@ -187,52 +223,98 @@
 		<div class="bg-white rounded-lg shadow border border-gray-200 overflow-x-auto">
 			<table class="w-full text-left border-collapse min-w-full">
 				<thead>
-					<tr class="bg-gray-50 border-b border-gray-200">
-						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-						<th
-							class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:bg-gray-100 transition-colors"
-							onclick={onSortClick}
-						>
-							<div class="flex items-center gap-1">
-								<span>No. Blok</span>
-								<i class="fa-solid text-xs text-gray-400" class:fa-sort-up={sort === 'asc'} class:fa-sort-down={sort === 'desc'}></i>
-							</div>
-						</th>
-						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Aksi</th>
-					</tr>
-				</thead>
+								<tr class="bg-gray-50 border-b border-gray-200">
+									<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+									<th
+															class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:bg-gray-100 transition-colors"
+															onclick={() => onSortClick('no_blok')}
+														>
+															<div class="flex items-center gap-1">
+																<span>No. Blok</span>
+																<i class="fa-solid text-xs text-gray-400" class:fa-sort-up={sort === 'asc' && sortBy === 'no_blok'} class:fa-sort-down={sort === 'desc' && sortBy === 'no_blok'}></i>
+															</div>
+														</th>
+									<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:bg-gray-100 transition-colors" onclick={() => onSortClick('status')}>
+						<div class="flex items-center gap-1">
+							<span>Status</span>
+							<i class="fa-solid text-xs text-gray-400" class:fa-sort-up={sort === 'asc' && sortBy === 'status'} class:fa-sort-down={sort === 'desc' && sortBy === 'status'}></i>
+						</div>
+					</th>
+									<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Aksi</th>
+								</tr>
+							</thead>
 				<tbody class="divide-y divide-gray-100">
-					{#each sortedItems as blok, index}
-						<tr class="hover:bg-gray-50 transition-colors">
-							<td class="px-6 py-4 text-sm text-gray-600">{index + 1}</td>
-							<td class="px-6 py-4 text-sm text-gray-900 font-medium">{blok.no_blok}</td>
-							<td class="px-6 py-4 text-right">
-								<button
-									onclick={() => openEditModal(blok.id, blok.no_blok)}
-									class="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors"
-									title="Edit"
-								>
-									<i class="fa-solid fa-pen-to-square"></i>
-								</button>
-								<form
-									method="POST"
-									action="?/delete"
-									use:enhance={handleDelete}
-									onclick={(e) => {
-										if (!confirm('Hapus blok rumah ini?')) e.preventDefault();
-									}}
-									class="inline"
-								>
-									<input type="hidden" name="id" value={blok.id} />
-									<button
-										type="submit"
-										class="px-3 py-1.5 text-xs font-medium text-white bg-red-600 border border-transparent rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-colors"
-										title="Hapus"
-									>
-										<i class="fa-solid fa-trash"></i>
-									</button>
-								</form>
-							</td>
+							{#each sortedItems as blok, index}
+								<tr class="hover:bg-gray-50 transition-colors">
+									<td class="px-6 py-4 text-sm text-gray-600">{index + 1}</td>
+									<td class="px-6 py-4 text-sm text-gray-900 font-medium">{blok.no_blok}</td>
+									<td class="px-6 py-4">
+										<span
+											class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+												blok.status === 'Dihuni'
+													? 'bg-green-100 text-green-800'
+													: 'bg-gray-100 text-gray-800'
+											}`}
+										>
+											{blok.status}
+										</span>
+									</td>
+									<td class="px-6 py-4 text-right">
+														<div class="flex items-center justify-end gap-1 lg:gap-2">
+															<!-- Desktop: Horizontal buttons -->
+															<div class="hidden lg:flex items-center gap-1">
+																<button
+																	onclick={() => openEditModal(blok.id, blok.no_blok)}
+																	class="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 transition-colors"
+																	title="Edit"
+																>
+																	<i class="fa-solid fa-pen-to-square"></i>
+																</button>
+																<button
+																	type="button"
+																	onclick={() => handleDeleteBlok(blok.id)}
+																	class="px-3 py-1.5 text-xs font-medium text-white bg-red-600 border border-transparent rounded hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-colors"
+																	title="Hapus"
+																>
+																	<i class="fa-solid fa-trash"></i>
+																</button>
+															</div>
+
+															<!-- Mobile: Dropdown -->
+															<div class="lg:hidden relative" data-dropdown-menu>
+																<button
+																	type="button"
+																	onclick={() => openDropdownIndex = openDropdownIndex === index ? -1 : index}
+																	class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 transition-colors"
+																	aria-expanded={openDropdownIndex === index}
+																	aria-haspopup="true"
+																>
+																	<i class="fa-solid fa-ellipsis-v"></i>
+																</button>
+																{#if openDropdownIndex === index}
+																	<div class="absolute right-0 top-full mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg animate-in fade-in zoom-in-95 z-50" role="menu">
+																		<button
+																			onclick={() => { openEditModal(blok.id, blok.no_blok); openDropdownIndex = -1; }}
+																			class="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 rounded-t-lg flex items-center gap-2"
+																			role="menuitem"
+																		>
+																			<i class="fa-solid fa-pen-to-square text-blue-600 w-4"></i>
+																			<span>Edit</span>
+																		</button>
+																		<button
+																			type="button"
+																			onclick={() => { handleDeleteBlok(blok.id); openDropdownIndex = -1; }}
+																			class="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 rounded-b-lg flex items-center gap-2"
+																			role="menuitem"
+																		>
+																			<i class="fa-solid fa-trash w-4"></i>
+																			<span>Hapus</span>
+																		</button>
+																	</div>
+																{/if}
+															</div>
+														</div>
+													</td>
 						</tr>
 					{/each}
 				</tbody>
