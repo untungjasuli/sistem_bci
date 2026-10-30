@@ -536,31 +536,10 @@
 														{/if}
 													</td>
 													<td class="px-6 py-4 text-right">
-														<div class="flex items-center justify-end gap-1 lg:gap-2">
+														<div class="flex items-center justify-center gap-1 lg:gap-2">
 															{#if t.ref_type === 'manual' && (t.status === 'posted' || t.status === 'draft')}
-																<!-- Desktop: Horizontal buttons -->
-																<div class="hidden lg:flex items-center gap-1">
-																	<button
-																		onclick={() => openEditModal(t)}
-																		class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-																		title="Edit"
-																		aria-label="Edit"
-																	>
-																		<i class="fa-regular fa-pen-to-square text-lg"></i>
-																	</button>
-																	<button
-																		type="button"
-																		onclick={() => handleDelete(t.id)}
-																		class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-																		title="Hapus"
-																		aria-label="Hapus"
-																	>
-																		<i class="fa-regular fa-trash-can text-lg"></i>
-																	</button>
-																</div>
-
 																<!-- Mobile: Dropdown -->
-																<div class="lg:hidden relative" data-dropdown-menu>
+																<div class="relative" data-dropdown-menu>
 																	<button
 																		type="button"
 																		onclick={() => openDropdownIndex = openDropdownIndex === index ? -1 : index}
@@ -572,6 +551,9 @@
 																	</button>
 																	{#if openDropdownIndex === index}
 																		<div class="absolute right-0 top-full mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg animate-in fade-in zoom-in-95 z-50" role="menu">
+																			<div class="w-full px-3 py-2 text-left text-sm text-gray-600 rounded-t-lg">
+																				Detail: {t.keterangan || '-'}
+																			</div>
 																			<button
 																				onclick={() => { openEditModal(t); openDropdownIndex = -1; }}
 																				class="w-full px-3 py-2 text-left text-sm text-blue-600 hover:bg-blue-50 rounded-t-lg flex items-center gap-2"
@@ -603,7 +585,7 @@
 																</div>
 															{:else}
 																<!-- Mobile: Dropdown only (for non-manual or non-editable) -->
-																<div class="lg:hidden relative" data-dropdown-menu>
+																<div class="relative" data-dropdown-menu>
 																	<button
 																		type="button"
 																		onclick={() => openDropdownIndex = openDropdownIndex === index ? -1 : index}
