@@ -181,16 +181,20 @@ export const actions = {
 				[user.id, id]
 			);
 
-			// 2. Get kategori for transfer (use first pengeluaran for keluar, first pemasukan for masuk)
-					const [katKeluar] = await conn.execute('SELECT id FROM kategori_kas WHERE tipe = "pengeluaran" AND is_active = 1 ORDER BY urutan LIMIT 1');
-					const [katMasuk] = await conn.execute('SELECT id FROM kategori_kas WHERE tipe = "pemasukan" AND is_active = 1 ORDER BY urutan LIMIT 1');
+						// 2. Get dedicated transfer categories (create if not exist)
+								let [katKeluarRows] = await conn.execute('SELECT id FROM kategori_kas WHERE kode = "TRF-KELUAR" AND is_active = 1 LIMIT 1');
+								if (katKeluarRows.length === 0) {
+									const [result] = await conn.execute('INSERT INTO kategori_kas (kode, nama, tipe, urutan, is_active) VALUES ("TRF-KELUAR", "Transfer Keluar", "pengeluaran", 999, 1)');
+									katKeluarRows = [{ id: result.insertId }];
+								}
+								let [katMasukRows] = await conn.execute('SELECT id FROM kategori_kas WHERE kode = "TRF-MASUK" AND is_active = 1 LIMIT 1');
+								if (katMasukRows.length === 0) {
+									const [result] = await conn.execute('INSERT INTO kategori_kas (kode, nama, tipe, urutan, is_active) VALUES ("TRF-MASUK", "Transfer Masuk", "pemasukan", 999, 1)');
+									katMasukRows = [{ id: result.insertId }];
+								}
 
-					const kategoriKeluarId = katKeluar[0]?.id;
-					const kategoriMasukId = katMasuk[0]?.id;
-
-					if (!kategoriKeluarId || !kategoriMasukId) {
-						throw new Error('Kategori transfer tidak ditemukan, silakan setup kategori pemasukan/pengeluaran dulu');
-					}
+								const kategoriKeluarId = katKeluarRows[0].id;
+								const kategoriMasukId = katMasukRows[0].id;
 
 					// Generate unique nomor_bukti for each transaksi_kas entry
 					const baseNomorBukti = t.nomor_bukti; // e.g., TF-202610-0002

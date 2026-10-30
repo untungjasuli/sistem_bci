@@ -60,11 +60,11 @@ export const load = async ({ cookies }) => {
 		// Penduduk per kelompok umur (berdasarkan tanggal_lahir)
 		const [umurRows] = await conn.execute(`
 			SELECT 
-				SUM(CASE WHEN TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 0 AND 0 THEN 1 ELSE 0 END) as bayi,
+				SUM(CASE WHEN TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) < 1 THEN 1 ELSE 0 END) as bayi,
 				SUM(CASE WHEN TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 1 AND 4 THEN 1 ELSE 0 END) as balita,
 				SUM(CASE WHEN TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 5 AND 9 THEN 1 ELSE 0 END) as anak_anak,
 				SUM(CASE WHEN TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 10 AND 18 THEN 1 ELSE 0 END) as remaja,
-				SUM(CASE WHEN TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 19 AND 43 THEN 1 ELSE 0 END) as dewasa,
+				SUM(CASE WHEN TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 19 AND 44 THEN 1 ELSE 0 END) as dewasa,
 				SUM(CASE WHEN TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) BETWEEN 45 AND 59 THEN 1 ELSE 0 END) as pra_lansia,
 				SUM(CASE WHEN TIMESTAMPDIFF(YEAR, tanggal_lahir, CURDATE()) >= 60 THEN 1 ELSE 0 END) as lansia
 			FROM anggota_keluarga
