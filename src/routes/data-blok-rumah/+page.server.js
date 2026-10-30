@@ -1,4 +1,4 @@
-import { redirect } from '@sveltejs/kit';
+import { redirect, fail } from '@sveltejs/kit';
 import { getConnection, executeQuery } from '#lib/server/db';
 
 export const load = async ({ cookies, url }) => {
@@ -8,8 +8,8 @@ export const load = async ({ cookies, url }) => {
 	}
 
 	const search = url.searchParams.get('search')?.trim() || '';
-	const sort = url.searchParams.get('sort') || 'asc'; // 'asc' | 'desc'
-	const sortBy = url.searchParams.get('sortBy') || 'no_blok'; // 'no_blok' | 'status'
+	const sort = url.searchParams.get('sort') || 'asc';
+	const sortBy = url.searchParams.get('sortBy') || 'no_blok';
 	const page = Math.max(1, parseInt(url.searchParams.get('page') || '1'));
 	const itemsPerPage = Math.max(1, parseInt(url.searchParams.get('itemsPerPage') || '10'));
 
@@ -27,12 +27,11 @@ export const load = async ({ cookies, url }) => {
 	}
 
 	const orderField = sortBy === 'status'
-			? "CASE WHEN EXISTS (SELECT 1 FROM keluarga k WHERE k.blok_rumah_id = b.id) THEN 'Dihuni' ELSE 'Kosong' END"
-			: 'b.no_blok';
+		? "CASE WHEN EXISTS (SELECT 1 FROM keluarga k WHERE k.blok_rumah_id = b.id) THEN 'Dihuni' ELSE 'Kosong' END"
+		: 'b.no_blok';
 	sql += ` ORDER BY ${orderField} ${sort === 'desc' ? 'DESC' : 'ASC'}`;
 
-	// Hitung total untuk pagination (query terpisah tanpa ORDER BY dan LIMIT)
-	// Count sederhana karena main query tidak pakai GROUP BY
+	// Count
 	let countSql = `SELECT COUNT(*) as total FROM blok_rumah b`;
 	const countParams = [];
 	if (search) {
@@ -44,7 +43,6 @@ export const load = async ({ cookies, url }) => {
 		const [countRows] = await conn.execute(countSql, countParams);
 		const total = countRows[0]?.total || 0;
 
-		// Apply limit/offset
 		sql += ` LIMIT ? OFFSET ?`;
 		params.push(itemsPerPage, (page - 1) * itemsPerPage);
 
@@ -74,7 +72,7 @@ export const actions = {
 		const noBlok = form.get('no_blok')?.toString().trim() || '';
 
 		if (!noBlok) {
-			return { error: 'No. Blok wajib diisi' };
+			return fail(400, { error: 'No. Blok wajib diisi' });
 		}
 
 		const conn = await getConnection();
@@ -83,9 +81,9 @@ export const actions = {
 			return { success: 'Data blok rumah berhasil ditambahkan' };
 		} catch (e) {
 			if (e.code === 'ER_DUP_ENTRY') {
-				return { error: 'No. Blok sudah terdaftar' };
+				return fail(400, { error: 'No. Blok sudah terdaftar' });
 			}
-			return { error: 'Gagal menambahkan data' };
+			return fail(400, { error: 'Gagal menambahkan data' });
 		} finally {
 			conn.release();
 		}
@@ -102,22 +100,22 @@ export const actions = {
 		const noBlok = form.get('no_blok')?.toString().trim() || '';
 
 		if (!id || !noBlok) {
-			return { error: 'Data tidak lengkap' };
+			return fail(400, { error: 'Data tidak lengkap' });
 		}
 
 		const conn = await getConnection();
 		try {
 			const [result] = await conn.execute('UPDATE blok_rumah SET no_blok = ? WHERE id = ?', [noBlok, id]);
 			if (result.affectedRows === 0) {
-				return { error: 'Data blok rumah tidak ditemukan' };
+				return fail(400, { error: 'Data blok rumah tidak ditemukan' });
 			}
 			return { success: 'Data blok rumah berhasil diperbarui' };
 		} catch (e) {
 			console.error('UPDATE blok_rumah error:', e);
 			if (e.code === 'ER_DUP_ENTRY') {
-				return { error: 'No. Blok sudah terdaftar' };
+				return fail(400, { error: 'No. Blok sudah terdaftar' });
 			}
-			return { error: 'Gagal memperbarui data: ' + e.message };
+			return fail(400, { error: 'Gagal memperbarui data: ' + e.message });
 		} finally {
 			conn.release();
 		}
@@ -133,7 +131,7 @@ export const actions = {
 		const id = form.get('id')?.toString();
 
 		if (!id) {
-			return { error: 'ID tidak valid' };
+			return fail(400, { error: 'ID tidak valid' });
 		}
 
 		const conn = await getConnection();

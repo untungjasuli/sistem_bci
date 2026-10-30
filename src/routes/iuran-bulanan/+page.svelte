@@ -111,60 +111,96 @@
 	}
 
 	// Generate tagihan (admin only)
-	async function handleGenerate() {
-		if (!confirm(`Generate tagihan untuk periode ${periode}?`)) return;
+		async function handleGenerate() {
+			if (!confirm(`Generate tagihan untuk periode ${periode}?`)) return;
 
-		const formData = new FormData();
-		formData.append('periode', periode);
+			const formData = new FormData();
+			formData.append('periode', periode);
 
-		try {
-			const res = await fetch('?/generateTagihan', {
-				method: 'POST',
-				body: formData,
-				credentials: 'include'
-			});
-			const result = await res.json();
+			try {
+				const res = await fetch('?/generateTagihan', {
+					method: 'POST',
+					body: formData,
+					credentials: 'include'
+				});
+				const result = await res.json();
 
-						if (!res.ok || result.error) {
-							showToast('error', result.error || 'Gagal generate tagihan');
-							return;
-						}
+				// Parse SvelteKit form action response (fail() returns data as JSON string array)
+							let actionResult = result;
+							if (result.data && typeof result.data === 'string') {
+								try {
+									const parsed = JSON.parse(result.data);
+									if (Array.isArray(parsed) && parsed.length >= 2) {
+										if (parsed[0]?.error) {
+											actionResult = { error: parsed[1] };
+										} else if (parsed[0]?.success) {
+											actionResult = { success: parsed[1] };
+										}
+									} else if (typeof parsed === 'object') {
+										actionResult = parsed;
+									}
+								} catch {}
+							}
 
-						showToast('success', result.success || 'Tagihan berhasil digenerate');
-						await invalidateAll();
-					} catch (e) {
-						console.error('Generate error:', e);
-						showToast('error', 'Gagal generate tagihan');
-					}
+				if (!res.ok || actionResult.error) {
+					const serverError = actionResult.error || 'Gagal generate tagihan';
+					showToast('error', `Gagal generate - ${serverError}`);
+					return;
 				}
 
-				// Generate Missing tagihan (admin only)
-				async function handleGenerateMissing() {
-					if (!confirm(`Generate tagihan missing untuk periode ${periode}?`)) return;
+				showToast('success', actionResult.success || 'Tagihan berhasil digenerate');
+				await invalidateAll();
+			} catch (e) {
+				console.error('Generate error:', e);
+				showToast('error', 'Gagal generate tagihan');
+			}
+		}
 
-					const formData = new FormData();
-					formData.append('periode', periode);
+		// Generate Missing tagihan (admin only)
+		async function handleGenerateMissing() {
+			if (!confirm(`Generate tagihan missing untuk periode ${periode}?`)) return;
 
-					try {
-						const res = await fetch('?/generateMissing', {
-							method: 'POST',
-							body: formData,
-							credentials: 'include'
-						});
-						const result = await res.json();
+			const formData = new FormData();
+			formData.append('periode', periode);
 
-						if (!res.ok || result.error) {
-							showToast('error', result.error || 'Gagal generate missing');
-							return;
-						}
+			try {
+				const res = await fetch('?/generateMissing', {
+					method: 'POST',
+					body: formData,
+					credentials: 'include'
+				});
+				const result = await res.json();
 
-						showToast('success', result.success || 'Tagihan missing berhasil digenerate');
-						await invalidateAll();
-					} catch (e) {
-						console.error('Generate missing error:', e);
-						showToast('error', 'Gagal generate missing');
-					}
+				// Parse SvelteKit form action response (fail() returns data as JSON string array)
+							let actionResult = result;
+							if (result.data && typeof result.data === 'string') {
+								try {
+									const parsed = JSON.parse(result.data);
+									if (Array.isArray(parsed) && parsed.length >= 2) {
+										if (parsed[0]?.error) {
+											actionResult = { error: parsed[1] };
+										} else if (parsed[0]?.success) {
+											actionResult = { success: parsed[1] };
+										}
+									} else if (typeof parsed === 'object') {
+										actionResult = parsed;
+									}
+								} catch {}
+							}
+
+				if (!res.ok || actionResult.error) {
+					const serverError = actionResult.error || 'Gagal generate missing';
+					showToast('error', `Gagal generate missing - ${serverError}`);
+					return;
 				}
+
+				showToast('success', actionResult.success || 'Tagihan missing berhasil digenerate');
+				await invalidateAll();
+			} catch (e) {
+				console.error('Generate missing error:', e);
+				showToast('error', 'Gagal generate missing');
+			}
+		}
 
 			// Open bayar modal
 	function openBayarModal(tagihan) {
@@ -206,12 +242,30 @@
 			});
 			const result = await res.json();
 
-			if (!res.ok || result.error) {
-				showToast('error', result.error || 'Gagal bayar');
+			// Parse SvelteKit form action response (fail() returns data as JSON string array)
+			let actionResult = result;
+			if (result.data && typeof result.data === 'string') {
+				try {
+					const parsed = JSON.parse(result.data);
+					if (Array.isArray(parsed) && parsed.length >= 2) {
+						if (parsed[0]?.error) {
+							actionResult = { error: parsed[1] };
+						} else if (parsed[0]?.success) {
+							actionResult = { success: parsed[1] };
+						}
+					} else if (typeof parsed === 'object') {
+						actionResult = parsed;
+					}
+				} catch {}
+			}
+
+			if (!res.ok || actionResult.error) {
+				const serverError = actionResult.error || 'Gagal bayar';
+				showToast('error', `Gagal bayar - ${serverError}`);
 				return;
 			}
 
-			showToast('success', result.success || 'Pembayaran berhasil');
+			showToast('success', actionResult.success || 'Pembayaran berhasil');
 			closeBayarModal();
 			await invalidateAll();
 		} catch (e) {

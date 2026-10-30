@@ -78,27 +78,29 @@
 			});
 			const result = await res.json();
 			// SvelteKit form action response: { type, status, data: '[{"error":1},"message"]' } or '[{"success":1},"message"]'
-			let errorMessage = '';
-			let successMessage = '';
-			if (result.data) {
+			let actionResult = result;
+			if (result.data && typeof result.data === 'string') {
 				try {
 					const parsed = JSON.parse(result.data);
-					if (Array.isArray(parsed) && parsed[1]) {
+					if (Array.isArray(parsed) && parsed.length >= 2) {
 						if (parsed[0]?.error) {
-							errorMessage = parsed[1];
+							actionResult = { error: parsed[1] };
 						} else if (parsed[0]?.success) {
-							successMessage = parsed[1];
+							actionResult = { success: parsed[1] };
 						}
+					} else if (typeof parsed === 'object') {
+						actionResult = parsed;
 					}
 				} catch {}
 			}
-			const hasError = !res.ok || result.error || errorMessage;
+
+			const hasError = !res.ok || actionResult.error;
 			if (hasError) {
-				serverError = errorMessage || result.error || 'Gagal menyimpan data individu';
+				serverError = actionResult.error || 'Gagal menyimpan data individu';
 				return;
 			}
 			onClose();
-			onSave(true, successMessage || result.success || 'Data penduduk berhasil diperbarui');
+			onSave(true, actionResult.success || 'Data penduduk berhasil diperbarui');
 		} catch (e) {
 			console.error('Save individu error:', e);
 			serverError = 'Gagal menyimpan data individu';

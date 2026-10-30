@@ -1,4 +1,4 @@
-import { redirect } from '@sveltejs/kit';
+import { redirect, fail } from '@sveltejs/kit';
 import { getConnection } from '#lib/server/db';
 
 export const actions = {
@@ -8,10 +8,9 @@ export const actions = {
 		const password = formData.get('password');
 
 		if (!username || !password) {
-			return { error: 'Username dan password harus diisi' };
+			return fail(400, { error: 'Username dan password harus diisi' });
 		}
 
-		let loginOk = false;
 		let redirectTo = '/';
 
 		try {
@@ -23,7 +22,7 @@ export const actions = {
 
 			if (!rows || rows.length === 0) {
 				conn.release();
-				return { error: 'Username atau password salah' };
+				return fail(400, { error: 'Username atau password salah' });
 			}
 
 			const user = rows[0];
@@ -47,15 +46,12 @@ export const actions = {
 				secure: false
 			});
 
-			loginOk = true;
 			conn.release();
 		} catch (err) {
 			console.error('Login error:', err);
-			return { error: 'Terjadi kesalahan pada server' };
+			return fail(400, { error: 'Terjadi kesalahan pada server' });
 		}
 
-		if (loginOk) {
-			redirect(303, redirectTo);
-		}
+		throw redirect(303, redirectTo);
 	}
 };

@@ -182,17 +182,87 @@
 														<hr class="my-2 border-gray-100" />
 									{/if}
 									<li>
-										<a
-											href="/iuran-bulanan"
-											onclick={closeSidebar}
-											class="flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors
-												{page.url.pathname === '/iuran-bulanan' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
-										>
-											<i class="fa-solid fa-money-bill-wave w-5"></i>
-											<span>Iuran Bulanan</span>
-										</a>
-									</li>
-								</ul>
+																<a
+																	href="/iuran-bulanan"
+																	onclick={closeSidebar}
+																	class="flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors
+																		{page.url.pathname === '/iuran-bulanan' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+																>
+																	<i class="fa-solid fa-money-bill-wave w-5"></i>
+																	<span>Iuran Bulanan</span>
+																</a>
+															</li>
+															{#if isAdmin()}
+															<hr class="my-2 border-gray-100" />
+															<li>
+																<a
+																	href="/persetujuan-pembayaran"
+																	onclick={closeSidebar}
+																	class="flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors
+																		{page.url.pathname === '/persetujuan-pembayaran' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+																>
+																	<i class="fa-solid fa-clipboard-check w-5"></i>
+																	<span>Persetujuan Pembayaran</span>
+																</a>
+															</li>
+															<hr class="my-2 border-gray-100" />
+															<li>
+																<a
+																	href="/kas-account"
+																	onclick={closeSidebar}
+																	class="flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors
+																		{page.url.pathname === '/kas-account' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+																>
+																	<i class="fa-solid fa-wallet w-5"></i>
+																	<span>Rekening Kas</span>
+																</a>
+															</li>
+															<li>
+																<a
+																	href="/kategori-kas"
+																	onclick={closeSidebar}
+																	class="flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors
+																		{page.url.pathname === '/kategori-kas' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+																>
+																	<i class="fa-solid fa-tags w-5"></i>
+																	<span>Kategori Kas</span>
+																</a>
+															</li>
+															<li>
+																<a
+																	href="/pembayaran-method"
+																	onclick={closeSidebar}
+																	class="flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors
+																		{page.url.pathname === '/pembayaran-method' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+																>
+																	<i class="fa-solid fa-credit-card w-5"></i>
+																	<span>Metode Pembayaran</span>
+																</a>
+															</li>
+															<li>
+																<a
+																	href="/transaksi-kas"
+																	onclick={closeSidebar}
+																	class="flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors
+																		{page.url.pathname === '/transaksi-kas' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+																>
+																	<i class="fa-solid fa-receipt w-5"></i>
+																	<span>Transaksi Kas</span>
+																</a>
+															</li>
+															<li>
+																<a
+																	href="/transfer-antar-kas"
+																	onclick={closeSidebar}
+																	class="flex items-center gap-3 px-4 py-3 rounded-lg font-medium transition-colors
+																		{page.url.pathname === '/transfer-antar-kas' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+																>
+																	<i class="fa-solid fa-arrow-right-arrow-left w-5"></i>
+																	<span>Transfer Antar Kas</span>
+																</a>
+															</li>
+															{/if}
+														</ul>
 							</nav>
 				<div class="p-4 border-t border-gray-200">
 								<form method="POST" action="/logout" class="w-full">

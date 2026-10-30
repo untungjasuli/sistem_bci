@@ -1,4 +1,4 @@
-import { redirect, error } from '@sveltejs/kit';
+import { redirect, error, fail } from '@sveltejs/kit';
 import { getConnection, executeQuery } from '#lib/server/db';
 
 export const load = async ({ cookies, url }) => {
@@ -91,13 +91,13 @@ export const actions = {
 		const hpRegex = /^\d{11,13}$/;
 
 		if (!noKk) {
-			return { error: 'No. KK wajib diisi' };
+			return fail(400, { error: 'No. KK wajib diisi' });
 		}
 		if (!nikRegex.test(noKk)) {
-			return { error: 'No. KK harus berupa 16 digit angka' };
+			return fail(400, { error: 'No. KK harus berupa 16 digit angka' });
 		}
 		if (!blokRumahId) {
-			return { error: 'Blok Rumah wajib dipilih' };
+			return fail(400, { error: 'Blok Rumah wajib dipilih' });
 		}
 
 		const niks = form.getAll('nik[]')?.map((v) => v.toString().trim()) || [];
@@ -108,17 +108,17 @@ export const actions = {
 		const nomorHps = form.getAll('nomor_hp[]')?.map((v) => v.toString().trim()) || [];
 
 		if (niks.length === 0) {
-			return { error: 'Minimal harus ada 1 anggota keluarga' };
+			return fail(400, { error: 'Minimal harus ada 1 anggota keluarga' });
 		}
 
 		for (let i = 0; i < niks.length; i++) {
-			if (!niks[i]) return { error: `NIK anggota ke-${i + 1} wajib diisi` };
-			if (!nikRegex.test(niks[i])) return { error: `NIK anggota ke-${i + 1} harus berupa 16 digit angka` };
-			if (!namas[i]) return { error: `Nama anggota ke-${i + 1} wajib diisi` };
-			if (!jks[i]) return { error: `Jenis kelamin anggota ke-${i + 1} wajib diisi` };
-			if (!tglLahir[i]) return { error: `Tanggal lahir anggota ke-${i + 1} wajib diisi` };
-			if (!hubs[i]) return { error: `Hubungan keluarga anggota ke-${i + 1} wajib diisi` };
-			if (nomorHps[i] && !hpRegex.test(nomorHps[i])) return { error: `Nomor HP anggota ke-${i + 1} harus berupa 11-13 digit angka` };
+			if (!niks[i]) return fail(400, { error: `NIK anggota ke-${i + 1} wajib diisi` });
+			if (!nikRegex.test(niks[i])) return fail(400, { error: `NIK anggota ke-${i + 1} harus berupa 16 digit angka` });
+			if (!namas[i]) return fail(400, { error: `Nama anggota ke-${i + 1} wajib diisi` });
+			if (!jks[i]) return fail(400, { error: `Jenis kelamin anggota ke-${i + 1} wajib diisi` });
+			if (!tglLahir[i]) return fail(400, { error: `Tanggal lahir anggota ke-${i + 1} wajib diisi` });
+			if (!hubs[i]) return fail(400, { error: `Hubungan keluarga anggota ke-${i + 1} wajib diisi` });
+			if (nomorHps[i] && !hpRegex.test(nomorHps[i])) return fail(400, { error: `Nomor HP anggota ke-${i + 1} harus berupa 11-13 digit angka` });
 		}
 
 		const conn = await getConnection();
@@ -146,22 +146,22 @@ export const actions = {
 			}
 
 			// Insert semua anggota
-					for (let i = 0; i < niks.length; i++) {
-						try {
-							await conn.execute(
-								`INSERT INTO anggota_keluarga (nik, nama, jenis_kelamin, tanggal_lahir, hub_keluarga, nomor_hp, keluarga_id)
-								 VALUES (?, ?, ?, ?, ?, ?, ?)`,
-								[niks[i], namas[i], jks[i], tglLahir[i], hubs[i], nomorHps[i] || null, keluargaId]
-							);
-						} catch (insertError) {
-							await conn.rollback();
-							if (insertError.code === 'ER_DUP_ENTRY') {
-								const namaInfo = namas[i] ? ` (${namas[i]})` : '';
-								return { error: `NIK anggota ke-${i + 1}${namaInfo} sudah terdaftar` };
-							}
-							throw insertError;
-						}
+			for (let i = 0; i < niks.length; i++) {
+				try {
+					await conn.execute(
+						`INSERT INTO anggota_keluarga (nik, nama, jenis_kelamin, tanggal_lahir, hub_keluarga, nomor_hp, keluarga_id)
+						VALUES (?, ?, ?, ?, ?, ?, ?)`,
+						[niks[i], namas[i], jks[i], tglLahir[i], hubs[i], nomorHps[i] || null, keluargaId]
+					);
+				} catch (insertError) {
+					await conn.rollback();
+					if (insertError.code === 'ER_DUP_ENTRY') {
+						const namaInfo = namas[i] ? ` (${namas[i]})` : '';
+						return fail(400, { error: `NIK anggota ke-${i + 1}${namaInfo} sudah terdaftar` });
 					}
+					throw insertError;
+				}
+			}
 
 			await conn.commit();
 			return { success: id ? 'Data keluarga dan anggota berhasil diperbarui' : 'Data keluarga dan anggota berhasil disimpan' };
@@ -169,10 +169,10 @@ export const actions = {
 			await conn.rollback();
 			if (e.code === 'ER_DUP_ENTRY') {
 				if (e.message.includes('no_kk')) {
-					return { error: 'No. KK sudah terdaftar' };
+					return fail(400, { error: 'No. KK sudah terdaftar' });
 				}
 			}
-			return { error: 'Gagal menyimpan data: ' + e.message };
+			return fail(400, { error: 'Gagal menyimpan data: ' + e.message });
 		} finally {
 			conn.release();
 		}
@@ -196,13 +196,13 @@ export const actions = {
 		const hpRegex = /^\d{11,13}$/;
 
 		if (!id || !nik || !nama || !jenis_kelamin) {
-			return { error: 'Data tidak lengkap' };
+			return fail(400, { error: 'Data tidak lengkap' });
 		}
 		if (!nikRegex.test(nik)) {
-			return { error: 'NIK harus berupa 16 digit angka' };
+			return fail(400, { error: 'NIK harus berupa 16 digit angka' });
 		}
 		if (nomor_hp && !hpRegex.test(nomor_hp)) {
-			return { error: 'Nomor HP harus berupa 11-13 digit angka' };
+			return fail(400, { error: 'Nomor HP harus berupa 11-13 digit angka' });
 		}
 
 		const conn = await getConnection();
@@ -214,16 +214,16 @@ export const actions = {
 
 			console.log("nilai:", result.affectedRows);
 			if (result.affectedRows === 0) {
-				return { error: 'Anggota tidak ditemukan' };
+				return fail(400, { error: 'Anggota tidak ditemukan' });
 			}
 
 			return { success: 'Data penduduk berhasil diperbarui' };
 		} catch (e) {
 			console.error('UPDATE anggota error:', e);
 			if (e.code === 'ER_DUP_ENTRY') {
-				return { error: 'NIK sudah terdaftar' };
+				return fail(400, { error: 'NIK sudah terdaftar' });
 			}
-			return { error: 'Gagal memperbarui data: ' + e.message };
+			return fail(400, { error: 'Gagal memperbarui data: ' + e.message });
 		} finally {
 			conn.release();
 		}
@@ -239,7 +239,7 @@ export const actions = {
 		const id = form.get('id')?.toString();
 
 		if (!id) {
-			return { error: 'ID anggota tidak valid' };
+			return fail(400, { error: 'ID anggota tidak valid' });
 		}
 
 		const conn = await getConnection();
@@ -250,18 +250,18 @@ export const actions = {
 			);
 
 			if (anggota.length === 0) {
-				return { error: 'Anggota tidak ditemukan' };
+				return fail(400, { error: 'Anggota tidak ditemukan' });
 			}
 
 			if (anggota[0].hub_keluarga === 'Kepala Keluarga') {
-				return { error: 'Kepala Keluarga tidak bisa dihapus. Silahkan hapus dari form edit keluarga' };
+				return fail(400, { error: 'Kepala Keluarga tidak bisa dihapus. Silahkan hapus dari form edit keluarga' });
 			}
 
 			await conn.execute('DELETE FROM anggota_keluarga WHERE id = ?', [id]);
 			return { success: 'Data anggota berhasil dihapus' };
 		} catch (e) {
 			console.error('DELETE anggota error:', e);
-			return { error: 'Gagal menghapus data: ' + e.message };
+			return fail(400, { error: 'Gagal menghapus data: ' + e.message });
 		} finally {
 			conn.release();
 		}

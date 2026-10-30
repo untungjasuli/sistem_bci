@@ -210,12 +210,30 @@
 			});
 			const result = await res.json();
 
-			if (!res.ok || result.error) {
-				showToast('error', result.error || 'Gagal hapus');
+			// Parse SvelteKit form action response format (fail() returns data as JSON string array)
+			let actionResult = result;
+			if (result.data && typeof result.data === 'string') {
+				try {
+					const parsed = JSON.parse(result.data);
+					if (Array.isArray(parsed) && parsed.length >= 2) {
+						if (parsed[0]?.error) {
+							actionResult = { error: parsed[1] };
+						} else if (parsed[0]?.success) {
+							actionResult = { success: parsed[1] };
+						}
+					} else if (typeof parsed === 'object') {
+						actionResult = parsed;
+					}
+				} catch {}
+			}
+
+			if (!res.ok || actionResult.error) {
+				const serverError = actionResult.error || 'Gagal hapus';
+				showToast('error', `Gagal hapus - ${serverError}`);
 				return;
 			}
 
-			showToast('success', result.success || 'Data berhasil dihapus');
+			showToast('success', actionResult.success || 'Data berhasil dihapus');
 			await invalidateAll();
 		} catch (err) {
 			console.error('Delete error:', err);

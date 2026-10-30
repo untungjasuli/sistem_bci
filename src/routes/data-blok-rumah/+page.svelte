@@ -167,29 +167,29 @@
 			});
 			const result = await res.json();
 
-			// Parse SvelteKit form action response
-			let errorMessage = '';
-			let successMessage = '';
-			if (result.data) {
+			// Parse SvelteKit form action response (fail() returns data as JSON string array)
+			let actionResult = result;
+			if (result.data && typeof result.data === 'string') {
 				try {
 					const parsed = JSON.parse(result.data);
-					if (Array.isArray(parsed) && parsed[1]) {
+					if (Array.isArray(parsed) && parsed.length >= 2) {
 						if (parsed[0]?.error) {
-							errorMessage = parsed[1];
+							actionResult = { error: parsed[1] };
 						} else if (parsed[0]?.success) {
-							successMessage = parsed[1];
+							actionResult = { success: parsed[1] };
 						}
+					} else if (typeof parsed === 'object') {
+						actionResult = parsed;
 					}
 				} catch {}
 			}
 
-			const hasError = !res.ok || result.error || errorMessage;
-			if (hasError) {
-				serverError = errorMessage || result.error || 'Gagal menyimpan data';
+			if (!res.ok || actionResult.error) {
+				serverError = actionResult.error || 'Gagal menyimpan data';
 				return;
 			}
 
-			showToast('success', successMessage || result.success || 'Data blok rumah berhasil disimpan');
+			showToast('success', actionResult.success || 'Data blok rumah berhasil disimpan');
 			closeModal();
 			await invalidateAll();
 		} catch (e) {
@@ -211,11 +211,31 @@
 				credentials: 'include'
 			});
 			const result = await res.json();
-			if (!res.ok || result.error) {
-				showToast('error', result.error || 'Gagal menghapus data');
+
+			// Parse SvelteKit form action response (fail() returns data as JSON string array)
+			let actionResult = result;
+			if (result.data && typeof result.data === 'string') {
+				try {
+					const parsed = JSON.parse(result.data);
+					if (Array.isArray(parsed) && parsed.length >= 2) {
+						if (parsed[0]?.error) {
+							actionResult = { error: parsed[1] };
+						} else if (parsed[0]?.success) {
+							actionResult = { success: parsed[1] };
+						}
+					} else if (typeof parsed === 'object') {
+						actionResult = parsed;
+					}
+				} catch {}
+			}
+
+			if (!res.ok || actionResult.error) {
+				const serverError = actionResult.error || 'Gagal menghapus data';
+				showToast('error', `Gagal hapus - ${serverError}`);
 				return;
 			}
-			showToast('success', result.success || 'Data blok rumah berhasil dihapus');
+
+			showToast('success', actionResult.success || 'Data blok rumah berhasil dihapus');
 			// Hapus dari local state tanpa reload
 			items = items.filter((b) => b.id !== id);
 		} catch (e) {
