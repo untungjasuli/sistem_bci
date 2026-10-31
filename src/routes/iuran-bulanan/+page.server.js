@@ -153,28 +153,28 @@ export const actions = {
 				return fail(400, { error: `Tagihan untuk periode ${periode} sudah digenerate` });
 			}
 
-			// Ambil semua blok rumah dengan status dihuni/kosong berdasarkan keberadaan keluarga
-			const [blokRows] = await conn.execute(`
-				SELECT 
-					br.id, 
-					br.no_blok,
-					CASE WHEN COUNT(k.id) > 0 THEN 'Dihuni' ELSE 'Kosong' END as status
-				FROM blok_rumah br
-				LEFT JOIN keluarga k ON k.blok_rumah_id = br.id
-				GROUP BY br.id, br.no_blok
-				ORDER BY br.no_blok ASC
-			`);
+			// Ambil semua blok rumah dengan status dihuni/kosong berdasarkan keberadaan keluarga yang status_rumah bukan 'ikut_ortu_mertua'
+					const [blokRows] = await conn.execute(`
+						SELECT 
+							br.id, 
+							br.no_blok,
+							CASE WHEN COUNT(CASE WHEN k.status_rumah IN ('sendiri', 'ngontrak') THEN 1 END) > 0 THEN 'Dihuni' ELSE 'Kosong' END as status
+						FROM blok_rumah br
+						LEFT JOIN keluarga k ON k.blok_rumah_id = br.id
+						GROUP BY br.id, br.no_blok
+						ORDER BY br.no_blok ASC
+					`);
 
 			await conn.beginTransaction();
 			let generated = 0;
 
 			for (const blok of blokRows) {
 				if (blok.status === 'Dihuni') {
-					// Cari KK yang menempati blok ini
-					const [kkRows] = await conn.execute(
-						'SELECT id FROM keluarga WHERE blok_rumah_id = ? LIMIT 1',
-						[blok.id]
-					);
+								// Cari KK yang menempati blok ini dengan status_rumah sendiri/ngontrak (bukan ikut orang tua)
+								const [kkRows] = await conn.execute(
+									'SELECT id FROM keluarga WHERE blok_rumah_id = ? AND status_rumah IN (\'sendiri\', \'ngontrak\') LIMIT 1',
+									[blok.id]
+								);
 					if (kkRows.length > 0) {
 						const jatuhTempoDate = `${periode}-${String(jatuhTempo).padStart(2, '0')}`;
 						await conn.execute(
@@ -245,17 +245,17 @@ export const actions = {
 				return fail(400, { error: `Belum ada tagihan untuk periode ${periode}. Gunakan Generate Tagihan dulu.` });
 			}
 
-			// Ambil semua blok rumah dengan status
-			const [blokRows] = await conn.execute(`
-				SELECT 
-					br.id, 
-					br.no_blok,
-					CASE WHEN COUNT(k.id) > 0 THEN 'Dihuni' ELSE 'Kosong' END as status
-				FROM blok_rumah br
-				LEFT JOIN keluarga k ON k.blok_rumah_id = br.id
-				GROUP BY br.id, br.no_blok
-				ORDER BY br.no_blok ASC
-			`);
+			// Ambil semua blok rumah dengan status dihuni/kosong berdasarkan keberadaan keluarga yang status_rumah bukan 'ikut_ortu_mertua'
+					const [blokRows] = await conn.execute(`
+						SELECT 
+							br.id, 
+							br.no_blok,
+							CASE WHEN COUNT(CASE WHEN k.status_rumah IN ('sendiri', 'ngontrak') THEN 1 END) > 0 THEN 'Dihuni' ELSE 'Kosong' END as status
+						FROM blok_rumah br
+						LEFT JOIN keluarga k ON k.blok_rumah_id = br.id
+						GROUP BY br.id, br.no_blok
+						ORDER BY br.no_blok ASC
+					`);
 
 			await conn.beginTransaction();
 			let generated = 0;
@@ -271,11 +271,11 @@ export const actions = {
 				}
 
 				// Blok ini belum punya tagihan → buat
-				if (blok.status === 'Dihuni') {
-					const [kkRows] = await conn.execute(
-						'SELECT id FROM keluarga WHERE blok_rumah_id = ? LIMIT 1',
-						[blok.id]
-					);
+							if (blok.status === 'Dihuni') {
+								const [kkRows] = await conn.execute(
+									'SELECT id FROM keluarga WHERE blok_rumah_id = ? AND status_rumah IN (\'sendiri\', \'ngontrak\') LIMIT 1',
+									[blok.id]
+								);
 					if (kkRows.length > 0) {
 						const jatuhTempoDate = `${periode}-${String(jatuhTempo).padStart(2, '0')}`;
 						await conn.execute(
@@ -336,9 +336,10 @@ export const actions = {
 			const result = await executeTransaction(async (conn) => {
 				// Ambil tagihan
 				const [tagihanRows] = await conn.execute(
-					'SELECT tagihan_iuran.*, blok_rumah.no_blok FROM tagihan_iuran join blok_rumah WHERE tagihan_iuran.id = ?',
+					'SELECT tagihan_iuran.*, blok_rumah.no_blok FROM tagihan_iuran join blok_rumah on tagihan_iuran.blok_rumah_id = blok_rumah.id WHERE tagihan_iuran.id = ?',
 					[tagihanId]
 				);
+				console.log(tagihanId);
 				if (tagihanRows.length === 0) {
 					throw new Error('Tagihan tidak ditemukan');
 				}
