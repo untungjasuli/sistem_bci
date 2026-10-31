@@ -701,12 +701,6 @@
 					<!-- Blok Info -->
 					<div class="mb-6 p-4 bg-gray-50 rounded-lg">
 						<div class="grid grid-cols-2 gap-2 text-sm">
-										<div>
-											<span class="font-medium text-gray-600">Status:</span>
-											<span class="inline-flex px-2 py-0.5 text-xs rounded-full {detailModal.data.keluarga.length > 0 ? (detailModal.data.keluarga[0].status_rumah === 'sendiri' ? 'bg-green-100 text-green-700' : detailModal.data.keluarga[0].status_rumah === 'ngontrak' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700') : 'bg-red-100 text-red-600'}">
-												{detailModal.data.keluarga.length > 0 ? (detailModal.data.keluarga[0].status_rumah === 'sendiri' ? 'Rumah Sendiri' : detailModal.data.keluarga[0].status_rumah === 'ngontrak' ? 'Ngontrak' : 'Ikut Orang Tua/Mertua') : 'Kosong'}
-											</span>
-										</div>
 							<div><span class="font-medium text-gray-600">Jumlah KK:</span> <span class="text-gray-900">{detailModal.data.keluarga.length}</span></div>
 						</div>
 					</div>
@@ -719,6 +713,9 @@
 													<div>
 														<span class="font-medium text-gray-900">KK: {kk.no_kk}</span>
 													</div>
+													<span class="inline-flex px-2 py-0.5 text-xs rounded-full {kk.status_rumah === 'sendiri' ? 'bg-green-100 text-green-700' : kk.status_rumah === 'ngontrak' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'}">
+														{kk.status_rumah === 'sendiri' ? 'Rumah Sendiri' : kk.status_rumah === 'ngontrak' ? 'Ngontrak' : 'Ikut Orang Tua/Mertua'}
+													</span>
 													<div class="text-sm text-gray-500">{kk.anggota.length} anggota</div>
 												</div>
 								<div class="p-4">
@@ -755,51 +752,53 @@
 									</div>
 
 									<!-- Tagihan Iuran -->
-															<div class="border-t border-gray-200 pt-4">
-																<h4 class="font-medium text-gray-900 mb-3">Status Iuran (12 periode terakhir)</h4>
-																{#if kk.iuran.length > 0}
-																								<div class="overflow-x-auto">
-																									<table class="w-full text-sm text-left">
-																										<thead>
-																											<tr class="bg-gray-50 border-b border-gray-200">
-																												<th class="px-3 py-2 font-medium text-gray-600">Periode</th>
-																												<th class="px-3 py-2 font-medium text-gray-600">Nominal</th>
-																												<th class="px-3 py-2 font-medium text-gray-600">Tgl Bayar</th>
-																												<th class="px-3 py-2 font-medium text-gray-600">Metode</th>
-																												<th class="px-3 py-2 font-medium text-gray-600">Status Bayar</th>
-																											</tr>
-																										</thead>
-																										<tbody class="divide-y divide-gray-100">
-																											{#each kk.iuran as t}
-																												<tr class="hover:bg-gray-50">
-																													<td class="px-3 py-2 text-gray-900">{t.periode}</td>
-																													<td class="px-3 py-2">
-																														{ t.nominal 
-																															? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(t.nominal)
-																															: '-' }
-																													</td>
-																													<td class="px-3 py-2 text-gray-600">{t.tanggal_bayar ? new Date(t.tanggal_bayar).toLocaleDateString('id-ID') : '-'}</td>
-																													<td class="px-3 py-2 text-gray-600 capitalize">{t.metode_bayar || '-'}</td>
-																													<td class="px-3 py-2">
-																																			{#if t.bayar_status === 'lunas'}
-																																				<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
-																																					<i class="fa-solid fa-circle-check"></i> Lunas
-																																				</span>
-																																			{:else}
-																																				<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
-																																					<i class="fa-solid fa-circle-exclamation"></i> Belum Bayar
-																																				</span>
-																																			{/if}
-																																		</td>
-																												</tr>
-																											{/each}
-																										</tbody>
-																									</table>
-																								</div>
-																							{:else}
-																								<p class="text-gray-500 text-sm py-4">Belum ada history pembayaran</p>
-																							{/if}
-															</div>
+									 {#if kk.status_rumah !== 'ikut_ortu_mertua'}
+									<div class="border-t border-gray-200 pt-4">
+										<h4 class="font-medium text-gray-900 mb-3">Status Iuran (12 periode terakhir)</h4>
+										{#if kk.iuran.length > 0}
+											<div class="overflow-x-auto">
+												<table class="w-full text-sm text-left">
+													<thead>
+														<tr class="bg-gray-50 border-b border-gray-200">
+															<th class="px-3 py-2 font-medium text-gray-600">Periode</th>
+															<th class="px-3 py-2 font-medium text-gray-600">Nominal</th>
+															<th class="px-3 py-2 font-medium text-gray-600">Tgl Bayar</th>
+															<th class="px-3 py-2 font-medium text-gray-600">Metode</th>
+															<th class="px-3 py-2 font-medium text-gray-600">Status Bayar</th>
+														</tr>
+													</thead>
+													<tbody class="divide-y divide-gray-100">
+														{#each kk.iuran as t}
+															<tr class="hover:bg-gray-50">
+																<td class="px-3 py-2 text-gray-900">{t.periode}</td>
+																<td class="px-3 py-2">
+																	{ t.nominal 
+																		? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(t.nominal)
+																		: '-' }
+																</td>
+																<td class="px-3 py-2 text-gray-600">{t.tanggal_bayar ? new Date(t.tanggal_bayar).toLocaleDateString('id-ID') : '-'}</td>
+																<td class="px-3 py-2 text-gray-600 capitalize">{t.metode_bayar || '-'}</td>
+																<td class="px-3 py-2">
+																						{#if t.bayar_status === 'lunas'}
+																							<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+																								<i class="fa-solid fa-circle-check"></i> Lunas
+																							</span>
+																						{:else}
+																							<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">
+																								<i class="fa-solid fa-circle-exclamation"></i> Belum Bayar
+																							</span>
+																						{/if}
+																					</td>
+															</tr>
+														{/each}
+													</tbody>
+												</table>
+											</div>
+										{:else}
+											<p class="text-gray-500 text-sm py-4">Belum ada history pembayaran</p>
+										{/if}
+									</div>
+									{/if}
 								</div>
 							</div>
 						{/each}
