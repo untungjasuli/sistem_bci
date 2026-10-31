@@ -37,7 +37,7 @@
 	}
 
 	function getJkLabel(jk) {
-		return jk === 'L' ? 'Laki-laki' : 'Perempuan';
+		return jk === 'Laki-laki' ? 'Laki-laki' : 'Perempuan';
 	}
 
 	function updateFilter(key, value) {
@@ -169,7 +169,8 @@
 									<th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
 									<th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Kelamin</th>
 									<th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Tgl Lahir</th>
-									<th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Hub. Keluarga</th>
+														<th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Umur</th>
+														<th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Hub. Keluarga</th>
 									<th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">No. KK</th>
 									<th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Status Rumah</th>
 									<th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">No HP</th>
@@ -183,7 +184,8 @@
 										<td class="px-4 py-2 text-sm font-medium text-gray-900">{item.nama}</td>
 										<td class="px-4 py-2 text-sm text-gray-600">{getJkLabel(item.jenis_kelamin)}</td>
 										<td class="px-4 py-2 text-sm text-gray-600">{formatDate(item.tanggal_lahir)}</td>
-										<td class="px-4 py-2 text-sm text-gray-600">{getHubLabel(item.hub_keluarga)}</td>
+															<td class="px-4 py-2 text-sm text-gray-600 text-center">{item.umur} thn</td>
+															<td class="px-4 py-2 text-sm text-gray-600">{getHubLabel(item.hub_keluarga)}</td>
 										<td class="px-4 py-2 text-sm font-mono text-gray-600">{item.no_kk}</td>
 										<td class="px-4 py-2 text-sm">
 											<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {item.status_rumah === 'sendiri' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">

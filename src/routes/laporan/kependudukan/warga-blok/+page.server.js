@@ -34,7 +34,8 @@ export const load = async ({ locals, url }) => {
 			ak.nomor_hp,
 			k.no_kk,
 			k.status_rumah,
-			b.no_blok
+			b.no_blok,
+			TIMESTAMPDIFF(YEAR, ak.tanggal_lahir, CURDATE()) as umur
 		FROM anggota_keluarga ak
 		JOIN keluarga k ON ak.keluarga_id = k.id
 		JOIN blok_rumah b ON k.blok_rumah_id = b.id

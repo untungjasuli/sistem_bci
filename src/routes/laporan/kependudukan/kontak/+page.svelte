@@ -41,7 +41,7 @@
 	}
 
 	function getJkLabel(jk) {
-		return jk === 'L' ? 'L' : 'P';
+		return jk === 'Laki-laki' ? 'L' : 'P';
 	}
 
 	function updateFilter(key, value) {
@@ -181,41 +181,33 @@
 					{#if expandedBloks.includes(blokData.blok)}
 						<table class="w-full text-left border-collapse">
 							<thead>
-								<tr class="bg-gray-50 border-b border-gray-200">
-									<th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-									<th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">NIK</th>
-									<th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
-									<th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">JK</th>
-									<th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Umur</th>
-									<th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Hub. Keluarga</th>
-									<th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">No. KK</th>
-									<th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Status Rumah</th>
-									<th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">No. HP</th>
-								</tr>
-							</thead>
+												<tr class="bg-gray-50 border-b border-gray-200">
+													<th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+													<th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+													<th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">JK</th>
+													<th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">Status Rumah</th>
+													<th class="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider">No. HP</th>
+												</tr>
+											</thead>
 							<tbody class="divide-y divide-gray-100">
-								{#each blokData.kontak as item, index}
-									<tr class="hover:bg-gray-50 transition-colors">
-										<td class="px-4 py-2 text-sm text-gray-600">{index + 1}</td>
-										<td class="px-4 py-2 text-sm font-mono text-gray-900">{item.nik || '-'}</td>
-										<td class="px-4 py-2 text-sm font-medium text-gray-900">{item.nama}</td>
-										<td class="px-4 py-2 text-sm text-center">
-											<span class="px-2 py-0.5 rounded-full text-xs font-medium {item.jenis_kelamin === 'Laki-laki' ? 'bg-blue-100 text-blue-700' : 'bg-pink-100 text-pink-700'}">
-												{getJkLabel(item.jenis_kelamin)}
-											</span>
-										</td>
-										<td class="px-4 py-2 text-sm text-gray-600">{item.umur} thn</td>
-										<td class="px-4 py-2 text-sm text-gray-600">{getHubLabel(item.hub_keluarga)}</td>
-										<td class="px-4 py-2 text-sm font-mono text-gray-600">{item.no_kk}</td>
-										<td class="px-4 py-2 text-sm">
-											<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {item.status_rumah === 'sendiri' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">
-												{getStatusLabel(item.status_rumah)}
-											</span>
-										</td>
-										<td class="px-4 py-2 text-sm font-mono font-medium text-blue-600">{formatPhone(item.nomor_hp)}</td>
-									</tr>
-								{/each}
-							</tbody>
+												{#each blokData.kontak as item, index}
+													<tr class="hover:bg-gray-50 transition-colors">
+														<td class="px-4 py-2 text-sm text-gray-600">{index + 1}</td>
+														<td class="px-4 py-2 text-sm font-medium text-gray-900">{item.nama}</td>
+														<td class="px-4 py-2 text-sm text-center">
+																						<span class="px-2 py-0.5 rounded-full text-xs font-medium {item.jenis_kelamin === 'Laki-laki' ? 'bg-blue-100 text-blue-700' : 'bg-pink-100 text-pink-700'}">
+																							{getJkLabel(item.jenis_kelamin)}
+																						</span>
+																					</td>
+														<td class="px-4 py-2 text-sm">
+															<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {item.status_rumah === 'sendiri' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">
+																{getStatusLabel(item.status_rumah)}
+															</span>
+														</td>
+														<td class="px-4 py-2 text-sm font-mono font-medium text-blue-600">{formatPhone(item.nomor_hp)}</td>
+													</tr>
+												{/each}
+											</tbody>
 						</table>
 					{/if}
 				</div>
