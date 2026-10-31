@@ -710,14 +710,16 @@
 						{#each detailModal.data.keluarga as kk, kkIdx}
 							<div class="mb-6 border border-gray-200 rounded-lg overflow-hidden">
 								<div class="bg-blue-50 px-4 py-3 border-b border-gray-200 flex items-center justify-between">
-													<div>
-														<span class="font-medium text-gray-900">KK: {kk.no_kk}</span>
-													</div>
-													<span class="inline-flex px-2 py-0.5 text-xs rounded-full {kk.status_rumah === 'sendiri' ? 'bg-green-100 text-green-700' : kk.status_rumah === 'ngontrak' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'}">
-														{kk.status_rumah === 'sendiri' ? 'Rumah Sendiri' : kk.status_rumah === 'ngontrak' ? 'Ngontrak' : 'Ikut Orang Tua/Mertua'}
-													</span>
-													<div class="text-sm text-gray-500">{kk.anggota.length} anggota</div>
-												</div>
+									<div>
+										<span class="font-medium text-gray-900">KK: {kk.no_kk}</span>
+									</div>
+									<div class="justify-end">
+										<div class="px-2 py-0.5 text-sm text-gray-500 text-right">{kk.anggota.length} anggota</div>
+										<span class="px-2 py-0.5 text-xs rounded-full text-right {kk.status_rumah === 'sendiri' ? 'bg-green-100 text-green-700' : kk.status_rumah === 'ngontrak' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'}">
+											{kk.status_rumah === 'sendiri' ? 'Rumah Sendiri' : kk.status_rumah === 'ngontrak' ? 'Ngontrak' : 'Ikut Orang Tua/Mertua'}
+										</span>
+									</div>
+								</div>
 								<div class="p-4">
 									<!-- Anggota Table -->
 									<div class="overflow-x-auto mb-4">
