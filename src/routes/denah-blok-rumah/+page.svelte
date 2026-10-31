@@ -24,48 +24,30 @@
 	let dragOverCell = $state({ x: -1, y: -1 });
 	let isDragging = $state(false);
 
-	// Fullscreen state
+	// Fullscreen state (CSS-based, not browser API)
 	let isFullscreen = $state(false);
 
 	function toggleFullscreen() {
-		const container = document.querySelector('.denah-container');
-		if (!container) return;
-
-		if (!isFullscreen) {
-			if (container.requestFullscreen) {
-				container.requestFullscreen();
-			} else if (container.webkitRequestFullscreen) {
-				container.webkitRequestFullscreen();
-			} else if (container.msRequestFullscreen) {
-				container.msRequestFullscreen();
-			}
+		isFullscreen = !isFullscreen;
+		// Prevent body scroll when fullscreen
+		if (isFullscreen) {
+			document.body.style.overflow = 'hidden';
 		} else {
-			if (document.exitFullscreen) {
-				document.exitFullscreen();
-			} else if (document.webkitExitFullscreen) {
-				document.webkitExitFullscreen();
-			} else if (document.msExitFullscreen) {
-				document.msExitFullscreen();
-			}
+			document.body.style.overflow = '';
 		}
 	}
 
-	// Listen for fullscreen changes (browser only)
-	{
-		if (typeof document !== 'undefined') {
-			const handleFullscreenChange = () => {
-				isFullscreen = !!(
-					document.fullscreenElement ||
-					document.webkitFullscreenElement ||
-					document.msFullscreenElement
-				);
-			};
-			document.addEventListener('fullscreenchange', handleFullscreenChange);
-			document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-			document.addEventListener('msfullscreenchange', handleFullscreenChange);
-			// Cleanup would need onDestroy but skip for brevity
-		}
-	}
+	// ESC key to exit fullscreen
+	$effect(() => {
+		if (typeof document === 'undefined') return;
+		const handleKeydown = (e) => {
+			if (e.key === 'Escape' && isFullscreen) {
+				toggleFullscreen();
+			}
+		};
+		document.addEventListener('keydown', handleKeydown);
+		return () => document.removeEventListener('keydown', handleKeydown);
+	});
 
 	// Resize state
 	let resizingBlok = $state(null);
@@ -450,7 +432,7 @@
 
 {#if toast}
 	<div
-		class="fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium flex items-center gap-3 animate-in fade-in slide-in-from-top-2"
+		class="fixed top-4 left-1/2 -translate-x-1/2 z-[10000] px-4 py-3 rounded-lg shadow-lg text-sm font-medium flex items-center gap-3 animate-in fade-in slide-in-from-top-2"
 		class:bg-green-50={toast.type === 'success'}
 		class:text-green-700={toast.type === 'success'}
 		class:border-green-200={toast.type === 'success'}
@@ -554,7 +536,17 @@
 	</div>
 
 	<!-- Grid Container -->
-	<div class="denah-container bg-white rounded-lg border border-gray-200 overflow-auto max-w-full max-h-[calc(100vh-300px)] touch-pan-x touch-pan-y" style="min-width: 0; min-height: 0;">
+	<div
+		class="denah-container bg-white rounded-lg border border-gray-200 overflow-auto max-w-full max-h-[calc(100vh-300px)] touch-pan-x touch-pan-y transition-all duration-300"
+		class:fixed={isFullscreen}
+		class:inset-0={isFullscreen}
+		class:z-[9999]={isFullscreen}
+		class:rounded-none={isFullscreen}
+		class:border-none={isFullscreen}
+		class:max-h-full={isFullscreen}
+		class:max-w-full={isFullscreen}
+		style="min-width: 0; min-height: 0;"
+	>
 		<div 
 			class="relative" 
 			style="width: {maxGridCols * cellSize}px; height: {maxGridRows * cellSize}px;"
@@ -693,7 +685,7 @@
 
 <!-- Detail Modal -->
 {#if detailModal.show}
-	<div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onclick={closeDetailModal}>
+	<div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[99999] flex items-center justify-center p-4" onclick={closeDetailModal}>
 		<div class="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden" onclick={(e) => e.stopPropagation()}>
 			{#if detailModal.loading}
 				<div class="flex items-center justify-center p-12">
