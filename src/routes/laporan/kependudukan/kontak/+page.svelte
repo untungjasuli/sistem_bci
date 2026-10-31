@@ -37,7 +37,10 @@
 	}
 
 	function getStatusLabel(status) {
-		return status === 'sendiri' ? 'Milik Sendiri' : status === 'kontrak' ? 'Kontrak/Sewa' : status;
+		if (status === 'sendiri') return 'Rumah Sendiri';
+		if (status === 'ngontrak') return 'Ngontrak';
+		if (status === 'ikut_ortu_mertua') return 'Ikut Orang Tua/Mertua';
+		return status;
 	}
 
 	function getJkLabel(jk) {
@@ -200,10 +203,10 @@
 																						</span>
 																					</td>
 														<td class="px-4 py-2 text-sm">
-															<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {item.status_rumah === 'sendiri' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">
-																{getStatusLabel(item.status_rumah)}
-															</span>
-														</td>
+																			<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {item.status_rumah === 'sendiri' ? 'bg-green-100 text-green-700' : item.status_rumah === 'ngontrak' ? 'bg-yellow-100 text-yellow-700' : item.status_rumah === 'ikut_ortu_mertua' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}">
+																				{getStatusLabel(item.status_rumah)}
+																			</span>
+																		</td>
 														<td class="px-4 py-2 text-sm font-mono font-medium text-blue-600">{formatPhone(item.nomor_hp)}</td>
 													</tr>
 												{/each}

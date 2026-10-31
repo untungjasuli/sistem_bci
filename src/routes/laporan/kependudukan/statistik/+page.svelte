@@ -29,7 +29,10 @@
 	}
 
 	function getStatusLabel(status) {
-		return status === 'sendiri' ? 'Milik Sendiri' : status === 'ngontrak' ? 'Kontrak/Sewa' : status;
+		if (status === 'sendiri') return 'Rumah Sendiri';
+		if (status === 'ngontrak') return 'Ngontrak';
+		if (status === 'ikut_ortu_mertua') return 'Ikut Orang Tua/Mertua';
+		return status;
 	}
 
 	function updateFilter(key, value) {

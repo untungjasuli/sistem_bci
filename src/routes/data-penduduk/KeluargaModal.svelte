@@ -45,13 +45,17 @@
 				nik: a.nik || '',
 				nama: a.nama || '',
 				jenis_kelamin: a.jenis_kelamin || 'Laki-laki',
+				tempat_lahir: a.tempat_lahir || '',
 				tanggal_lahir: toWibDateString(a.tanggal_lahir),
 				hub_keluarga: a.hub_keluarga || 'Anak',
-				nomor_hp: a.nomor_hp || ''
+				nomor_hp: a.nomor_hp || '',
+				agama: a.agama || '',
+				pekerjaan: a.pekerjaan || '',
+				status_perkawinan: a.status_perkawinan || ''
 			}));
 		} else {
 			anggotaForm = [
-				{ nik: '', nama: '', jenis_kelamin: 'Laki-laki', tanggal_lahir: '', hub_keluarga: 'Kepala Keluarga', nomor_hp: '' }
+				{ nik: '', nama: '', jenis_kelamin: 'Laki-laki', tempat_lahir: '', tanggal_lahir: '', hub_keluarga: 'Kepala Keluarga', nomor_hp: '', agama: '', pekerjaan: '', status_perkawinan: '' }
 			];
 		}
 		activeAnggotaIndex = 0;
@@ -63,6 +67,46 @@
 			serverError = '';
 		}
 	});
+
+	// Opsi dropdown untuk field baru
+	const agamaOptions = [
+		'Islam',
+		'Kristen Protestan',
+		'Kristen Katolik',
+		'Hindu',
+		'Buddha',
+		'Konghucu'
+	];
+
+	const pekerjaanOptions = [
+		'Tidak Bekerja',
+		'Ibu Rumah Tangga',
+		'Pelajar/Mahasiswa',
+		'Pensiunan',
+		'Karyawan Swasta',
+		'Wiraswasta',
+		'Pedagang',
+		'Buruh Harian Lepas',
+		'PNS/ASN',
+		'TNI',
+		'POLRI',
+		'Karyawan BUMN',
+		'Karyawan Honorer',
+		'Dokter/Bidan/Perawat/Apoteker',
+		'Guru/Dosen',
+		'Pengacara/Notaris/Akuntan',
+		'Petani/Pekebun dan Nelayan',
+		'Seniman',
+		'Wartawan'
+	];
+
+	const statusPerkawinanOptions = [
+		'Belum Kawin',
+		'Kawin Tercatat',
+		'Kawin Belum Tercatat',
+		'Cerai Hidup',
+		'Cerai Mati'
+	];
 
 	function hanyaAngka(e) {
 		const t = e.target;
@@ -110,7 +154,7 @@
 	function addAnggota() {
 		anggotaForm = [
 			...anggotaForm,
-			{ nik: '', nama: '', jenis_kelamin: 'Laki-laki', tanggal_lahir: '', hub_keluarga: 'Anak', nomor_hp: '' }
+			{ nik: '', nama: '', jenis_kelamin: 'Laki-laki', tempat_lahir: '', tanggal_lahir: '', hub_keluarga: 'Anak', nomor_hp: '', agama: '', pekerjaan: '', status_perkawinan: '' }
 		];
 		formErrors.anggota = [
 			...formErrors.anggota,
@@ -153,9 +197,13 @@
 			formData.append('nik[]', a.nik);
 			formData.append('nama[]', a.nama);
 			formData.append('jenis_kelamin[]', a.jenis_kelamin);
+			formData.append('tempat_lahir[]', a.tempat_lahir || '');
 			formData.append('tanggal_lahir[]', a.tanggal_lahir);
 			formData.append('hub_keluarga[]', a.hub_keluarga);
 			formData.append('nomor_hp[]', a.nomor_hp || '');
+			formData.append('agama[]', a.agama || '');
+			formData.append('pekerjaan[]', a.pekerjaan || '');
+			formData.append('status_perkawinan[]', a.status_perkawinan || '');
 		}
 
 		try {
@@ -254,30 +302,40 @@
 							</select>
 						</div>
 						<div class="sm:col-span-2">
-							<label class="block text-sm font-medium text-gray-700 mb-1">Status Rumah</label>
-							<div class="flex items-center gap-4">
-								<label class="flex items-center gap-2 cursor-pointer">
-									<input
-										type="radio"
-										name="status_rumah"
-										value="sendiri"
-										bind:group={statusRumah}
-										class="text-blue-600 focus:ring-blue-500"
-									/>
-									<span class="text-sm text-gray-700">Rumah Sendiri</span>
-								</label>
-								<label class="flex items-center gap-2 cursor-pointer">
-									<input
-										type="radio"
-										name="status_rumah"
-										value="ngontrak"
-										bind:group={statusRumah}
-										class="text-blue-600 focus:ring-blue-500"
-									/>
-									<span class="text-sm text-gray-700">Ngontrak</span>
-								</label>
-							</div>
-						</div>
+											<label class="block text-sm font-medium text-gray-700 mb-1">Status Rumah</label>
+											<div class="flex flex-wrap items-center gap-4">
+												<label class="flex items-center gap-2 cursor-pointer">
+													<input
+														type="radio"
+														name="status_rumah"
+														value="sendiri"
+														bind:group={statusRumah}
+														class="text-blue-600 focus:ring-blue-500"
+													/>
+													<span class="text-sm text-gray-700">Rumah Sendiri</span>
+												</label>
+												<label class="flex items-center gap-2 cursor-pointer">
+													<input
+														type="radio"
+														name="status_rumah"
+														value="ngontrak"
+														bind:group={statusRumah}
+														class="text-blue-600 focus:ring-blue-500"
+													/>
+													<span class="text-sm text-gray-700">Ngontrak</span>
+												</label>
+												<label class="flex items-center gap-2 cursor-pointer">
+													<input
+														type="radio"
+														name="status_rumah"
+														value="ikut_ortu_mertua"
+														bind:group={statusRumah}
+														class="text-blue-600 focus:ring-blue-500"
+													/>
+													<span class="text-sm text-gray-700">Ikut Orang Tua/Mertua</span>
+												</label>
+											</div>
+										</div>
 					</div>
 				</div>
 
@@ -364,58 +422,111 @@
 									</div>
 
 									<div>
-										<label class="block text-xs font-medium text-gray-700 mb-1">Nama</label>
-										<input
-											type="text"
-											name="nama[]"
-											bind:value={anggota.nama}
-											placeholder="Nama lengkap"
-											required
-											class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-										/>
-									</div>
+														<label class="block text-xs font-medium text-gray-700 mb-1">Nama</label>
+														<input
+															type="text"
+															name="nama[]"
+															bind:value={anggota.nama}
+															placeholder="Nama lengkap"
+															required
+															class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+														/>
+													</div>
 
-									<div>
-										<label class="block text-xs font-medium text-gray-700 mb-1">Jenis Kelamin</label>
-										<select
-											name="jenis_kelamin_visible[]"
-											bind:value={anggota.jenis_kelamin}
-											disabled={anggota.hub_keluarga === 'Istri'}
-											class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-										>
-											<option value="Laki-laki">Laki-laki</option>
-											<option value="Perempuan">Perempuan</option>
-										</select>
-										<input type="hidden" name="jenis_kelamin[]" value={anggota.jenis_kelamin} />
-									</div>
+													<div>
+														<label class="block text-xs font-medium text-gray-700 mb-1">Status Perkawinan</label>
+														<select
+															name="status_perkawinan[]"
+															bind:value={anggota.status_perkawinan}
+															class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+														>
+															<option value="">-- Pilih Status Perkawinan --</option>
+															{#each statusPerkawinanOptions as opt}
+																<option value={opt}>{opt}</option>
+															{/each}
+														</select>
+													</div>
 
-									<div>
-										<label class="block text-xs font-medium text-gray-700 mb-1">Tanggal Lahir</label>
-										<input
-											type="date"
-											name="tanggal_lahir[]"
-											bind:value={anggota.tanggal_lahir}
-											required
-											class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-										/>
-									</div>
+													<div>
+														<label class="block text-xs font-medium text-gray-700 mb-1">Jenis Kelamin</label>
+														<select
+															name="jenis_kelamin_visible[]"
+															bind:value={anggota.jenis_kelamin}
+															disabled={anggota.hub_keluarga === 'Istri'}
+															class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+														>
+															<option value="Laki-laki">Laki-laki</option>
+															<option value="Perempuan">Perempuan</option>
+														</select>
+														<input type="hidden" name="jenis_kelamin[]" value={anggota.jenis_kelamin} />
+													</div>
 
-									<div>
-										<label class="block text-xs font-medium text-gray-700 mb-1">Nomor HP</label>
-										<input
-											type="text"
-											name="nomor_hp[]"
-											bind:value={anggota.nomor_hp}
-											placeholder="081234567890"
-											maxlength="13"
-											oninput={hanyaAngka}
-											class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-										/>
-										{#if formErrors.anggota[idx]?.nomorHp}
-											<p class="text-red-500 text-xs mt-1">{formErrors.anggota[idx].nomorHp}</p>
-										{/if}
-									</div>
-								</div>
+													<div>
+														<label class="block text-xs font-medium text-gray-700 mb-1">Tempat Lahir</label>
+														<input
+															type="text"
+															name="tempat_lahir[]"
+															bind:value={anggota.tempat_lahir}
+															placeholder="Contoh: Jakarta"
+															class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+														/>
+													</div>
+
+													<div>
+														<label class="block text-xs font-medium text-gray-700 mb-1">Tanggal Lahir</label>
+														<input
+															type="date"
+															name="tanggal_lahir[]"
+															bind:value={anggota.tanggal_lahir}
+															required
+															class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+														/>
+													</div>
+
+													<div>
+														<label class="block text-xs font-medium text-gray-700 mb-1">Nomor HP</label>
+														<input
+															type="text"
+															name="nomor_hp[]"
+															bind:value={anggota.nomor_hp}
+															placeholder="081234567890"
+															maxlength="13"
+															oninput={hanyaAngka}
+															class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+														/>
+														{#if formErrors.anggota[idx]?.nomorHp}
+															<p class="text-red-500 text-xs mt-1">{formErrors.anggota[idx].nomorHp}</p>
+														{/if}
+													</div>
+
+													<div>
+														<label class="block text-xs font-medium text-gray-700 mb-1">Agama</label>
+														<select
+															name="agama[]"
+															bind:value={anggota.agama}
+															class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+														>
+															<option value="">-- Pilih Agama --</option>
+															{#each agamaOptions as opt}
+																<option value={opt}>{opt}</option>
+															{/each}
+														</select>
+													</div>
+
+													<div>
+																		<label class="block text-xs font-medium text-gray-700 mb-1">Pekerjaan</label>
+																		<select
+																			name="pekerjaan[]"
+																			bind:value={anggota.pekerjaan}
+																			class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+																		>
+																			<option value="">-- Pilih Pekerjaan --</option>
+																			{#each pekerjaanOptions as opt}
+																				<option value={opt}>{opt}</option>
+																			{/each}
+																		</select>
+																	</div>
+																</div>
 							</div>
 						{/each}
 					{/if}

@@ -38,21 +38,21 @@ export const load = async ({ cookies, url }) => {
 		const total = countRows[0]?.total || 0;
 
 		// Data dengan pagination
-		const offset = (page - 1) * itemsPerPage;
-		params.push(itemsPerPage, offset);
-		const [rows] = await conn.execute(
-			`SELECT a.id, a.nik, a.nama, a.jenis_kelamin, a.tanggal_lahir,
-				a.hub_keluarga, a.keluarga_id, a.nomor_hp,
-				k.no_kk, k.blok_rumah_id, k.status_rumah,
-				b.no_blok
-				FROM anggota_keluarga a
-				JOIN keluarga k ON a.keluarga_id = k.id
-				LEFT JOIN blok_rumah b ON k.blok_rumah_id = b.id
-				${whereSql}
-				ORDER BY ${orderField} ${sort === 'desc' ? 'DESC' : 'ASC'}
-				LIMIT ? OFFSET ?`,
-			params
-		);
+				const offset = (page - 1) * itemsPerPage;
+				params.push(itemsPerPage, offset);
+				const [rows] = await conn.execute(
+					`SELECT a.id, a.nik, a.nama, a.jenis_kelamin, a.tempat_lahir, a.tanggal_lahir,
+					 a.hub_keluarga, a.keluarga_id, a.nomor_hp, a.agama, a.pekerjaan, a.status_perkawinan,
+					 k.no_kk, k.blok_rumah_id, k.status_rumah,
+					 b.no_blok
+					 FROM anggota_keluarga a
+					 JOIN keluarga k ON a.keluarga_id = k.id
+					 LEFT JOIN blok_rumah b ON k.blok_rumah_id = b.id
+					 ${whereSql}
+					 ORDER BY ${orderField} ${sort === 'desc' ? 'DESC' : 'ASC'}
+					 LIMIT ? OFFSET ?`,
+					params
+				);
 
 		const [blokRumah] = await conn.execute('SELECT id, no_blok FROM blok_rumah ORDER BY no_blok ASC');
 
@@ -103,9 +103,13 @@ export const actions = {
 		const niks = form.getAll('nik[]')?.map((v) => v.toString().trim()) || [];
 		const namas = form.getAll('nama[]')?.map((v) => v.toString().trim()) || [];
 		const jks = form.getAll('jenis_kelamin[]')?.map((v) => v.toString()) || [];
+		const tempatLahirs = form.getAll('tempat_lahir[]')?.map((v) => v.toString().trim()) || [];
 		const tglLahir = form.getAll('tanggal_lahir[]')?.map((v) => v.toString()) || [];
 		const hubs = form.getAll('hub_keluarga[]')?.map((v) => v.toString()) || [];
 		const nomorHps = form.getAll('nomor_hp[]')?.map((v) => v.toString().trim()) || [];
+		const agamas = form.getAll('agama[]')?.map((v) => v.toString()) || [];
+		const pekerjaans = form.getAll('pekerjaan[]')?.map((v) => v.toString()) || [];
+		const statusPerkawinans = form.getAll('status_perkawinan[]')?.map((v) => v.toString()) || [];
 
 		if (niks.length === 0) {
 			return fail(400, { error: 'Minimal harus ada 1 anggota keluarga' });
@@ -146,13 +150,13 @@ export const actions = {
 			}
 
 			// Insert semua anggota
-			for (let i = 0; i < niks.length; i++) {
-				try {
-					await conn.execute(
-						`INSERT INTO anggota_keluarga (nik, nama, jenis_kelamin, tanggal_lahir, hub_keluarga, nomor_hp, keluarga_id)
-						VALUES (?, ?, ?, ?, ?, ?, ?)`,
-						[niks[i], namas[i], jks[i], tglLahir[i], hubs[i], nomorHps[i] || null, keluargaId]
-					);
+					for (let i = 0; i < niks.length; i++) {
+						try {
+							await conn.execute(
+								`INSERT INTO anggota_keluarga (nik, nama, jenis_kelamin, tempat_lahir, tanggal_lahir, hub_keluarga, nomor_hp, agama, pekerjaan, status_perkawinan, keluarga_id)
+								VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+								[niks[i], namas[i], jks[i], tempatLahirs[i] || null, tglLahir[i], hubs[i], nomorHps[i] || null, agamas[i] || null, pekerjaans[i] || null, statusPerkawinans[i] || null, keluargaId]
+							);
 				} catch (insertError) {
 					await conn.rollback();
 					if (insertError.code === 'ER_DUP_ENTRY') {
@@ -189,8 +193,12 @@ export const actions = {
 		const nik = form.get('nik')?.toString().trim();
 		const nama = form.get('nama')?.toString().trim();
 		const jenis_kelamin = form.get('jenis_kelamin')?.toString();
+		const tempat_lahir = form.get('tempat_lahir')?.toString().trim() || null;
 		const tanggal_lahir = form.get('tanggal_lahir')?.toString() || null;
 		const nomor_hp = form.get('nomor_hp')?.toString().trim() || null;
+		const agama = form.get('agama')?.toString() || null;
+		const pekerjaan = form.get('pekerjaan')?.toString() || null;
+		const status_perkawinan = form.get('status_perkawinan')?.toString() || null;
 
 		const nikRegex = /^\d{16}$/;
 		const hpRegex = /^\d{11,13}$/;
@@ -208,8 +216,8 @@ export const actions = {
 		const conn = await getConnection();
 		try {
 			const [result] = await conn.execute(
-				'UPDATE anggota_keluarga SET nik = ?, nama = ?, jenis_kelamin = ?, tanggal_lahir = ?, nomor_hp = ? WHERE id = ?',
-				[nik, nama, jenis_kelamin, tanggal_lahir, nomor_hp, id]
+				'UPDATE anggota_keluarga SET nik = ?, nama = ?, jenis_kelamin = ?, tempat_lahir = ?, tanggal_lahir = ?, nomor_hp = ?, agama = ?, pekerjaan = ?, status_perkawinan = ? WHERE id = ?',
+				[nik, nama, jenis_kelamin, tempat_lahir, tanggal_lahir, nomor_hp, agama, pekerjaan, status_perkawinan, id]
 			);
 
 			console.log("nilai:", result.affectedRows);

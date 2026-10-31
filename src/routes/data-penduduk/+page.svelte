@@ -29,8 +29,12 @@
 	let editNIK = $state('');
 	let editNama = $state('');
 	let editJenisKelamin = $state('Laki-laki');
+	let editTempatLahir = $state('');
 	let editTanggalLahir = $state('');
 	let editNomorHp = $state('');
+	let editAgama = $state('');
+	let editPekerjaan = $state('');
+	let editStatusPerkawinan = $state('');
 
 	let toast = $state(null);
 
@@ -160,17 +164,21 @@
 			}
 			console.log(result.data);
 			if (Array.isArray(result.data) && result.data.length > 0) {
-				anggotaFormRaw = result.data.map((a) => ({
-					nik: a.nik || '',
-					nama: a.nama || '',
-					jenis_kelamin: a.jenis_kelamin || 'Laki-laki',
-					tanggal_lahir: a.tanggal_lahir ? new Date(a.tanggal_lahir).toISOString().split('T')[0] : '',
-					hub_keluarga: a.hub_keluarga || 'Anak',
-					nomor_hp: a.nomor_hp || ''
-				}));
-			} else {
-				anggotaFormRaw = [];
-			}
+						anggotaFormRaw = result.data.map((a) => ({
+							nik: a.nik || '',
+							nama: a.nama || '',
+							jenis_kelamin: a.jenis_kelamin || 'Laki-laki',
+							tempat_lahir: a.tempat_lahir || '',
+							tanggal_lahir: a.tanggal_lahir ? new Date(a.tanggal_lahir).toISOString().split('T')[0] : '',
+							hub_keluarga: a.hub_keluarga || 'Anak',
+							nomor_hp: a.nomor_hp || '',
+							agama: a.agama || '',
+							pekerjaan: a.pekerjaan || '',
+							status_perkawinan: a.status_perkawinan || ''
+						}));
+					} else {
+						anggotaFormRaw = [];
+					}
 
 			showModal = true;
 		} catch (e) {
@@ -203,14 +211,18 @@
 		return `${y}-${m}-${day}`;
 	}
 
-	function openEditIndividu(id, nik, nama, jenisKelamin, tanggalLahir, nomorHp) {
+	function openEditIndividu(id, nik, nama, jenisKelamin, tempatLahir, tanggalLahir, nomorHp, agama, pekerjaan, statusPerkawinan) {
 		try {
 			editingIndividuId = id;
 			editNIK = nik || '';
 			editNama = nama || '';
 			editJenisKelamin = jenisKelamin || 'Laki-laki';
+			editTempatLahir = tempatLahir || '';
 			editTanggalLahir = toWibDateString(tanggalLahir);
 			editNomorHp = nomorHp || '';
+			editAgama = agama || '';
+			editPekerjaan = pekerjaan || '';
+			editStatusPerkawinan = statusPerkawinan || '';
 		} catch (e) {
 			console.error('openEditIndividu error:', e);
 		}
@@ -223,8 +235,12 @@
 		editNIK = '';
 		editNama = '';
 		editJenisKelamin = 'Laki-laki';
+		editTempatLahir = '';
 		editTanggalLahir = '';
 		editNomorHp = '';
+		editAgama = '';
+		editPekerjaan = '';
+		editStatusPerkawinan = '';
 	}
 
 	async function handleSaveIndividu(success, message) {
@@ -391,13 +407,13 @@
 																		<i class="fa-solid fa-users text-lg"></i>
 																	</button>
 																	<button
-																		onclick={() => openEditIndividu(p.id, p.nik, p.nama, p.jenis_kelamin, p.tanggal_lahir, p.nomor_hp)}
-																		class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-																		title="Edit"
-																		aria-label="Edit"
-																	>
-																		<i class="fa-regular fa-pen-to-square text-lg"></i>
-																	</button>
+																								onclick={() => openEditIndividu(p.id, p.nik, p.nama, p.jenis_kelamin, p.tempat_lahir, p.tanggal_lahir, p.nomor_hp, p.agama, p.pekerjaan, p.status_perkawinan)}
+																								class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+																								title="Edit"
+																								aria-label="Edit"
+																							>
+																								<i class="fa-regular fa-pen-to-square text-lg"></i>
+																							</button>
 																	<button
 																		type="button"
 																		onclick={() => handleDeleteIndividu(p.id)}
@@ -431,13 +447,13 @@
 																				<span class="text-indigo-600">Lihat Keluarga</span>
 																			</button>
 																			<button
-																				onclick={() => { openEditIndividu(p.id, p.nik, p.nama, p.jenis_kelamin, p.tanggal_lahir, p.nomor_hp); openDropdownIndex = -1; }}
-																				class="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-																				role="menuitem"
-																			>
-																				<i class="fa-regular fa-pen-to-square text-blue-600 w-4"></i>
-																				<span class="text-blue-600">Edit</span>
-																			</button>
+																									onclick={() => { openEditIndividu(p.id, p.nik, p.nama, p.jenis_kelamin, p.tempat_lahir, p.tanggal_lahir, p.nomor_hp, p.agama, p.pekerjaan, p.status_perkawinan); openDropdownIndex = -1; }}
+																									class="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+																									role="menuitem"
+																								>
+																									<i class="fa-regular fa-pen-to-square text-blue-600 w-4"></i>
+																									<span class="text-blue-600">Edit</span>
+																								</button>
 																			<button
 																				type="button"
 																				onclick={() => { handleDeleteIndividu(p.id); openDropdownIndex = -1; }}

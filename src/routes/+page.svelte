@@ -216,7 +216,7 @@
 							</div>
 							<div>
 								<p class="text-sm font-medium text-gray-900">KK: {k.no_kk}</p>
-								<p class="text-xs text-gray-500">Blok: {k.no_blok || '-'} • {k.jumlah_anggota} anggota • {k.status_rumah === 'sendiri' ? 'Rumah Sendiri' : 'Ngontrak'}</p>
+								<p class="text-xs text-gray-500">Blok: {k.no_blok || '-'} • {k.jumlah_anggota} anggota • {k.status_rumah === 'sendiri' ? 'Rumah Sendiri' : k.status_rumah === 'ngontrak' ? 'Ngontrak' : 'Ikut Orang Tua/Mertua'}</p>
 							</div>
 						</div>
 						<span class="text-xs text-gray-500">{new Date(k.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>

@@ -33,7 +33,10 @@
 	}
 
 	function getStatusLabel(status) {
-		return status === 'sendiri' ? 'Milik Sendiri' : status === 'kontrak' ? 'Kontrak/Sewa' : status;
+		if (status === 'sendiri') return 'Rumah Sendiri';
+		if (status === 'ngontrak') return 'Ngontrak';
+		if (status === 'ikut_ortu_mertua') return 'Ikut Orang Tua/Mertua';
+		return status;
 	}
 
 	function getJkLabel(jk) {
@@ -123,8 +126,9 @@
 				<label for="status-filter" class="block text-sm font-medium text-gray-700 mb-1">Status Rumah</label>
 				<select id="status-filter" value={filter.statusFilter} onchange={onStatusChange} class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
 					<option value="semua">Semua</option>
-					<option value="sendiri">Milik Sendiri</option>
-					<option value="ngontrak">Kontrak/Sewa</option>
+					<option value="sendiri">Rumah Sendiri</option>
+					<option value="ngontrak">Ngontrak</option>
+					<option value="ikut_ortu_mertua">Ikut Orang Tua/Mertua</option>
 				</select>
 			</div>
 			{#if filter.blokFilter !== 'semua' || filter.statusFilter !== 'semua'}
@@ -188,10 +192,10 @@
 															<td class="px-4 py-2 text-sm text-gray-600">{getHubLabel(item.hub_keluarga)}</td>
 										<td class="px-4 py-2 text-sm font-mono text-gray-600">{item.no_kk}</td>
 										<td class="px-4 py-2 text-sm">
-											<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {item.status_rumah === 'sendiri' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">
-												{getStatusLabel(item.status_rumah)}
-											</span>
-										</td>
+															<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {item.status_rumah === 'sendiri' ? 'bg-green-100 text-green-700' : item.status_rumah === 'ngontrak' ? 'bg-yellow-100 text-yellow-700' : item.status_rumah === 'ikut_ortu_mertua' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}">
+																{getStatusLabel(item.status_rumah)}
+															</span>
+														</td>
 										<td class="px-4 py-2 text-sm text-gray-600">{item.nomor_hp || '-'}</td>
 									</tr>
 								{/each}

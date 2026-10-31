@@ -709,7 +709,12 @@
 					<!-- Blok Info -->
 					<div class="mb-6 p-4 bg-gray-50 rounded-lg">
 						<div class="grid grid-cols-2 gap-2 text-sm">
-							<div><span class="font-medium text-gray-600">Status:</span> <span class="inline-flex px-2 py-0.5 text-xs rounded-full {detailModal.data.keluarga.length > 0 ? (detailModal.data.keluarga[0].status_rumah === 'sendiri' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700') : 'bg-red-100 text-red-600'}">{detailModal.data.keluarga.length > 0 ? (detailModal.data.keluarga[0].status_rumah === 'sendiri' ? 'Milik Sendiri' : 'Ngontrak') : 'Kosong'}</span></div>
+										<div>
+											<span class="font-medium text-gray-600">Status:</span>
+											<span class="inline-flex px-2 py-0.5 text-xs rounded-full {detailModal.data.keluarga.length > 0 ? (detailModal.data.keluarga[0].status_rumah === 'sendiri' ? 'bg-green-100 text-green-700' : detailModal.data.keluarga[0].status_rumah === 'ngontrak' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700') : 'bg-red-100 text-red-600'}">
+												{detailModal.data.keluarga.length > 0 ? (detailModal.data.keluarga[0].status_rumah === 'sendiri' ? 'Rumah Sendiri' : detailModal.data.keluarga[0].status_rumah === 'ngontrak' ? 'Ngontrak' : 'Ikut Orang Tua/Mertua') : 'Kosong'}
+											</span>
+										</div>
 							<div><span class="font-medium text-gray-600">Jumlah KK:</span> <span class="text-gray-900">{detailModal.data.keluarga.length}</span></div>
 						</div>
 					</div>

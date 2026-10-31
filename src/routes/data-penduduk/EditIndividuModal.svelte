@@ -5,8 +5,12 @@
 		editNIK = '',
 		editNama = '',
 		editJenisKelamin = 'Laki-laki',
+		editTempatLahir = '',
 		editTanggalLahir = '',
 		editNomorHp = '',
+		editAgama = '',
+		editPekerjaan = '',
+		editStatusPerkawinan = '',
 		onClose,
 		onSave
 	} = $props();
@@ -20,6 +24,45 @@
 
 	const nikRegex = /^\d{16}$/;
 	const hpRegex = /^\d{11,13}$/;
+
+	const agamaOptions = [
+		'Islam',
+		'Kristen Protestan',
+		'Kristen Katolik',
+		'Hindu',
+		'Buddha',
+		'Konghucu'
+	];
+
+	const pekerjaanOptions = [
+		'Tidak Bekerja',
+		'Ibu Rumah Tangga',
+		'Pelajar/Mahasiswa',
+		'Pensiunan',
+		'Karyawan Swasta',
+		'Wiraswasta',
+		'Pedagang',
+		'Buruh Harian Lepas',
+		'PNS/ASN',
+		'TNI',
+		'POLRI',
+		'Karyawan BUMN',
+		'Karyawan Honorer',
+		'Dokter/Bidan/Perawat/Apoteker',
+		'Guru/Dosen',
+		'Pengacara/Notaris/Akuntan',
+		'Petani/Pekebun dan Nelayan',
+		'Seniman',
+		'Wartawan'
+	];
+
+	const statusPerkawinanOptions = [
+		'Belum Kawin',
+		'Kawin Tercatat',
+		'Kawin Belum Tercatat',
+		'Cerai Hidup',
+		'Cerai Mati'
+	];
 
 	function hanyaAngka(e) {
 		const t = e.target;
@@ -67,8 +110,12 @@
 		formData.append('nik', editNIK);
 		formData.append('nama', editNama);
 		formData.append('jenis_kelamin', editJenisKelamin);
+		formData.append('tempat_lahir', editTempatLahir);
 		formData.append('tanggal_lahir', editTanggalLahir);
 		formData.append('nomor_hp', editNomorHp);
+		formData.append('agama', editAgama);
+		formData.append('pekerjaan', editPekerjaan);
+		formData.append('status_perkawinan', editStatusPerkawinan);
 
 		try {
 			const res = await fetch('?/updateAnggota', {
@@ -142,53 +189,102 @@
 					{/if}
 				</div>
 				<div>
-					<label for="edit_nama" class="block text-sm font-medium text-gray-700 mb-2">Nama <span class="text-red-500">*</span></label>
-					<input
-						id="edit_nama"
-						type="text"
-						bind:value={editNama}
-						placeholder="Nama lengkap"
-						required
-						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-					/>
-				</div>
-				<div>
-					<label for="edit_jenis_kelamin" class="block text-sm font-medium text-gray-700 mb-2">Jenis Kelamin <span class="text-red-500">*</span></label>
-					<select
-						id="edit_jenis_kelamin"
-						bind:value={editJenisKelamin}
-						required
-						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-					>
-						<option value="Laki-laki">Laki-laki</option>
-						<option value="Perempuan">Perempuan</option>
-					</select>
-				</div>
-				<div>
-					<label for="edit_tanggal_lahir" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Lahir</label>
-					<input
-						id="edit_tanggal_lahir"
-						type="date"
-						bind:value={editTanggalLahir}
-						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-					/>
-				</div>
-				<div>
-					<label for="edit_nomor_hp" class="block text-sm font-medium text-gray-700 mb-2">Nomor HP</label>
-					<input
-						id="edit_nomor_hp"
-						type="text"
-						bind:value={editNomorHp}
-						placeholder="081234567890"
-						maxlength="13"
-						oninput={hanyaAngka}
-						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-					/>
-					{#if nomorHpError}
-						<p class="text-red-500 text-xs mt-1">{nomorHpError}</p>
-					{/if}
-				</div>
-				<div class="flex items-center justify-end gap-3 pt-4">
+								<label for="edit_nama" class="block text-sm font-medium text-gray-700 mb-2">Nama <span class="text-red-500">*</span></label>
+								<input
+									id="edit_nama"
+									type="text"
+									bind:value={editNama}
+									placeholder="Nama lengkap"
+									required
+									class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+								/>
+							</div>
+							<div>
+								<label for="edit_status_perkawinan" class="block text-sm font-medium text-gray-700 mb-2">Status Perkawinan</label>
+								<select
+									id="edit_status_perkawinan"
+									bind:value={editStatusPerkawinan}
+									class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+								>
+									<option value="">-- Pilih Status Perkawinan --</option>
+									{#each statusPerkawinanOptions as opt}
+										<option value={opt}>{opt}</option>
+									{/each}
+								</select>
+							</div>
+							<div>
+								<label for="edit_jenis_kelamin" class="block text-sm font-medium text-gray-700 mb-2">Jenis Kelamin <span class="text-red-500">*</span></label>
+								<select
+									id="edit_jenis_kelamin"
+									bind:value={editJenisKelamin}
+									required
+									class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+								>
+									<option value="Laki-laki">Laki-laki</option>
+									<option value="Perempuan">Perempuan</option>
+								</select>
+							</div>
+							<div>
+								<label for="edit_tempat_lahir" class="block text-sm font-medium text-gray-700 mb-2">Tempat Lahir</label>
+								<input
+									id="edit_tempat_lahir"
+									type="text"
+									bind:value={editTempatLahir}
+									placeholder="Contoh: Jakarta"
+									class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+								/>
+							</div>
+							<div>
+								<label for="edit_tanggal_lahir" class="block text-sm font-medium text-gray-700 mb-2">Tanggal Lahir</label>
+								<input
+									id="edit_tanggal_lahir"
+									type="date"
+									bind:value={editTanggalLahir}
+									class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+								/>
+							</div>
+							<div>
+								<label for="edit_nomor_hp" class="block text-sm font-medium text-gray-700 mb-2">Nomor HP</label>
+								<input
+									id="edit_nomor_hp"
+									type="text"
+									bind:value={editNomorHp}
+									placeholder="081234567890"
+									maxlength="13"
+									oninput={hanyaAngka}
+									class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+								/>
+								{#if nomorHpError}
+									<p class="text-red-500 text-xs mt-1">{nomorHpError}</p>
+								{/if}
+							</div>
+							<div>
+								<label for="edit_agama" class="block text-sm font-medium text-gray-700 mb-2">Agama</label>
+								<select
+									id="edit_agama"
+									bind:value={editAgama}
+									class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+								>
+									<option value="">-- Pilih Agama --</option>
+									{#each agamaOptions as opt}
+										<option value={opt}>{opt}</option>
+									{/each}
+								</select>
+							</div>
+							<div>
+											<label for="edit_pekerjaan" class="block text-sm font-medium text-gray-700 mb-2">Pekerjaan</label>
+											<select
+												id="edit_pekerjaan"
+												bind:value={editPekerjaan}
+												class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+											>
+												<option value="">-- Pilih Pekerjaan --</option>
+												{#each pekerjaanOptions as opt}
+													<option value={opt}>{opt}</option>
+												{/each}
+											</select>
+										</div>
+										<div class="flex items-center justify-end gap-3 pt-4">
 					<button type="button" onclick={onClose} class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
 						Batal
 					</button>

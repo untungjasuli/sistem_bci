@@ -21,7 +21,7 @@ export const GET = async ({ url, cookies }) => {
 	const conn = await getConnection();
 	try {
 		const [anggota] = await conn.execute(
-			`SELECT id, nik, nama, jenis_kelamin, tanggal_lahir, hub_keluarga, nomor_hp, keluarga_id
+			`SELECT id, nik, nama, jenis_kelamin, tempat_lahir, tanggal_lahir, hub_keluarga, nomor_hp, agama, pekerjaan, status_perkawinan, keluarga_id
 			 FROM anggota_keluarga
 			 WHERE keluarga_id = ?
 			 ORDER BY FIELD(hub_keluarga, 'Kepala Keluarga', 'Istri', 'Anak'), nama ASC`,
