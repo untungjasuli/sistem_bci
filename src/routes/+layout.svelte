@@ -227,8 +227,8 @@
 																												class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
 																													{page.url.pathname === '/kategori-kas' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
 																>
-																	<i class="fa-solid fa-tags w-5"></i>
-																	<span>Kategori Kas</span>
+																																	<i class="fa-solid fa-money-bill-wave w-5"></i>
+																																		<span>Akun Pemasukan & Pengeluaran</span>
 																</a>
 															</li>
 															<li>

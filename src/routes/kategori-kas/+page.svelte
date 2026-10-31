@@ -305,8 +305,8 @@
 <div class="px-4 sm:px-6 lg:px-8 py-8">
 	<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
 		<div>
-			<h1 class="text-2xl font-bold text-gray-900">Kategori Kas</h1>
-			<p class="text-gray-500 text-sm">Kelola kategori pemasukan dan pengeluaran</p>
+						<h1 class="text-2xl font-bold text-gray-900">Akun Pemasukan & Pengeluaran</h1>
+						<p class="text-gray-500 text-sm">Kelola kategori pemasukan dan pengeluaran</p>
 		</div>
 		<div class="flex items-center gap-3 w-full lg:w-auto">
 			<form onsubmit={handleSearch} class="relative flex items-center flex-1 min-w-0">
