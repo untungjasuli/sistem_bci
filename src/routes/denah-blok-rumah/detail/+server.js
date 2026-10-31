@@ -41,7 +41,7 @@ export const GET = async ({ url, cookies }) => {
 		const kkRows = await executeQuery(
 			`SELECT k.id, k.no_kk, k.status_rumah,
 				(SELECT COUNT(*) FROM anggota_keluarga WHERE keluarga_id = k.id) as anggota_count
-			FROM keluarga k WHERE k.blok_rumah_id = ? ORDER BY k.no_kk`,
+			FROM keluarga k WHERE k.blok_rumah_id = ? ORDER BY k.status_rumah`,
 			[blokId]
 		);
 
