@@ -9,7 +9,8 @@
 	let gridCols = data.gridCols || 10;
 	let gridRows = data.gridRows || 10;
 	let cellSize = $state(data.cellSize || 40);
-	let maxGrid = $state(data.maxGrid || 50);
+	let maxGridCols = $state(data.maxGridCols || 40);
+	let maxGridRows = $state(data.maxGridRows || 50);
 
 	let toast = $state(null);
 
@@ -22,6 +23,49 @@
 	let draggedBlok = $state(null);
 	let dragOverCell = $state({ x: -1, y: -1 });
 	let isDragging = $state(false);
+
+	// Fullscreen state
+	let isFullscreen = $state(false);
+
+	function toggleFullscreen() {
+		const container = document.querySelector('.denah-container');
+		if (!container) return;
+
+		if (!isFullscreen) {
+			if (container.requestFullscreen) {
+				container.requestFullscreen();
+			} else if (container.webkitRequestFullscreen) {
+				container.webkitRequestFullscreen();
+			} else if (container.msRequestFullscreen) {
+				container.msRequestFullscreen();
+			}
+		} else {
+			if (document.exitFullscreen) {
+				document.exitFullscreen();
+			} else if (document.webkitExitFullscreen) {
+				document.webkitExitFullscreen();
+			} else if (document.msExitFullscreen) {
+				document.msExitFullscreen();
+			}
+		}
+	}
+
+	// Listen for fullscreen changes (browser only)
+	{
+		if (typeof document !== 'undefined') {
+			const handleFullscreenChange = () => {
+				isFullscreen = !!(
+					document.fullscreenElement ||
+					document.webkitFullscreenElement ||
+					document.msFullscreenElement
+				);
+			};
+			document.addEventListener('fullscreenchange', handleFullscreenChange);
+			document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+			document.addEventListener('msfullscreenchange', handleFullscreenChange);
+			// Cleanup would need onDestroy but skip for brevity
+		}
+	}
 
 	// Resize state
 	let resizingBlok = $state(null);
@@ -65,53 +109,53 @@
 	}
 
 	// Find nearest empty cell (spiral search from target)
-	function findNearestEmptyCell(startX, startY, blokWidth, blokHeight) {
-		const maxSearch = maxGrid;
-		if (!getBlokAt(startX, startY)) return { x: startX, y: startY };
-		
-		for (let radius = 1; radius <= maxSearch; radius++) {
-			for (let dx = -radius; dx <= radius; dx++) {
-				for (let dy = -radius; dy <= radius; dy++) {
-					if (Math.abs(dx) !== radius && Math.abs(dy) !== radius) continue;
-					const nx = startX + dx;
-					const ny = startY + dy;
-					if (nx < 0 || ny < 0 || nx + blokWidth > maxGrid || ny + blokHeight > maxGrid) continue;
-					
-					// Check if area is free
-					let free = true;
-					for (let ix = 0; ix < blokWidth; ix++) {
-						for (let iy = 0; iy < blokHeight; iy++) {
-							if (getBlokAt(nx + ix, ny + iy)) { free = false; break; }
+		function findNearestEmptyCell(startX, startY, blokWidth, blokHeight) {
+			const maxSearch = Math.max(maxGridCols, maxGridRows);
+			if (!getBlokAt(startX, startY)) return { x: startX, y: startY };
+
+			for (let radius = 1; radius <= maxSearch; radius++) {
+				for (let dx = -radius; dx <= radius; dx++) {
+					for (let dy = -radius; dy <= radius; dy++) {
+						if (Math.abs(dx) !== radius && Math.abs(dy) !== radius) continue;
+						const nx = startX + dx;
+						const ny = startY + dy;
+						if (nx < 0 || ny < 0 || nx + blokWidth > maxGridCols || ny + blokHeight > maxGridRows) continue;
+
+						// Check if area is free
+						let free = true;
+						for (let ix = 0; ix < blokWidth; ix++) {
+							for (let iy = 0; iy < blokHeight; iy++) {
+								if (getBlokAt(nx + ix, ny + iy)) { free = false; break; }
+							}
+							if (!free) break;
 						}
-						if (!free) break;
+						if (free) return { x: nx, y: ny };
 					}
-					if (free) return { x: nx, y: ny };
+				}
+			}
+			return null; // grid full
+		}
+
+		// Auto-distribute blocks stuck at (0,0) on load
+		function autoDistributeBlocks() {
+			const atZero = blokRumah.filter(b => (b.pos_x || 0) === 0 && (b.pos_y || 0) === 0);
+			if (atZero.length <= 1) return; // only 1 or none at origin
+
+			let nextX = 0, nextY = 0;
+			for (const blok of atZero.slice(1)) { // skip first one
+				const spot = findNearestEmptyCell(nextX, nextY, blok.width || 1, blok.height || 1);
+				if (spot) {
+					// Update via API (fire and forget)
+					const formData = new FormData();
+					formData.append('id', blok.id);
+					formData.append('pos_x', spot.x);
+					formData.append('pos_y', spot.y);
+					fetch('?/updatePosition', { method: 'POST', body: formData, credentials: 'include' });
+					nextX = spot.x + (blok.width || 1);
+					if (nextX >= maxGridCols) { nextX = 0; nextY += 2; }
 				}
 			}
 		}
-		return null; // grid full
-	}
-
-	// Auto-distribute blocks stuck at (0,0) on load
-	function autoDistributeBlocks() {
-		const atZero = blokRumah.filter(b => (b.pos_x || 0) === 0 && (b.pos_y || 0) === 0);
-		if (atZero.length <= 1) return; // only 1 or none at origin
-		
-		let nextX = 0, nextY = 0;
-		for (const blok of atZero.slice(1)) { // skip first one
-			const spot = findNearestEmptyCell(nextX, nextY, blok.width || 1, blok.height || 1);
-			if (spot) {
-				// Update via API (fire and forget)
-				const formData = new FormData();
-				formData.append('id', blok.id);
-				formData.append('pos_x', spot.x);
-				formData.append('pos_y', spot.y);
-				fetch('?/updatePosition', { method: 'POST', body: formData, credentials: 'include' });
-				nextX = spot.x + (blok.width || 1);
-				if (nextX >= maxGrid) { nextX = 0; nextY += 2; }
-			}
-		}
-	}
 
 	// Call auto-distribute on mount
 	{
@@ -131,37 +175,37 @@
 
 	// Handle drag over grid cell
 	function handleDragOver(e, x, y) {
-		e.preventDefault();
-		e.dataTransfer.dropEffect = 'move';
-		if (!isDragging) return;
-		
-		// Check bounds (respect maxGrid)
-		if (x < 0 || y < 0 || x >= maxGrid || y >= maxGrid) return;
-		
-		// Check if target cell is valid (not occupied by other blok)
-		const targetBlok = getBlokAt(x, y, draggedBlok?.id);
-		if (!targetBlok || targetBlok.id === draggedBlok?.id) {
-			dragOverCell = { x, y };
+			e.preventDefault();
+			e.dataTransfer.dropEffect = 'move';
+			if (!isDragging) return;
+
+			// Check bounds (respect maxGridCols/maxGridRows)
+			if (x < 0 || y < 0 || x >= maxGridCols || y >= maxGridRows) return;
+
+			// Check if target cell is valid (not occupied by other blok)
+			const targetBlok = getBlokAt(x, y, draggedBlok?.id);
+			if (!targetBlok || targetBlok.id === draggedBlok?.id) {
+				dragOverCell = { x, y };
+			}
 		}
-	}
 
-	// Handle drag leave
-	function handleDragLeave() {
-		dragOverCell = { x: -1, y: -1 };
-	}
-
-	// Handle drop
-	function handleDrop(e, x, y) {
-		e.preventDefault();
-		if (!draggedBlok) return;
-
-		// Bounds check
-		if (x < 0 || y < 0 || x >= maxGrid || y >= maxGrid) {
-			draggedBlok = null;
-			isDragging = false;
+		// Handle drag leave
+		function handleDragLeave() {
 			dragOverCell = { x: -1, y: -1 };
-			return;
 		}
+
+		// Handle drop
+		function handleDrop(e, x, y) {
+			e.preventDefault();
+			if (!draggedBlok) return;
+
+			// Bounds check
+			if (x < 0 || y < 0 || x >= maxGridCols || y >= maxGridRows) {
+				draggedBlok = null;
+				isDragging = false;
+				dragOverCell = { x: -1, y: -1 };
+				return;
+			}
 
 		const targetBlok = getBlokAt(x, y, draggedBlok.id);
 		let finalX = x;
@@ -226,11 +270,11 @@
 					blokRumah = blokRumah.map(b => b.id === result.block.id ? { ...b, ...result.block } : b);
 					
 					// Auto-expand grid if block goes beyond current bounds
-					const b = result.block;
-					const newMaxCol = (b.pos_x || 0) + (b.width || 1);
-					const newMaxRow = (b.pos_y || 0) + (b.height || 1);
-					if (newMaxCol > gridCols) gridCols = Math.min(newMaxCol, maxGrid);
-					if (newMaxRow > gridRows) gridRows = Math.min(newMaxRow, maxGrid);
+									const b = result.block;
+									const newMaxCol = (b.pos_x || 0) + (b.width || 1);
+									const newMaxRow = (b.pos_y || 0) + (b.height || 1);
+									if (newMaxCol > gridCols) gridCols = Math.min(newMaxCol, maxGridCols);
+									if (newMaxRow > gridRows) gridRows = Math.min(newMaxRow, maxGridRows);
 				}
 				showToast('success', result.success);
 				invalidateAll();
@@ -285,9 +329,9 @@
 		if (resizingBlok.direction.includes('s')) newHeight = Math.max(1, resizeStart.height + dy);
 		if (resizingBlok.direction.includes('n')) newHeight = Math.max(1, resizeStart.height - dy);
 		
-		// Clamp to grid (use maxGrid as absolute max)
-		const maxW = Math.min(gridCols, maxGrid) - (resizingBlok.pos_x || 0);
-		const maxH = Math.min(gridRows, maxGrid) - (resizingBlok.pos_y || 0);
+		// Clamp to grid (use maxGridCols/maxGridRows as absolute max)
+		const maxW = Math.min(gridCols, maxGridCols) - (resizingBlok.pos_x || 0);
+		const maxH = Math.min(gridRows, maxGridRows) - (resizingBlok.pos_y || 0);
 		newWidth = Math.min(newWidth, maxW);
 		newHeight = Math.min(newHeight, maxH);
 		
@@ -344,8 +388,8 @@
 					const b = result.block;
 					const newMaxCol = (b.pos_x || 0) + (b.width || 1);
 					const newMaxRow = (b.pos_y || 0) + (b.height || 1);
-					if (newMaxCol > gridCols) gridCols = Math.min(newMaxCol, maxGrid);
-					if (newMaxRow > gridRows) gridRows = Math.min(newMaxRow, maxGrid);
+					if (newMaxCol > gridCols) gridCols = Math.min(newMaxCol, maxGridCols);
+					if (newMaxRow > gridRows) gridRows = Math.min(newMaxRow, maxGridRows);
 				}
 				showToast('success', result.success);
 				invalidateAll();
@@ -371,11 +415,11 @@
 			let newY = blok.pos_y || 0;
 			
 			switch(e.key) {
-				case 'ArrowLeft': newX = Math.max(0, newX - step); break;
-				case 'ArrowRight': newX = Math.min(maxGrid - (blok.width || 1), newX + step); break;
-				case 'ArrowUp': newY = Math.max(0, newY - step); break;
-				case 'ArrowDown': newY = Math.min(maxGrid - (blok.height || 1), newY + step); break;
-			}
+						case 'ArrowLeft': newX = Math.max(0, newX - step); break;
+						case 'ArrowRight': newX = Math.min(maxGridCols - (blok.width || 1), newX + step); break;
+						case 'ArrowUp': newY = Math.max(0, newY - step); break;
+						case 'ArrowDown': newY = Math.min(maxGridRows - (blok.height || 1), newY + step); break;
+					}
 			
 			if (newX !== (blok.pos_x || 0) || newY !== (blok.pos_y || 0)) {
 				const formData = new FormData();
@@ -435,40 +479,67 @@
 			<p class="text-gray-500 text-sm">Visualisasi tata ruang blok rumah - Drag untuk pindahkan, drag sudut untuk resize</p>
 		</div>
 		<div class="flex items-center gap-3 w-full lg:w-auto flex-wrap">
-			<div class="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg text-sm text-gray-600">
-				<i class="fa-solid fa-info-circle text-blue-500"></i>
-				<span>Grid: {gridCols} x {gridRows}</span>
-			</div>
-			<div class="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg text-sm text-gray-600">
-				<i class="fa-solid fa-magnifying-glass text-blue-500"></i>
-				<span>Zoom:</span>
-				<input
-					type="range"
-					min="30"
-					max="80"
-					step="5"
-					bind:value={cellSize}
-					class="w-32 h-2 bg-blue-100 rounded-lg appearance-none cursor-pointer accent-blue-600"
-					aria-label="Ukuran sel"
-				/>
-				<span class="w-12 text-right">{cellSize}px</span>
-			</div>
-			<div class="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg text-sm text-gray-600">
-				<i class="fa-solid fa-expand text-blue-500"></i>
-				<span>Max Grid:</span>
-				<select
-					bind:value={maxGrid}
-					class="w-20 px-2 py-1 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-					aria-label="Maksimal grid"
-				>
-					<option value={20}>20</option>
-					<option value={30}>30</option>
-					<option value={40}>40</option>
-					<option value={50}>50</option>
-					<option value={60}>60</option>
-				</select>
-			</div>
-		</div>
+						<div class="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg text-sm text-gray-600">
+							<i class="fa-solid fa-info-circle text-blue-500"></i>
+							<span>Grid: {gridCols} x {gridRows}</span>
+						</div>
+						<div class="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg text-sm text-gray-600">
+							<i class="fa-solid fa-magnifying-glass text-blue-500"></i>
+							<span>Zoom:</span>
+							<input
+								type="range"
+								min="30"
+								max="80"
+								step="5"
+								bind:value={cellSize}
+								class="w-32 h-2 bg-blue-100 rounded-lg appearance-none cursor-pointer accent-blue-600"
+								aria-label="Ukuran sel"
+							/>
+							<span class="w-12 text-right">{cellSize}px</span>
+						</div>
+						<div class="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg text-sm text-gray-600">
+											<i class="fa-solid fa-expand text-blue-500"></i>
+											<span>Max Grid:</span>
+											<select
+												bind:value={maxGridCols}
+												class="w-20 px-2 py-1 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+												aria-label="Maksimal kolom (horizontal)"
+											>
+												<option value={20}>20</option>
+												<option value={30}>30</option>
+												<option value={40}>40</option>
+												<option value={50}>50</option>
+												<option value={60}>60</option>
+											</select>
+											<span class="text-gray-400">×</span>
+											<select
+												bind:value={maxGridRows}
+												class="w-20 px-2 py-1 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+												aria-label="Maksimal baris (vertikal)"
+											>
+												<option value={20}>20</option>
+												<option value={30}>30</option>
+												<option value={40}>40</option>
+												<option value={50}>50</option>
+												<option value={60}>60</option>
+											</select>
+										</div>
+						<!-- Fullscreen Button -->
+						<button
+							onclick={toggleFullscreen}
+							class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+							aria-label={isFullscreen ? 'Keluar layar penuh' : 'Layar penuh'}
+							title={isFullscreen ? 'Keluar layar penuh (Esc)' : 'Layar penuh (F11)'}
+						>
+							{#if isFullscreen}
+								<i class="fa-solid fa-compress"></i>
+								<span>Keluar Fullscreen</span>
+							{:else}
+								<i class="fa-solid fa-expand"></i>
+								<span>Fullscreen</span>
+							{/if}
+						</button>
+					</div>
 	</div>
 
 	<!-- Legend -->
@@ -483,24 +554,24 @@
 	</div>
 
 	<!-- Grid Container -->
-	<div class="bg-white rounded-lg border border-gray-200 overflow-auto max-w-full max-h-[calc(100vh-300px)] touch-pan-x touch-pan-y" style="min-width: 0; min-height: 0;">
+	<div class="denah-container bg-white rounded-lg border border-gray-200 overflow-auto max-w-full max-h-[calc(100vh-300px)] touch-pan-x touch-pan-y" style="min-width: 0; min-height: 0;">
 		<div 
 			class="relative" 
-			style="width: {maxGrid * cellSize}px; height: {maxGrid * cellSize}px;"
-			on:dragover={(e) => {
+			style="width: {maxGridCols * cellSize}px; height: {maxGridRows * cellSize}px;"
+			ondragover={(e) => {
 				// Calculate grid cell from mouse position
 				const rect = e.currentTarget.getBoundingClientRect();
 				const x = Math.floor((e.clientX - rect.left) / cellSize);
 				const y = Math.floor((e.clientY - rect.top) / cellSize);
 				handleDragOver(e, x, y);
 			}}
-			on:drop={(e) => {
+			ondrop={(e) => {
 				const rect = e.currentTarget.getBoundingClientRect();
 				const x = Math.floor((e.clientX - rect.left) / cellSize);
 				const y = Math.floor((e.clientY - rect.top) / cellSize);
 				handleDrop(e, x, y);
 			}}
-			on:dragleave={handleDragLeave}
+			ondragleave={handleDragLeave}
 		>
 			<!-- Grid lines -->
 			{#each Array(gridRows).fill(0) as _, rowIndex}
@@ -538,11 +609,11 @@
 							box-shadow: {draggedBlok?.id === blok.id ? '0 8px 20px rgba(0,0,0,0.2)' : '0 2px 4px rgba(0,0,0,0.1)'};
 						"
 						draggable="true"
-										on:dragstart={(e) => handleDragStart(e, blok)}
-										on:dragend={handleDragEnd}
-										on:keydown={(e) => handleKeyDown(e, blok)}
-										on:click={(e) => { e.stopPropagation(); if (!isDragging) fetchBlokDetail(blok.id); }}
-						tabindex="0"
+										ondragstart={(e) => handleDragStart(e, blok)}
+										ondragend={handleDragEnd}
+										onkeydown={(e) => handleKeyDown(e, blok)}
+										onclick={(e) => { e.stopPropagation(); if (!isDragging) fetchBlokDetail(blok.id); }}
+										tabindex="0"
 						role="button"
 						aria-label="Blok {blok.no_blok}, {blok.status}, posisi {blok.pos_x},{blok.pos_y}, ukuran {blok.width}x{blok.height}"
 						title="Blok {blok.no_blok} - {blok.status}"
@@ -556,33 +627,33 @@
 										<div class="absolute inset-0 pointer-events-none">
 											{#if resizingBlok?.id === blok.id || !isDragging}
 												<!-- SE corner -->
-												<div
-													class="absolute bottom-0 right-0 w-3 h-3 cursor-se-resize bg-white/80 border border-gray-300 rounded-br pointer-events-auto"
-													style="transform: translate(50%, 50%);"
-													on:mousedown={(e) => handleResizeStart(e, blok, 'se')}
-													aria-label="Resize kanan-bawah"
-												></div>
-												<!-- SW corner -->
-												<div
-													class="absolute bottom-0 left-0 w-3 h-3 cursor-sw-resize bg-white/80 border border-gray-300 rounded-bl pointer-events-auto"
-													style="transform: translate(-50%, 50%);"
-													on:mousedown={(e) => handleResizeStart(e, blok, 'sw')}
-													aria-label="Resize kiri-bawah"
-												></div>
-												<!-- NE corner -->
-												<div
-													class="absolute top-0 right-0 w-3 h-3 cursor-ne-resize bg-white/80 border border-gray-300 rounded-tr pointer-events-auto"
-													style="transform: translate(50%, -50%);"
-													on:mousedown={(e) => handleResizeStart(e, blok, 'ne')}
-													aria-label="Resize kanan-atas"
-												></div>
-												<!-- NW corner -->
-												<div
-													class="absolute top-0 left-0 w-3 h-3 cursor-nw-resize bg-white/80 border border-gray-300 rounded-tl pointer-events-auto"
-													style="transform: translate(-50%, -50%);"
-													on:mousedown={(e) => handleResizeStart(e, blok, 'nw')}
-													aria-label="Resize kiri-atas"
-												></div>
+																	<div
+																		class="absolute bottom-0 right-0 w-3 h-3 cursor-se-resize bg-white/80 border border-gray-300 rounded-br pointer-events-auto"
+																		style="transform: translate(50%, 50%);"
+																		onmousedown={(e) => handleResizeStart(e, blok, 'se')}
+																		aria-label="Resize kanan-bawah"
+																	></div>
+																	<!-- SW corner -->
+																	<div
+																		class="absolute bottom-0 left-0 w-3 h-3 cursor-sw-resize bg-white/80 border border-gray-300 rounded-bl pointer-events-auto"
+																		style="transform: translate(-50%, 50%);"
+																		onmousedown={(e) => handleResizeStart(e, blok, 'sw')}
+																		aria-label="Resize kiri-bawah"
+																	></div>
+																	<!-- NE corner -->
+																	<div
+																		class="absolute top-0 right-0 w-3 h-3 cursor-ne-resize bg-white/80 border border-gray-300 rounded-tr pointer-events-auto"
+																		style="transform: translate(50%, -50%);"
+																		onmousedown={(e) => handleResizeStart(e, blok, 'ne')}
+																		aria-label="Resize kanan-atas"
+																	></div>
+																	<!-- NW corner -->
+																	<div
+																		class="absolute top-0 left-0 w-3 h-3 cursor-nw-resize bg-white/80 border border-gray-300 rounded-tl pointer-events-auto"
+																		style="transform: translate(-50%, -50%);"
+																		onmousedown={(e) => handleResizeStart(e, blok, 'nw')}
+																		aria-label="Resize kiri-atas"
+																	></div>
 											{/if}
 										</div>
 					</div>
@@ -622,8 +693,8 @@
 
 <!-- Detail Modal -->
 {#if detailModal.show}
-	<div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" on:click={closeDetailModal}>
-		<div class="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden" on:click={(e) => e.stopPropagation()}>
+	<div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onclick={closeDetailModal}>
+		<div class="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden" onclick={(e) => e.stopPropagation()}>
 			{#if detailModal.loading}
 				<div class="flex items-center justify-center p-12">
 					<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -632,7 +703,7 @@
 			{:else if detailModal.data}
 				<div class="flex items-center justify-between p-4 border-b border-gray-200 sticky top-0 bg-white z-10">
 					<h3 class="text-lg font-bold text-gray-900">Detail Blok: {detailModal.data.blok.no_blok}</h3>
-					<button on:click={closeDetailModal} class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+					<button onclick={closeDetailModal} class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
 				</div>
 				<div class="p-4 overflow-y-auto max-h-[calc(90vh-60px)]">
 					<!-- Blok Info -->
@@ -755,5 +826,33 @@
 			overflow-y: auto;
 			-webkit-overflow-scrolling: touch;
 		}
+	}
+
+	/* Fullscreen styles */
+	.denah-container:fullscreen,
+	.denah-container:-webkit-full-screen,
+	.denah-container:-ms-fullscreen {
+		max-height: none;
+		max-width: none;
+		width: 100vw;
+		height: 100vh;
+		border-radius: 0;
+		border: none;
+		background: #f9fafb;
+	}
+
+	.denah-container:fullscreen .relative,
+	.denah-container:-webkit-full-screen .relative,
+	.denah-container:-ms-fullscreen .relative {
+		width: 100%;
+		height: 100%;
+		min-width: 100%;
+		min-height: 100%;
+	}
+
+	/* Hide header/legend in fullscreen mode (optional - keep controls accessible) */
+	.denah-container:fullscreen ~ .flex.flex-col.lg\\:flex-row,
+	.denah-container:-webkit-full-screen ~ .flex.flex-col.lg\\:flex-row {
+		/* Header stays visible for controls */
 	}
 </style>

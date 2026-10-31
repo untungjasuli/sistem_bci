@@ -29,7 +29,8 @@ export const load = async ({ cookies }) => {
 	// Calculate max extent: max(pos_x + width), max(pos_y + height)
 	let maxCol = 10;
 	let maxRow = 10;
-	const MAX_GRID = 50; // batas maksimal grid (diperbesar dari 20)
+	const MAX_GRID_COLS = 40; // batas maksimal grid horizontal (kolom)
+	const MAX_GRID_ROWS = 50; // batas maksimal grid vertikal (baris)
 
 	for (const b of blokRumah) {
 		const x = (b.pos_x || 0) + (b.width || 1);
@@ -39,8 +40,8 @@ export const load = async ({ cookies }) => {
 	}
 
 	// Clamp to max
-	const gridCols = Math.min(maxCol, MAX_GRID);
-	const gridRows = Math.min(maxRow, MAX_GRID);
+	const gridCols = Math.min(maxCol, MAX_GRID_COLS);
+	const gridRows = Math.min(maxRow, MAX_GRID_ROWS);
 	const cellSize = 40; // px per grid cell (diperkecil)
 
 	return {
@@ -48,7 +49,8 @@ export const load = async ({ cookies }) => {
 		gridCols,
 		gridRows,
 		cellSize,
-		maxGrid: MAX_GRID
+		maxGridCols: MAX_GRID_COLS,
+		maxGridRows: MAX_GRID_ROWS
 	};
 };
 
