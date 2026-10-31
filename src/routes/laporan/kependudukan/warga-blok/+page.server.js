@@ -40,7 +40,7 @@ export const load = async ({ locals, url }) => {
 		JOIN keluarga k ON ak.keluarga_id = k.id
 		JOIN blok_rumah b ON k.blok_rumah_id = b.id
 		${whereClause}
-		ORDER BY b.no_blok, k.no_kk, ak.hub_keluarga, ak.nama
+		ORDER BY b.no_blok, k.status_rumah, ak.hub_keluarga, ak.nama
 	`;
 	const rows = await executeQuery(sql, params);
 
