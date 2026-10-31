@@ -715,7 +715,7 @@
 									</div>
 									<div class="justify-end">
 										<div class="px-2 py-0.5 text-sm text-gray-500 text-right">{kk.anggota.length} anggota</div>
-										<span class="px-2 py-0.5 text-xs rounded-full text-right {kk.status_rumah === 'sendiri' ? 'bg-green-100 text-green-700' : kk.status_rumah === 'ngontrak' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'}">
+										<span class="flex px-2 py-0.5 text-xs rounded-full justify-center {kk.status_rumah === 'sendiri' ? 'bg-green-100 text-green-700' : kk.status_rumah === 'ngontrak' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'}">
 											{kk.status_rumah === 'sendiri' ? 'Rumah Sendiri' : kk.status_rumah === 'ngontrak' ? 'Ngontrak' : 'Ikut Orang Tua/Mertua'}
 										</span>
 									</div>
