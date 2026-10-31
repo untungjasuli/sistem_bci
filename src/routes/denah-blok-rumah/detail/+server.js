@@ -73,7 +73,7 @@ export const GET = async ({ url, cookies }) => {
 				`SELECT 
 					k.no_kk,
 					ti.periode,
-					pi.nominal_bayar, pi.tanggal_bayar, pi.metode_bayar, pi.status as bayar_status
+					ti.nominal, pi.tanggal_bayar, pi.metode_bayar, ti.status as bayar_status
 				FROM tagihan_iuran ti
 				JOIN keluarga k ON ti.keluarga_id = k.id
 				LEFT JOIN pembayaran_iuran pi ON pi.tagihan_id = ti.id

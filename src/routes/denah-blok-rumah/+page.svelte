@@ -695,7 +695,7 @@
 																										<thead>
 																											<tr class="bg-gray-50 border-b border-gray-200">
 																												<th class="px-3 py-2 font-medium text-gray-600">Periode</th>
-																												<th class="px-3 py-2 font-medium text-gray-600">Bayar</th>
+																												<th class="px-3 py-2 font-medium text-gray-600">Nominal</th>
 																												<th class="px-3 py-2 font-medium text-gray-600">Tgl Bayar</th>
 																												<th class="px-3 py-2 font-medium text-gray-600">Metode</th>
 																												<th class="px-3 py-2 font-medium text-gray-600">Status Bayar</th>
@@ -706,14 +706,14 @@
 																												<tr class="hover:bg-gray-50">
 																													<td class="px-3 py-2 text-gray-900">{t.periode}</td>
 																													<td class="px-3 py-2">
-																														{ t.nominal_bayar 
-																															? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(t.nominal_bayar)
+																														{ t.nominal 
+																															? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(t.nominal)
 																															: '-' }
 																													</td>
 																													<td class="px-3 py-2 text-gray-600">{t.tanggal_bayar ? new Date(t.tanggal_bayar).toLocaleDateString('id-ID') : '-'}</td>
 																													<td class="px-3 py-2 text-gray-600 capitalize">{t.metode_bayar || '-'}</td>
 																													<td class="px-3 py-2">
-																																			{#if t.tagihan_status === 'lunas'}
+																																			{#if t.bayar_status === 'lunas'}
 																																				<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
 																																					<i class="fa-solid fa-circle-check"></i> Lunas
 																																				</span>
