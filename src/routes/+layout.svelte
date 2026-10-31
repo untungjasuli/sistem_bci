@@ -14,7 +14,10 @@
 	let user = $derived(data?.user);
 	let sidebarOpen = $state(false);
 	let profileOpen = $state(false);
+	let dataOpen = $state(false);
+	let iuranOpen = $state(false);
 	let keuanganOpen = $state(false);
+	let laporanOpen = $state(false);
 	let tagihanOpen = $state(false);
 	let kependudukanOpen = $state(false);
 
@@ -142,199 +145,246 @@
 											<a
 												href="/"
 												onclick={closeSidebar}
-																							class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
-																								{page.url.pathname === '/' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+												class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+													{page.url.pathname === '/' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
 											>
 												<i class="fa-solid fa-chart-pie w-5"></i>
 												<span>Dashboard</span>
 											</a>
 										</li>
+									{/if}
+					
+									<!-- Divider: Data -->
+									<li>
+										<div class="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Data</div>
+									</li>
+					
+									<!-- Blok Rumah (expandable) -->
+									<li>
+										<button
+											type="button"
+											onclick={() => { dataOpen = !dataOpen; }}
+											class="flex items-center justify-between w-full px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+												{page.url.pathname.startsWith('/data-blok-rumah') || page.url.pathname.startsWith('/denah-blok-rumah') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+										>
+											<div class="flex items-center gap-3">
+												<i class="fa-solid fa-house w-5"></i>
+												<span>Blok Rumah</span>
+											</div>
+											<i class="fa-solid fa-chevron-down text-xs transition-transform duration-200 {dataOpen ? 'rotate-180' : ''}"></i>
+										</button>
+										{#if dataOpen}
+											<ul class="mt-1 ml-8 space-y-1 border-l border-gray-200 pl-3">
+												<li><a href="/data-blok-rumah" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/data-blok-rumah' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-building w-4 text-gray-400"></i> Data Blok</a></li>
+												<li><a href="/denah-blok-rumah" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/denah-blok-rumah' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-map w-4 text-gray-400"></i> Denah Blok</a></li>
+											</ul>
+										{/if}
+									</li>
+					
+									<li>
+										<a
+											href="/data-penduduk"
+											onclick={closeSidebar}
+											class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+												{page.url.pathname === '/data-penduduk' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+										>
+											<i class="fa-solid fa-users w-5"></i>
+											<span>Data Penduduk</span>
+										</a>
+									</li>
+					
+									<li>
+										<a
+											href="/pemilik-rumah-kosong"
+											onclick={closeSidebar}
+											class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+												{page.url.pathname === '/pemilik-rumah-kosong' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+										>
+											<i class="fa-solid fa-user-plus w-5"></i>
+											<span>Pemilik Rumah Kosong</span>
+										</a>
+									</li>
+					
+									<hr class="my-2 border-gray-100" />
+					
+									<!-- Divider: Iuran Bulanan -->
+									<li>
+										<div class="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Iuran Bulanan</div>
+									</li>
+					
+									<li>
+										<a
+											href="/iuran-bulanan"
+											onclick={closeSidebar}
+											class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+												{page.url.pathname === '/iuran-bulanan' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+										>
+											<i class="fa-solid fa-money-bill-wave w-5"></i>
+											<span>Iuran Bulanan</span>
+										</a>
+									</li>
+					
+									{#if isAdmin()}
 										<li>
 											<a
-												href="/data-blok-rumah"
+												href="/persetujuan-pembayaran"
 												onclick={closeSidebar}
-																							class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
-																								{page.url.pathname === '/data-blok-rumah' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+												class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+													{page.url.pathname === '/persetujuan-pembayaran' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
 											>
-												<i class="fa-solid fa-house w-5"></i>
-												<span>Data Blok Rumah</span>
+												<i class="fa-solid fa-clipboard-check w-5"></i>
+												<span>Persetujuan Pembayaran</span>
 											</a>
 										</li>
-										<li>
-															<a
-																href="/data-penduduk"
-																onclick={closeSidebar}
-																											class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
-																												{page.url.pathname === '/data-penduduk' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
-															>
-																<i class="fa-solid fa-users w-5"></i>
-																<span>Data Penduduk</span>
-															</a>
-														</li>
-														<li>
-															<a
-																href="/pemilik-rumah-kosong"
-																onclick={closeSidebar}
-																											class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
-																												{page.url.pathname === '/pemilik-rumah-kosong' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
-															>
-																<i class="fa-solid fa-user-plus w-5"></i>
-																<span>Pemilik Rumah Kosong</span>
-															</a>
-														</li>
-														<hr class="my-2 border-gray-100" />
 									{/if}
+					
+									<hr class="my-2 border-gray-100" />
+					
+									<!-- Divider: Keuangan (admin only) -->
+									{#if isAdmin()}
+										<li>
+											<div class="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Keuangan</div>
+										</li>
+						
+										<li>
+											<a
+												href="/kas-account"
+												onclick={closeSidebar}
+												class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+													{page.url.pathname === '/kas-account' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+											>
+												<i class="fa-solid fa-wallet w-5"></i>
+												<span>Rekening Kas</span>
+											</a>
+										</li>
+						
+										<li>
+											<a
+												href="/kategori-kas"
+												onclick={closeSidebar}
+												class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+													{page.url.pathname === '/kategori-kas' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+											>
+												<i class="fa-solid fa-money-bill-wave w-5"></i>
+												<span>Akun Pemasukan & Pengeluaran</span>
+											</a>
+										</li>
+						
+										<li>
+											<a
+												href="/pembayaran-method"
+												onclick={closeSidebar}
+												class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+													{page.url.pathname === '/pembayaran-method' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+											>
+												<i class="fa-solid fa-credit-card w-5"></i>
+												<span>Metode Pembayaran</span>
+											</a>
+										</li>
+						
+										<li>
+											<a
+												href="/transaksi-kas"
+												onclick={closeSidebar}
+												class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+													{page.url.pathname === '/transaksi-kas' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+											>
+												<i class="fa-solid fa-receipt w-5"></i>
+												<span>Transaksi Kas</span>
+											</a>
+										</li>
+						
+										<li>
+											<a
+												href="/transfer-antar-kas"
+												onclick={closeSidebar}
+												class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+													{page.url.pathname === '/transfer-antar-kas' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+											>
+												<i class="fa-solid fa-arrow-right-arrow-left w-5"></i>
+												<span>Transfer Antar Kas</span>
+											</a>
+										</li>
+						
+										<hr class="my-2 border-gray-100" />
+									{/if}
+					
+									<!-- Divider: Laporan -->
 									<li>
-																<a
-																	href="/iuran-bulanan"
-																	onclick={closeSidebar}
-																												class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
-																													{page.url.pathname === '/iuran-bulanan' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
-																>
-																	<i class="fa-solid fa-money-bill-wave w-5"></i>
-																	<span>Iuran Bulanan</span>
-																</a>
-															</li>
-															{#if isAdmin()}
-															<hr class="my-2 border-gray-100" />
-															<li>
-																<a
-																	href="/persetujuan-pembayaran"
-																	onclick={closeSidebar}
-																												class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
-																													{page.url.pathname === '/persetujuan-pembayaran' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
-																>
-																	<i class="fa-solid fa-clipboard-check w-5"></i>
-																	<span>Persetujuan Pembayaran</span>
-																</a>
-															</li>
-															<hr class="my-2 border-gray-100" />
-															<li>
-																<a
-																	href="/kas-account"
-																	onclick={closeSidebar}
-																												class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
-																													{page.url.pathname === '/kas-account' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
-																>
-																	<i class="fa-solid fa-wallet w-5"></i>
-																	<span>Rekening Kas</span>
-																</a>
-															</li>
-															<li>
-																<a
-																	href="/kategori-kas"
-																	onclick={closeSidebar}
-																												class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
-																													{page.url.pathname === '/kategori-kas' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
-																>
-																																	<i class="fa-solid fa-money-bill-wave w-5"></i>
-																																		<span>Akun Pemasukan & Pengeluaran</span>
-																</a>
-															</li>
-															<li>
-																<a
-																	href="/pembayaran-method"
-																	onclick={closeSidebar}
-																												class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
-																													{page.url.pathname === '/pembayaran-method' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
-																>
-																	<i class="fa-solid fa-credit-card w-5"></i>
-																	<span>Metode Pembayaran</span>
-																</a>
-															</li>
-															<li>
-																<a
-																	href="/transaksi-kas"
-																	onclick={closeSidebar}
-																												class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
-																													{page.url.pathname === '/transaksi-kas' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
-																>
-																	<i class="fa-solid fa-receipt w-5"></i>
-																	<span>Transaksi Kas</span>
-																</a>
-															</li>
-															<li>
-																					<a
-																						href="/transfer-antar-kas"
-																						onclick={closeSidebar}
-																																	class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
-																																																																			{page.url.pathname === '/transfer-antar-kas' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
-																					>
-																						<i class="fa-solid fa-arrow-right-arrow-left w-5"></i>
-																						<span>Transfer Antar Kas</span>
-																					</a>
-																				</li>
-																				<hr class="my-2 border-gray-100" />
-																				<!-- Laporan Keuangan -->
-																				<li>
-																																										<button
-																																											type="button"
-																																											onclick={() => { keuanganOpen = !keuanganOpen; }}
-																																											class="flex items-center justify-between w-full px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
-																																												{page.url.pathname.startsWith('/laporan/keuangan') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
-																																										>
-																						<div class="flex items-center gap-3">
-																							<i class="fa-solid fa-coins w-5"></i>
-																							<span>Laporan Keuangan</span>
-																						</div>
-																						<i class="fa-solid fa-chevron-down text-xs transition-transform duration-200 {keuanganOpen ? 'rotate-180' : ''}"></i>
-																					</button>
-																					{#if keuanganOpen}
-																						<ul class="mt-1 ml-8 space-y-1 border-l border-gray-200 pl-3">
-																																														<li><a href="/laporan/keuangan/arus-kas" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/keuangan/arus-kas' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-arrows-up-down w-4 text-gray-400"></i> Arus Kas</a></li>
-																																														<li><a href="/laporan/keuangan/saldo-kas" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/keuangan/saldo-kas' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-wallet w-4 text-gray-400"></i> Saldo Kas</a></li>
-																																														<li><a href="/laporan/keuangan/transaksi-kategori" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/keuangan/transaksi-kategori' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-layer-group w-4 text-gray-400"></i> Transaksi per Kategori</a></li>
-																																														<li><a href="/laporan/keuangan/transfer-kas" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/keuangan/transfer-kas' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-arrow-right-arrow-left w-4 text-gray-400"></i> Transfer Antar Kas</a></li>
-																						</ul>
-																					{/if}
-																				</li>
-																				<!-- Laporan Tagihan -->
-																				<li>
-																																										<button
-																																											type="button"
-																																											onclick={() => { tagihanOpen = !tagihanOpen; }}
-																																											class="flex items-center justify-between w-full px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
-																																												{page.url.pathname.startsWith('/laporan/tagihan') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
-																																										>
-																						<div class="flex items-center gap-3">
-																							<i class="fa-solid fa-file-invoice-dollar w-5"></i>
-																							<span>Laporan Tagihan</span>
-																						</div>
-																						<i class="fa-solid fa-chevron-down text-xs transition-transform duration-200 {tagihanOpen ? 'rotate-180' : ''}"></i>
-																					</button>
-																					{#if tagihanOpen}
-																						<ul class="mt-1 ml-8 space-y-1 border-l border-gray-200 pl-3">
-																																														<li><a href="/laporan/tagihan/rekap-periode" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/tagihan/rekap-periode' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-calendar w-4 text-gray-400"></i> Rekap Tagihan per Periode</a></li>
-																																														<li><a href="/laporan/tagihan/tunggakan" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/tagihan/tunggakan' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-exclamation-triangle w-4 text-gray-400"></i> Tunggakan Tagihan</a></li>
-																																														<li><a href="/laporan/tagihan/pembayaran-metode" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/tagihan/pembayaran-metode' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-credit-card w-4 text-gray-400"></i> Pembayaran per Metode</a></li>
-																						</ul>
-																					{/if}
-																				</li>
-																				<!-- Laporan Kependudukan -->
-																				<li>
-																																										<button
-																																											type="button"
-																																											onclick={() => { kependudukanOpen = !kependudukanOpen; }}
-																																											class="flex items-center justify-between w-full px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
-																																												{page.url.pathname.startsWith('/laporan/kependudukan') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
-																																										>
-																						<div class="flex items-center gap-3">
-																							<i class="fa-solid fa-users w-5"></i>
-																							<span>Laporan Kependudukan</span>
-																						</div>
-																						<i class="fa-solid fa-chevron-down text-xs transition-transform duration-200 {kependudukanOpen ? 'rotate-180' : ''}"></i>
-																					</button>
-																					{#if kependudukanOpen}
-																												<ul class="mt-1 ml-8 space-y-1 border-l border-gray-200 pl-3">
-																																																										<li><a href="/laporan/kependudukan/warga-blok" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/kependudukan/warga-blok' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-house w-4 text-gray-400"></i> Daftar Warga per Blok</a></li>
-																																																										<li><a href="/laporan/kependudukan/statistik" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/kependudukan/statistik' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-chart-bar w-4 text-gray-400"></i> Statistik Penduduk</a></li>
-																																																										<li><a href="/laporan/kependudukan/kelompok-usia" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/kependudukan/kelompok-usia' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-user-group w-4 text-gray-400"></i> Warga per Kelompok Usia</a></li>
-																																																										<li><a href="/laporan/kependudukan/kontak" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/kependudukan/kontak' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-phone w-4 text-gray-400"></i> Data Kontak Warga</a></li>
-																												</ul>
-																											{/if}
-																				</li>
-																			{/if}
-																			</ul>
+										<div class="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Laporan</div>
+									</li>
+					
+									<!-- Laporan Keuangan -->
+									<li>
+										<button
+											type="button"
+											onclick={() => { keuanganOpen = !keuanganOpen; }}
+											class="flex items-center justify-between w-full px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+												{page.url.pathname.startsWith('/laporan/keuangan') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+										>
+											<div class="flex items-center gap-3">
+												<i class="fa-solid fa-coins w-5"></i>
+												<span>Laporan Keuangan</span>
+											</div>
+											<i class="fa-solid fa-chevron-down text-xs transition-transform duration-200 {keuanganOpen ? 'rotate-180' : ''}"></i>
+										</button>
+										{#if keuanganOpen}
+											<ul class="mt-1 ml-8 space-y-1 border-l border-gray-200 pl-3">
+												<li><a href="/laporan/keuangan/arus-kas" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/keuangan/arus-kas' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-arrows-up-down w-4 text-gray-400"></i> Arus Kas</a></li>
+												<li><a href="/laporan/keuangan/saldo-kas" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/keuangan/saldo-kas' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-wallet w-4 text-gray-400"></i> Saldo Kas</a></li>
+												<li><a href="/laporan/keuangan/transaksi-kategori" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/keuangan/transaksi-kategori' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-layer-group w-4 text-gray-400"></i> Transaksi per Kategori</a></li>
+												<li><a href="/laporan/keuangan/transfer-kas" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/keuangan/transfer-kas' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-arrow-right-arrow-left w-4 text-gray-400"></i> Transfer Antar Kas</a></li>
+											</ul>
+										{/if}
+									</li>
+					
+									<!-- Laporan Tagihan -->
+									<li>
+										<button
+											type="button"
+											onclick={() => { tagihanOpen = !tagihanOpen; }}
+											class="flex items-center justify-between w-full px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+												{page.url.pathname.startsWith('/laporan/tagihan') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+										>
+											<div class="flex items-center gap-3">
+												<i class="fa-solid fa-file-invoice-dollar w-5"></i>
+												<span>Laporan Tagihan</span>
+											</div>
+											<i class="fa-solid fa-chevron-down text-xs transition-transform duration-200 {tagihanOpen ? 'rotate-180' : ''}"></i>
+										</button>
+										{#if tagihanOpen}
+											<ul class="mt-1 ml-8 space-y-1 border-l border-gray-200 pl-3">
+												<li><a href="/laporan/tagihan/rekap-periode" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/tagihan/rekap-periode' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-calendar w-4 text-gray-400"></i> Rekap Tagihan per Periode</a></li>
+												<li><a href="/laporan/tagihan/tunggakan" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/tagihan/tunggakan' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-exclamation-triangle w-4 text-gray-400"></i> Tunggakan Tagihan</a></li>
+												<li><a href="/laporan/tagihan/pembayaran-metode" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/tagihan/pembayaran-metode' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-credit-card w-4 text-gray-400"></i> Pembayaran per Metode</a></li>
+											</ul>
+										{/if}
+									</li>
+					
+									<!-- Laporan Kependudukan -->
+									<li>
+										<button
+											type="button"
+											onclick={() => { kependudukanOpen = !kependudukanOpen; }}
+											class="flex items-center justify-between w-full px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+												{page.url.pathname.startsWith('/laporan/kependudukan') ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+										>
+											<div class="flex items-center gap-3">
+												<i class="fa-solid fa-users w-5"></i>
+												<span>Laporan Kependudukan</span>
+											</div>
+											<i class="fa-solid fa-chevron-down text-xs transition-transform duration-200 {kependudukanOpen ? 'rotate-180' : ''}"></i>
+										</button>
+										{#if kependudukanOpen}
+											<ul class="mt-1 ml-8 space-y-1 border-l border-gray-200 pl-3">
+												<li><a href="/laporan/kependudukan/warga-blok" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/kependudukan/warga-blok' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-house w-4 text-gray-400"></i> Daftar Warga per Blok</a></li>
+												<li><a href="/laporan/kependudukan/statistik" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/kependudukan/statistik' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-chart-bar w-4 text-gray-400"></i> Statistik Penduduk</a></li>
+												<li><a href="/laporan/kependudukan/kelompok-usia" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/kependudukan/kelompok-usia' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-user-group w-4 text-gray-400"></i> Warga per Kelompok Usia</a></li>
+												<li><a href="/laporan/kependudukan/kontak" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/kependudukan/kontak' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-phone w-4 text-gray-400"></i> Data Kontak Warga</a></li>
+											</ul>
+										{/if}
+									</li>
+								</ul>
 							</nav>
 				<div class="p-4 border-t border-gray-200">
 								<form method="POST" action="/logout" class="w-full">
