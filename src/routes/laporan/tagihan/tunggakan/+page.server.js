@@ -30,13 +30,14 @@ export const load = async ({ locals, url }) => {
 			t.nominal,
 			t.status,
 			t.blok_rumah_id,
-						br.no_blok AS blok,
-			ak.nama as penghuni_nama,
-			ak.nomor_hp as penghuni_hp
+			br.no_blok AS blok,
+			COALESCE(ak.nama, pr.nama) as penghuni_nama,
+			COALESCE(ak.nomor_hp, pr.no_hp) as penghuni_hp
 		FROM tagihan_iuran t
 		JOIN blok_rumah br ON t.blok_rumah_id = br.id
 		LEFT JOIN keluarga k ON br.id = k.blok_rumah_id
 		LEFT JOIN anggota_keluarga ak ON k.id = ak.keluarga_id AND ak.hub_keluarga = 'Kepala Keluarga'
+		LEFT JOIN pemilik_rumah pr ON br.id = pr.blok_rumah_id
 		${whereClause}
 		ORDER BY br.no_blok, t.periode
 	`;
@@ -49,7 +50,7 @@ export const load = async ({ locals, url }) => {
 		if (!grouped[key]) {
 			grouped[key] = {
 				blok_rumah_id: key,
-								blok: row.blok,
+				blok: row.blok,
 				penghuni_nama: row.penghuni_nama,
 				penghuni_hp: row.penghuni_hp,
 				bulan_tunggak: 0,

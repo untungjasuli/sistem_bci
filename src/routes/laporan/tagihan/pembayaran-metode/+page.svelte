@@ -27,6 +27,15 @@
 		return new Date(dateStr).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
 	}
 
+	function getMetodeIcon(metode) {
+		const icons = {
+			cash: 'fa-money-bill-wave',
+			qris: 'fa-qrcode',
+			transfer: 'fa-money-bill-transfer'
+		};
+		return icons[metode?.toLowerCase()] || 'fa-credit-card';
+	}
+
 	function updateFilter(key, value) {
 		const params = new URLSearchParams(page.url.search);
 		if (value === 'semua' || value === '') params.delete(key);
@@ -119,7 +128,7 @@
 						<th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
 						<th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Tgl Bayar</th>
 						<th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Blok</th>
-						<th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Penghuni</th>
+						<th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Penghuni/Pemilik</th>
 						<th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Periode</th>
 						<th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Metode</th>
 						<th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Nominal</th>
@@ -133,12 +142,12 @@
 							<td class="px-4 py-3 text-sm font-medium text-gray-900">{item.blok}</td>
 							<td class="px-4 py-3 text-sm text-gray-600">{item.penghuni_nama || '-'}</td>
 							<td class="px-4 py-3 text-sm text-gray-600">{item.periode}</td>
-							<td class="px-4 py-3 text-sm">
-														<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
-															<i class="fa-solid fa-credit-card"></i>
-															{item.metode_bayar}
-														</span>
-													</td>
+														<td class="px-4 py-3 text-sm">
+															<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">
+																<i class="fa-solid {getMetodeIcon(item.metode_bayar)}"></i>
+																{item.metode_bayar}
+															</span>
+														</td>
 							<td class="px-4 py-3 text-sm text-green-600 font-mono font-medium">+{formatRupiah(item.nominal)}</td>
 						</tr>
 					{/each}

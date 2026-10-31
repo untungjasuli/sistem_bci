@@ -26,12 +26,13 @@ export const load = async ({ locals, url }) => {
 			t.nominal,
 			pi.tanggal_bayar,
 			pi.metode_bayar,
-						br.no_blok AS blok,
-			ak.nama as penghuni_nama
+			br.no_blok AS blok,
+			COALESCE(ak.nama, pr.nama) as penghuni_nama
 		FROM tagihan_iuran t
 		JOIN blok_rumah br ON t.blok_rumah_id = br.id
 		LEFT JOIN keluarga k ON br.id = k.blok_rumah_id
 		LEFT JOIN anggota_keluarga ak ON k.id = ak.keluarga_id AND ak.hub_keluarga = 'Kepala Keluarga'
+		LEFT JOIN pemilik_rumah pr ON br.id = pr.blok_rumah_id
 		JOIN pembayaran_iuran pi ON t.id = pi.tagihan_id
 		${whereClause}
 		ORDER BY pi.metode_bayar, pi.tanggal_bayar, t.id

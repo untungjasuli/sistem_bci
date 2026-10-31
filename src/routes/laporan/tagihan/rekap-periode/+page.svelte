@@ -136,7 +136,7 @@
 					<tr class="bg-gray-50 border-b border-gray-200">
 						<th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
 						<th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Blok - No Rumah</th>
-						<th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Penghuni</th>
+						<th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Penghuni/Pemilik</th>
 						<th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Periode</th>
 						<th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Nominal</th>
 						<th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>

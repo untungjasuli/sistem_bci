@@ -114,20 +114,20 @@
 	</div>
 
 	<!-- Summary Cards -->
-	<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-		<div class="bg-white rounded-lg border border-gray-200 p-4">
-			<p class="text-sm text-gray-500">Jumlah Penghuni Tunggak</p>
-			<p class="text-2xl font-bold text-red-600">{grandTotal.jumlah_penghuni}</p>
+		<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+			<div class="bg-white rounded-lg border border-gray-200 p-4">
+				<p class="text-sm text-gray-500">Jumlah Penghuni/Pemilik Tunggak</p>
+				<p class="text-2xl font-bold text-red-600">{grandTotal.jumlah_penghuni}</p>
+			</div>
+			<div class="bg-white rounded-lg border border-gray-200 p-4">
+				<p class="text-sm text-gray-500">Total Bulan Tunggak</p>
+				<p class="text-2xl font-bold text-orange-600">{grandTotal.total_bulan}</p>
+			</div>
+			<div class="bg-white rounded-lg border border-red-200 p-4">
+				<p class="text-sm text-gray-500">Total Tunggakan</p>
+				<p class="text-2xl font-bold text-red-600">{formatRupiah(grandTotal.total_nominal)}</p>
+			</div>
 		</div>
-		<div class="bg-white rounded-lg border border-gray-200 p-4">
-			<p class="text-sm text-gray-500">Total Bulan Tunggak</p>
-			<p class="text-2xl font-bold text-orange-600">{grandTotal.total_bulan}</p>
-		</div>
-		<div class="bg-white rounded-lg border border-red-200 p-4">
-			<p class="text-sm text-gray-500">Total Tunggakan</p>
-			<p class="text-2xl font-bold text-red-600">{formatRupiah(grandTotal.total_nominal)}</p>
-		</div>
-	</div>
 
 	<!-- Table -->
 	<div class="bg-white rounded-lg shadow border border-gray-200 overflow-x-auto">
@@ -137,7 +137,7 @@
 					<tr class="bg-gray-50 border-b border-gray-200">
 						<th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
 						<th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Blok</th>
-						<th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Penghuni</th>
+						<th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Penghuni/Pemilik</th>
 						<th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">No HP</th>
 						<th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Bulan Tunggak</th>
 						<th class="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Total Tunggakan</th>

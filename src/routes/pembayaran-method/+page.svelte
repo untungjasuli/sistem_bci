@@ -60,7 +60,7 @@
 	}
 
 	function getKodeIcon(kode) {
-		const icons = { cash: 'fa-money-bill-wave', qris: 'fa-qrcode', transfer: 'fa-university' };
+		const icons = { cash: 'fa-money-bill-wave', qris: 'fa-qrcode', transfer: 'fa-money-bill-transfer' };
 		return icons[kode] || 'fa-question';
 	}
 
