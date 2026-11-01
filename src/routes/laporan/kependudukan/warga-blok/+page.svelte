@@ -11,23 +11,11 @@
 
 	let toast = $state(null);
 	let expandedBloks = $state([]);
-	let exportDropdownOpen = $state(false);
 
 	function showToast(type, message) {
 		toast = { type, message };
 		setTimeout(() => { toast = null; }, 5000);
 	}
-
-	// Close dropdown saat klik di luar
-	$effect(() => {
-		function handleClickOutside(e) {
-			if (exportDropdownOpen && !e.target.closest('[data-dropdown-menu]')) {
-				exportDropdownOpen = false;
-			}
-		}
-		document.addEventListener('click', handleClickOutside);
-		return () => document.removeEventListener('click', handleClickOutside);
-	});
 
 	function formatRupiah(num) {
 		if (num === null || num === undefined) return 'Rp 0';
@@ -65,10 +53,46 @@
 	function onBlokChange(e) { updateFilter('blok', e.target.value); }
 	function onStatusChange(e) { updateFilter('status', e.target.value); }
 	function clearFilters() { goto('/laporan/kependudukan/warga-blok'); }
-	function handleExport(format) {
-		const params = new URLSearchParams(page.url.search);
-		params.set('format', format);
-		window.open(`/laporan/kependudukan/warga-blok/export?${params.toString()}`, '_blank');
+
+	async function handleExport(type) {
+		try {
+			const params = new URLSearchParams(page.url.search);
+			const format = type === 'excel' ? 'excel' : 'pdf';
+			const url = `/laporan/kependudukan/warga-blok/export?format=${format}&${params.toString()}`;
+
+			const res = await fetch(url, {
+				method: 'GET',
+				credentials: 'include'
+			});
+
+			if (!res.ok) {
+				let errMsg = `Gagal export ${type.toUpperCase()}`;
+				try {
+					const err = await res.json();
+					errMsg = err.error || err.message || errMsg;
+				} catch {
+					if (res.redirected || res.url.includes('/login')) {
+						errMsg = 'Session habis, silakan login ulang';
+					}
+				}
+				showToast('error', errMsg);
+				return;
+			}
+
+			const blob = await res.blob();
+			const blobUrl = window.URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = blobUrl;
+			a.download = `daftar-warga-per-blok-${filter.blokFilter}-${filter.statusFilter}.${type === 'excel' ? 'xlsx' : 'pdf'}`;
+			document.body.appendChild(a);
+			a.click();
+			a.remove();
+			window.URL.revokeObjectURL(blobUrl);
+			showToast('success', `Export ${type.toUpperCase()} berhasil`);
+		} catch (e) {
+			console.error('Export error:', e);
+			showToast('error', 'Gagal export file');
+		}
 	}
 
 		function toggleExpand(blok) {
@@ -121,38 +145,20 @@
 								<i class="fa-solid fa-compress-arrows-alt"></i>
 								<span class="hidden lg:inline">Collapse All</span>
 							</button>
-							<div class="relative" data-dropdown-menu>
-								<button
-									type="button"
-									onclick={() => exportDropdownOpen = !exportDropdownOpen}
-									class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex-shrink-0"
-									aria-expanded={exportDropdownOpen}
-									aria-haspopup="true"
-								>
-									<i class="fa-solid fa-download"></i>
-									<span class="hidden lg:inline">Export</span>
-								</button>
-								{#if exportDropdownOpen}
-									<div class="absolute right-0 top-full mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg animate-in fade-in zoom-in-95 z-50" role="menu">
-										<button
-											onclick={() => { handleExport('excel'); exportDropdownOpen = false; }}
-											class="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 rounded-t-lg flex items-center gap-2"
-											role="menuitem"
-										>
-											<i class="fa-solid fa-file-excel text-green-600 w-4"></i>
-											<span class="text-green-600">Export Excel (.xlsx)</span>
-										</button>
-										<button
-											onclick={() => { handleExport('pdf'); exportDropdownOpen = false; }}
-											class="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 rounded-b-lg flex items-center gap-2"
-											role="menuitem"
-										>
-											<i class="fa-solid fa-file-pdf text-red-600 w-4"></i>
-											<span class="text-red-600">Export PDF (.pdf)</span>
-										</button>
-									</div>
-								{/if}
-							</div>
+							<button
+								onclick={() => handleExport('excel')}
+								class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors flex-shrink-0"
+							>
+								<i class="fa-solid fa-file-excel"></i>
+								<span class="hidden lg:inline">Export Excel</span>
+							</button>
+							<button
+								onclick={() => handleExport('pdf')}
+								class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors flex-shrink-0"
+							>
+								<i class="fa-solid fa-file-pdf"></i>
+								<span class="hidden lg:inline">Export PDF</span>
+							</button>
 						</div>
 	</div>
 

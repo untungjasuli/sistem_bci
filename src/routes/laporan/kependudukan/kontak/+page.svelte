@@ -57,7 +57,37 @@
 	function onBlokChange(e) { updateFilter('blok', e.target.value); }
 	function onSearchChange(e) { updateFilter('search', e.target.value); }
 	function clearFilters() { goto('/laporan/kependudukan/kontak'); }
-	function handleExport() { showToast('info', 'Export menyusul'); }
+	function handleExport(format) {
+		const baseUrl = '/laporan/kependudukan/kontak/export';
+		const params = new URLSearchParams();
+		params.set('format', format);
+		if (filter.blokFilter !== 'semua') params.set('blok', filter.blokFilter);
+		if (filter.search) params.set('search', filter.search);
+		
+		fetch(`${baseUrl}?${params.toString()}`, {
+			method: 'GET',
+			credentials: 'include'
+		})
+		.then(res => {
+			if (!res.ok) throw new Error('Export gagal');
+			return res.blob();
+		})
+		.then(blob => {
+			const url = window.URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = `kontak-warga-${filter.blokFilter}-${filter.search || 'all'}.${format === 'excel' ? 'xlsx' : 'pdf'}`;
+			document.body.appendChild(a);
+			a.click();
+			window.URL.revokeObjectURL(url);
+			a.remove();
+			showToast('success', `Export ${format.toUpperCase()} berhasil`);
+		})
+		.catch(err => {
+			console.error(err);
+			showToast('error', 'Export gagal: ' + err.message);
+		});
+	}
 
 		function toggleExpand(blok) {
 			if (expandedBloks.includes(blok)) {
@@ -101,19 +131,29 @@
 			<p class="text-gray-500 text-sm">Daftar nomor HP warga per blok rumah</p>
 		</div>
 				<div class="flex items-center gap-3 w-full lg:w-auto">
-					<button onclick={expandAll} class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors flex-shrink-0">
-						<i class="fa-solid fa-expand-arrows-alt"></i>
-						<span class="hidden lg:inline">Expand All</span>
-					</button>
-					<button onclick={collapseAll} class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-600 border border-transparent rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors flex-shrink-0">
-						<i class="fa-solid fa-compress-arrows-alt"></i>
-						<span class="hidden lg:inline">Collapse All</span>
-					</button>
-					<button onclick={handleExport} class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex-shrink-0">
-						<i class="fa-solid fa-download"></i>
-						<span class="hidden lg:inline">Export</span>
-					</button>
-				</div>
+								<button onclick={expandAll} class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors flex-shrink-0">
+									<i class="fa-solid fa-expand-arrows-alt"></i>
+									<span class="hidden lg:inline">Expand All</span>
+								</button>
+								<button onclick={collapseAll} class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gray-600 border border-transparent rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors flex-shrink-0">
+									<i class="fa-solid fa-compress-arrows-alt"></i>
+									<span class="hidden lg:inline">Collapse All</span>
+								</button>
+								<button
+									onclick={() => handleExport('excel')}
+									class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors flex-shrink-0"
+								>
+									<i class="fa-solid fa-file-excel"></i>
+									<span class="hidden lg:inline">Export Excel</span>
+								</button>
+								<button
+									onclick={() => handleExport('pdf')}
+									class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors flex-shrink-0"
+								>
+									<i class="fa-solid fa-file-pdf"></i>
+									<span class="hidden lg:inline">Export PDF</span>
+								</button>
+							</div>
 	</div>
 
 	<!-- Filter Bar -->
