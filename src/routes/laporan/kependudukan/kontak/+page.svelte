@@ -12,6 +12,7 @@
 
 	let toast = $state(null);
 	let expandedBloks = $state([]);
+	let pendingSearch = $state(filter.search || '');
 
 	function showToast(type, message) {
 		toast = { type, message };
@@ -55,15 +56,24 @@
 	}
 
 	function onBlokChange(e) { updateFilter('blok', e.target.value); }
-	function onSearchChange(e) { updateFilter('search', e.target.value); }
-	function clearFilters() { goto('/laporan/kependudukan/kontak'); }
+
+	function handleSearchSubmit(e) {
+		e.preventDefault();
+		updateFilter('search', pendingSearch);
+	}
+
+	function clearSearch() {
+		pendingSearch = '';
+		updateFilter('search', '');
+	}
+
 	function handleExport(format) {
 		const baseUrl = '/laporan/kependudukan/kontak/export';
 		const params = new URLSearchParams();
 		params.set('format', format);
 		if (filter.blokFilter !== 'semua') params.set('blok', filter.blokFilter);
 		if (filter.search) params.set('search', filter.search);
-		
+	
 		fetch(`${baseUrl}?${params.toString()}`, {
 			method: 'GET',
 			credentials: 'include'
@@ -89,21 +99,21 @@
 		});
 	}
 
-		function toggleExpand(blok) {
-			if (expandedBloks.includes(blok)) {
-				expandedBloks = expandedBloks.filter(b => b !== blok);
-			} else {
-				expandedBloks = [...expandedBloks, blok];
-			}
+	function toggleExpand(blok) {
+		if (expandedBloks.includes(blok)) {
+			expandedBloks = expandedBloks.filter(b => b !== blok);
+		} else {
+			expandedBloks = [...expandedBloks, blok];
 		}
+	}
 
-		function expandAll() {
-			expandedBloks = kontakPerBlok.map(b => b.blok);
-		}
+	function expandAll() {
+		expandedBloks = kontakPerBlok.map(b => b.blok);
+	}
 
-		function collapseAll() {
-			expandedBloks = [];
-		}
+	function collapseAll() {
+		expandedBloks = [];
+	}
 </script>
 
 {#if toast}
@@ -156,18 +166,31 @@
 							</div>
 	</div>
 
-	<!-- Filter Bar -->
-	<div class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
-		<form onsubmit={(e) => e.preventDefault()} class="flex flex-col sm:flex-row gap-4 items-end">
-			<div class="w-full sm:w-48">
-				<select id="blok-filter" value={filter.blokFilter} onchange={onBlokChange} class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
-					<option value="semua">Semua Blok</option>
-					{#each blokRumah as b}<option value={b.id}>{b.no_blok}</option>{/each}
-				</select>
+	<!-- Search & Filter Card (mirip Surat RT) -->
+	<div class="bg-white rounded-lg shadow border border-gray-200 p-4 mb-6">
+		<form onsubmit={handleSearchSubmit} class="flex flex-col sm:flex-row gap-4">
+			<div class="relative flex-1 min-w-0">
+				<label class="sr-only">Cari Nama / HP / Blok / KK</label>
+				<input type="text" value={pendingSearch} placeholder="Cari Nama / HP / Blok / KK..."
+					class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+					oninput={(e) => (pendingSearch = e.currentTarget.value)}
+					enterkeyhint="go" />
+				<i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+				{#if filter.search}
+					<button
+						type="button"
+						onclick={clearSearch}
+						class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded hover:bg-gray-100 transition-colors"
+						title="Hapus pencarian"
+					>
+						<i class="fa-solid fa-times text-xs"></i>
+					</button>
+				{/if}
 			</div>
-			<div class="flex-1 min-w-0">
-				<input type="text" id="search" value={filter.search} oninput={onSearchChange} placeholder="Ketik untuk mencari..." class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors" />
-			</div>
+			<select bind:value={filter.blokFilter} onchange={onBlokChange} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+				<option value="semua">Semua Blok</option>
+				{#each blokRumah as b}<option value={b.id}>{b.no_blok}</option>{/each}
+			</select>
 		</form>
 	</div>
 
