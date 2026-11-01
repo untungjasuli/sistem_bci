@@ -12,6 +12,7 @@ const routePermissions = {
 	admin: [
 		'/data-blok-rumah',
 		'/data-penduduk',
+		'/surat-rt',
 		'/profile',      // own profile
 		'/settings'      // only admin
 	],

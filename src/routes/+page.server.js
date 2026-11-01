@@ -88,6 +88,7 @@ export const load = async ({ cookies }) => {
 		`);
 
 		return {
+			user,
 			stats: {
 				totalBlok,
 				totalKeluarga,
