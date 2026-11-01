@@ -22,8 +22,8 @@ export const GET = async ({ url, cookies }) => {
 		const blokIdNum = parseInt(blokId, 10);
 		const blokRows = await executeQuery(
 			`SELECT id, no_blok, pos_x, pos_y, width, height,
-				CASE WHEN EXISTS (SELECT 1 FROM keluarga k WHERE k.blok_rumah_id = b.id) THEN 'Dihuni' ELSE 'Kosong' END as status,
-				(SELECT COUNT(*) FROM keluarga WHERE blok_rumah_id = b.id) as kk_count
+				CASE WHEN EXISTS (SELECT 1 FROM keluarga k WHERE k.blok_rumah_id = b.id AND k.status_keluarga = 'aktif') THEN 'Dihuni' ELSE 'Kosong' END as status,
+				(SELECT COUNT(*) FROM keluarga WHERE blok_rumah_id = b.id AND status_keluarga = 'aktif') as kk_count
 			FROM blok_rumah b WHERE id = ?`,
 			[blokId]
 		);
@@ -37,11 +37,11 @@ export const GET = async ({ url, cookies }) => {
 
 		const blok = blokRows[0];
 
-		// 2. Daftar KK di blok ini
+		// 2. Daftar KK di blok ini (hanya yang aktif)
 		const kkRows = await executeQuery(
 			`SELECT k.id, k.no_kk, k.status_rumah,
-				(SELECT COUNT(*) FROM anggota_keluarga WHERE keluarga_id = k.id) as anggota_count
-			FROM keluarga k WHERE k.blok_rumah_id = ? ORDER BY k.status_rumah`,
+				(SELECT COUNT(*) FROM anggota_keluarga WHERE keluarga_id = k.id AND status_kependudukan = 'aktif') as anggota_count
+			FROM keluarga k WHERE k.blok_rumah_id = ? AND k.status_keluarga = 'aktif' ORDER BY k.status_rumah`,
 			[blokId]
 		);
 
@@ -53,11 +53,12 @@ export const GET = async ({ url, cookies }) => {
 		if (keluargaIds.length > 0) {
 			const placeholders = keluargaIds.map(() => '?').join(',');
 
-			// Anggota
+			// Anggota (hanya yang aktif)
 			const anggotaRows = await executeQuery(
 				`SELECT ak.*, k.no_kk FROM anggota_keluarga ak
 				JOIN keluarga k ON ak.keluarga_id = k.id
 				WHERE ak.keluarga_id IN (${placeholders})
+				AND ak.status_kependudukan = 'aktif'
 				ORDER BY k.no_kk, ak.hub_keluarga`,
 				keluargaIds
 			);

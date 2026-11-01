@@ -22,7 +22,7 @@ function getHubLabel(hub) {
 async function getData(filter) {
 	const { blokFilter } = filter;
 
-	let whereClause = 'WHERE 1=1';
+	let whereClause = 'WHERE k.status_keluarga = \'aktif\' AND ak.status_kependudukan = \'aktif\'';
 	const params = [];
 
 	if (blokFilter !== 'semua') {

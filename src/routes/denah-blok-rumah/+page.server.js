@@ -17,7 +17,7 @@ export const load = async ({ cookies }) => {
 			b.width,
 			b.height,
 			CASE 
-				WHEN EXISTS (SELECT 1 FROM keluarga k WHERE k.blok_rumah_id = b.id) THEN 'Dihuni'
+				WHEN EXISTS (SELECT 1 FROM keluarga k WHERE k.blok_rumah_id = b.id AND k.status_keluarga = 'aktif') THEN 'Dihuni'
 				ELSE 'Kosong'
 			END as status
 		FROM blok_rumah b

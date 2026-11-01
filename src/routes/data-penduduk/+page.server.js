@@ -19,11 +19,11 @@ export const load = async ({ cookies, url }) => {
 
 	const conn = await getConnection();
 	try {
-		let whereSql = '';
+		let whereSql = ' WHERE a.status_kependudukan = \"aktif\"';
 		const params = [];
 
 		if (search) {
-			whereSql = ' WHERE a.nik LIKE ? OR a.nama LIKE ? OR k.no_kk LIKE ? OR b.no_blok LIKE ?';
+			whereSql += ' AND (a.nik LIKE ? OR a.nama LIKE ? OR k.no_kk LIKE ? OR b.no_blok LIKE ?)';
 			const searchTerm = `%${search}%`;
 			params.push(searchTerm, searchTerm, searchTerm, searchTerm);
 		}
@@ -38,21 +38,22 @@ export const load = async ({ cookies, url }) => {
 		const total = countRows[0]?.total || 0;
 
 		// Data dengan pagination
-				const offset = (page - 1) * itemsPerPage;
-				params.push(itemsPerPage, offset);
-				const [rows] = await conn.execute(
-					`SELECT a.id, a.nik, a.nama, a.jenis_kelamin, a.tempat_lahir, a.tanggal_lahir,
-					 a.hub_keluarga, a.keluarga_id, a.nomor_hp, a.agama, a.pekerjaan, a.status_perkawinan,
-					 k.no_kk, k.blok_rumah_id, k.status_rumah,
-					 b.no_blok
-					 FROM anggota_keluarga a
-					 JOIN keluarga k ON a.keluarga_id = k.id
-					 LEFT JOIN blok_rumah b ON k.blok_rumah_id = b.id
-					 ${whereSql}
-					 ORDER BY ${orderField} ${sort === 'desc' ? 'DESC' : 'ASC'}
-					 LIMIT ? OFFSET ?`,
-					params
-				);
+					const offset = (page - 1) * itemsPerPage;
+					params.push(itemsPerPage, offset);
+					const [rows] = await conn.execute(
+						`SELECT a.id, a.nik, a.nama, a.jenis_kelamin, a.tempat_lahir, a.tanggal_lahir,
+						 a.hub_keluarga, a.status_kependudukan, a.keluarga_id, a.nomor_hp, a.agama, a.pekerjaan, a.status_perkawinan,
+						 k.no_kk, k.blok_rumah_id, k.status_rumah, k.status_keluarga,
+						 b.no_blok,
+						 (SELECT COUNT(*) FROM anggota_keluarga ak2 WHERE ak2.keluarga_id = k.id AND ak2.status_kependudukan = 'aktif') as jumlah_anggota
+						 FROM anggota_keluarga a
+						 JOIN keluarga k ON a.keluarga_id = k.id
+						 LEFT JOIN blok_rumah b ON k.blok_rumah_id = b.id
+						 ${whereSql}
+						 ORDER BY ${orderField} ${sort === 'desc' ? 'DESC' : 'ASC'}
+						 LIMIT ? OFFSET ?`,
+						params
+					);
 
 		const [blokRumah] = await conn.execute('SELECT id, no_blok FROM blok_rumah ORDER BY no_blok ASC');
 
@@ -270,6 +271,224 @@ export const actions = {
 		} catch (e) {
 			console.error('DELETE anggota error:', e);
 			return fail(400, { error: 'Gagal menghapus data: ' + e.message });
+		} finally {
+			conn.release();
+		}
+	},
+
+	pindahKeluarAnggota: async ({ request, cookies }) => {
+		const user = cookies.get('session_user');
+		if (!user) {
+			throw redirect(303, '/login');
+		}
+
+		const form = await request.formData();
+		const id = form.get('id')?.toString();
+		const tanggalMutasi = form.get('tanggal_mutasi')?.toString();
+		const alasan = form.get('alasan')?.toString().trim() || null;
+		const alamatTujuan = form.get('alamat_tujuan')?.toString().trim() || null;
+		const rtRwTujuan = form.get('rt_rw_tujuan')?.toString().trim() || null;
+		const kelurahanTujuan = form.get('kelurahan_tujuan')?.toString().trim() || null;
+		const kecamatanTujuan = form.get('kecamatan_tujuan')?.toString().trim() || null;
+		const kotaTujuan = form.get('kota_tujuan')?.toString().trim() || null;
+		const provinsiTujuan = form.get('provinsi_tujuan')?.toString().trim() || null;
+		const noSuratPindah = form.get('no_surat_pindah')?.toString().trim() || null;
+		const keterangan = form.get('keterangan')?.toString().trim() || null;
+
+		if (!id || !tanggalMutasi || !alamatTujuan) {
+			return fail(400, { error: 'ID anggota, tanggal, dan alamat tujuan wajib diisi' });
+		}
+
+		const conn = await getConnection();
+		try {
+			await conn.beginTransaction();
+
+			// Get anggota info
+			const [anggotaRows] = await conn.execute(
+				'SELECT id, nama, keluarga_id FROM anggota_keluarga WHERE id = ? AND status_kependudukan = \"aktif\"',
+				[id]
+			);
+
+			if (anggotaRows.length === 0) {
+				await conn.rollback();
+				return fail(400, { error: 'Anggota tidak ditemukan atau sudah tidak aktif' });
+			}
+
+			const anggota = anggotaRows[0];
+
+			// Update status anggota
+			await conn.execute(
+				'UPDATE anggota_keluarga SET status_kependudukan = \"pindah_keluar\" WHERE id = ?',
+				[id]
+			);
+
+			// Insert mutasi_penduduk
+			await conn.execute(
+				`INSERT INTO mutasi_penduduk 
+				(anggota_keluarga_id, jenis_mutasi, tanggal_mutasi, alasan, alamat_tujuan, rt_rw_tujuan, kelurahan_tujuan, kecamatan_tujuan, kota_tujuan, provinsi_tujuan, no_surat_pindah, keterangan, dibuat_oleh)
+				VALUES (?, 'pindah_keluar', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+				[id, tanggalMutasi, alasan, alamatTujuan, rtRwTujuan, kelurahanTujuan, kecamatanTujuan, kotaTujuan, provinsiTujuan, noSuratPindah, keterangan, parseInt(user)]
+			);
+
+			await conn.commit();
+			return { success: `${anggota.nama} berhasil dipindahkan keluar` };
+		} catch (e) {
+			await conn.rollback();
+			console.error('PINDAH KELUAR ANGGOTA error:', e);
+			return fail(400, { error: 'Gagal pindah keluar: ' + e.message });
+		} finally {
+			conn.release();
+		}
+	},
+
+	pindahKeluarKeluarga: async ({ request, cookies }) => {
+		const user = cookies.get('session_user');
+		if (!user) {
+			throw redirect(303, '/login');
+		}
+
+		const form = await request.formData();
+		const keluargaId = form.get('keluarga_id')?.toString();
+		const tanggalMutasi = form.get('tanggal_mutasi')?.toString();
+		const alamatTujuan = form.get('alamat_tujuan')?.toString().trim() || null;
+		const rtRwTujuan = form.get('rt_rw_tujuan')?.toString().trim() || null;
+		const kelurahanTujuan = form.get('kelurahan_tujuan')?.toString().trim() || null;
+		const kecamatanTujuan = form.get('kecamatan_tujuan')?.toString().trim() || null;
+		const kotaTujuan = form.get('kota_tujuan')?.toString().trim() || null;
+		const provinsiTujuan = form.get('provinsi_tujuan')?.toString().trim() || null;
+		const noSuratPindah = form.get('no_surat_pindah')?.toString().trim() || null;
+		const alasan = form.get('alasan')?.toString().trim() || null;
+		const keterangan = form.get('keterangan')?.toString().trim() || null;
+
+		if (!keluargaId || !tanggalMutasi || !alamatTujuan) {
+			return fail(400, { error: 'Keluarga ID, tanggal, dan alamat tujuan wajib diisi' });
+		}
+
+		const conn = await getConnection();
+		try {
+			await conn.beginTransaction();
+
+			// Get keluarga info
+			const [keluargaRows] = await conn.execute(
+				'SELECT id, no_kk FROM keluarga WHERE id = ? AND status_keluarga = \"aktif\"',
+				[keluargaId]
+			);
+
+			if (keluargaRows.length === 0) {
+				await conn.rollback();
+				return fail(400, { error: 'Keluarga tidak ditemukan atau sudah pindah' });
+			}
+
+			const keluarga = keluargaRows[0];
+
+			// Get all aktif anggota
+			const [anggotaRows] = await conn.execute(
+				'SELECT id, nama FROM anggota_keluarga WHERE keluarga_id = ? AND status_kependudukan = \"aktif\"',
+				[keluargaId]
+			);
+
+			if (anggotaRows.length === 0) {
+				await conn.rollback();
+				return fail(400, { error: 'Tidak ada anggota aktif di keluarga ini' });
+			}
+
+			const jumlahAnggota = anggotaRows.length;
+
+			// Update status keluarga
+			await conn.execute(
+				'UPDATE keluarga SET status_keluarga = \"pindah_keluar\", tanggal_pindah_keluar = ?, alamat_tujuan_keluarga = ? WHERE id = ?',
+				[tanggalMutasi, alamatTujuan, keluargaId]
+			);
+
+			// Update all anggota status
+			await conn.execute(
+				'UPDATE anggota_keluarga SET status_kependudukan = \"pindah_keluar\" WHERE keluarga_id = ? AND status_kependudukan = \"aktif\"',
+				[keluargaId]
+			);
+
+			// Insert mutasi_penduduk for each anggota
+			for (const anggota of anggotaRows) {
+				await conn.execute(
+					`INSERT INTO mutasi_penduduk 
+					(anggota_keluarga_id, jenis_mutasi, tanggal_mutasi, alasan, alamat_tujuan, rt_rw_tujuan, kelurahan_tujuan, kecamatan_tujuan, kota_tujuan, provinsi_tujuan, no_surat_pindah, keterangan, dibuat_oleh)
+					VALUES (?, 'pindah_keluar', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+					[anggota.id, tanggalMutasi, alasan, alamatTujuan, rtRwTujuan, kelurahanTujuan, kecamatanTujuan, kotaTujuan, provinsiTujuan, noSuratPindah, keterangan, parseInt(user)]
+				);
+			}
+
+			// Insert mutasi_keluarga (1 record per KK)
+			await conn.execute(
+				`INSERT INTO mutasi_keluarga 
+				(keluarga_id, jenis_mutasi, tanggal_mutasi, alamat_tujuan, no_surat_pindah, jumlah_anggota, keterangan, dibuat_oleh)
+				VALUES (?, 'pindah_keluar', ?, ?, ?, ?, ?, ?)`,
+				[keluargaId, tanggalMutasi, alamatTujuan, noSuratPindah, jumlahAnggota, keterangan, parseInt(user)]
+			);
+
+			await conn.commit();
+			return { success: `Keluarga ${keluarga.no_kk} (${jumlahAnggota} anggota) berhasil dipindahkan keluar` };
+		} catch (e) {
+			await conn.rollback();
+			console.error('PINDAH KELUAR KELUARGA error:', e);
+			return fail(400, { error: 'Gagal pindah keluar keluarga: ' + e.message });
+		} finally {
+			conn.release();
+		}
+	},
+
+	meninggalAnggota: async ({ request, cookies }) => {
+		const user = cookies.get('session_user');
+		if (!user) {
+			throw redirect(303, '/login');
+		}
+
+		const form = await request.formData();
+		const id = form.get('id')?.toString();
+		const tanggalMutasi = form.get('tanggal_mutasi')?.toString();
+		const alasan = form.get('alasan')?.toString().trim() || null;
+		const noSuratMeninggal = form.get('no_surat_meninggal')?.toString().trim() || null;
+		const keterangan = form.get('keterangan')?.toString().trim() || null;
+
+		if (!id || !tanggalMutasi) {
+			return fail(400, { error: 'ID anggota dan tanggal meninggal wajib diisi' });
+		}
+
+		const conn = await getConnection();
+		try {
+			await conn.beginTransaction();
+
+			// Get anggota info
+			const [anggotaRows] = await conn.execute(
+				'SELECT id, nama FROM anggota_keluarga WHERE id = ? AND status_kependudukan = \"aktif\"',
+				[id]
+			);
+
+			if (anggotaRows.length === 0) {
+				await conn.rollback();
+				return fail(400, { error: 'Anggota tidak ditemukan atau sudah tidak aktif' });
+			}
+
+			const anggota = anggotaRows[0];
+
+			// Update status anggota
+			await conn.execute(
+				'UPDATE anggota_keluarga SET status_kependudukan = \"meninggal\" WHERE id = ?',
+				[id]
+			);
+
+			// Insert mutasi_penduduk (alamat_tujuan NULL untuk meninggal)
+			await conn.execute(
+				`INSERT INTO mutasi_penduduk 
+				(anggota_keluarga_id, jenis_mutasi, tanggal_mutasi, alasan, alamat_tujuan, no_surat_pindah, keterangan, dibuat_oleh)
+				VALUES (?, 'meninggal', ?, ?, NULL, ?, ?, ?)`,
+				[id, tanggalMutasi, alasan, noSuratMeninggal, keterangan, parseInt(user)]
+			);
+
+			await conn.commit();
+			return { success: `${anggota.nama} berhasil dicatat meninggal` };
+		} catch (e) {
+			await conn.rollback();
+			console.error('MENINGGAL ANGGOTA error:', e);
+			return fail(400, { error: 'Gagal mencatat meninggal: ' + e.message });
 		} finally {
 			conn.release();
 		}

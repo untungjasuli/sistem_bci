@@ -10,7 +10,7 @@ export const load = async ({ locals, url }) => {
 	const blokFilter = url.searchParams.get('blok') || 'semua';
 	const jkFilter = url.searchParams.get('jk') || 'semua';
 
-	let whereClause = 'WHERE ak.tanggal_lahir IS NOT NULL';
+	let whereClause = 'WHERE ak.tanggal_lahir IS NOT NULL AND k.status_keluarga = \'aktif\' AND ak.status_kependudukan = \'aktif\'';
 	const params = [];
 
 	if (blokFilter !== 'semua') {

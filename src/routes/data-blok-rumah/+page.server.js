@@ -15,9 +15,12 @@ export const load = async ({ cookies, url }) => {
 
 	let sql = `
 		SELECT b.id, b.no_blok, b.created_at,
-		       CASE WHEN EXISTS (SELECT 1 FROM keluarga k WHERE k.blok_rumah_id = b.id) 
-		            THEN 'Dihuni' ELSE 'Kosong' END as status
+		       COUNT(k.id) as jumlah_kk,
+		       GROUP_CONCAT(k.no_kk SEPARATOR ', ') as daftar_kk,
+		       CASE WHEN COUNT(k.id) > 0 THEN 'Dihuni' ELSE 'Kosong' END as status
 		FROM blok_rumah b
+		LEFT JOIN keluarga k ON b.id = k.blok_rumah_id AND k.status_keluarga = 'aktif'
+		GROUP BY b.id, b.no_blok, b.created_at
 	`;
 	const params = [];
 
@@ -27,7 +30,7 @@ export const load = async ({ cookies, url }) => {
 	}
 
 	const orderField = sortBy === 'status'
-		? "CASE WHEN EXISTS (SELECT 1 FROM keluarga k WHERE k.blok_rumah_id = b.id) THEN 'Dihuni' ELSE 'Kosong' END"
+		? "CASE WHEN COUNT(k.id) > 0 THEN 'Dihuni' ELSE 'Kosong' END"
 		: 'b.no_blok';
 	sql += ` ORDER BY ${orderField} ${sort === 'desc' ? 'DESC' : 'ASC'}`;
 

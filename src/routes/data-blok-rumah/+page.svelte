@@ -322,43 +322,55 @@
 		<div class="bg-white rounded-lg shadow border border-gray-200 overflow-x-auto">
 			<table class="w-full text-left border-collapse min-w-full">
 				<thead>
-					<tr class="bg-gray-50 border-b border-gray-200">
-						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-						<th
-							class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:bg-gray-100 transition-colors"
-							onclick={() => onSortClick('no_blok')}
-						>
-							<div class="flex items-center gap-1">
-								<span>No. Blok</span>
-								<i class="fa-solid text-xs text-gray-400" class:fa-sort-up={sort === 'asc' && sortBy === 'no_blok'} class:fa-sort-down={sort === 'desc' && sortBy === 'no_blok'}></i>
-							</div>
-						</th>
-						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:bg-gray-100 transition-colors" onclick={() => onSortClick('status')}>
-							<div class="flex items-center gap-1">
-								<span>Status</span>
-								<i class="fa-solid text-xs text-gray-400" class:fa-sort-up={sort === 'asc' && sortBy === 'status'} class:fa-sort-down={sort === 'desc' && sortBy === 'status'}></i>
-							</div>
-						</th>
-						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Aksi</th>
-					</tr>
-				</thead>
-				<tbody class="divide-y divide-gray-100">
-					{#each displayItems as blok, index}
-						<tr class="hover:bg-gray-50 transition-colors">
-							<td class="px-6 py-4 text-sm text-gray-600">{(currentPage - 1) * itemsPerPage + index + 1}</td>
-							<td class="px-6 py-4 text-sm text-gray-900 font-medium">{blok.no_blok}</td>
-							<td class="px-6 py-4">
-								<span
-									class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-										blok.status === 'Dihuni'
-											? 'bg-green-100 text-green-800'
-											: 'bg-gray-100 text-gray-800'
-									}`}
-								>
-									{blok.status}
-								</span>
-							</td>
-							<td class="px-6 py-4 text-right">
+								<tr class="bg-gray-50 border-b border-gray-200">
+									<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+									<th
+										class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:bg-gray-100 transition-colors"
+										onclick={() => onSortClick('no_blok')}
+									>
+										<div class="flex items-center gap-1">
+											<span>No. Blok</span>
+											<i class="fa-solid text-xs text-gray-400" class:fa-sort-up={sort === 'asc' && sortBy === 'no_blok'} class:fa-sort-down={sort === 'desc' && sortBy === 'no_blok'}></i>
+										</div>
+									</th>
+									<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:bg-gray-100 transition-colors" onclick={() => onSortClick('status')}>
+										<div class="flex items-center gap-1">
+											<span>Status</span>
+											<i class="fa-solid text-xs text-gray-400" class:fa-sort-up={sort === 'asc' && sortBy === 'status'} class:fa-sort-down={sort === 'desc' && sortBy === 'status'}></i>
+										</div>
+									</th>
+									<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Jumlah KK</th>
+									<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Daftar KK</th>
+									<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Aksi</th>
+								</tr>
+							</thead>
+							<tbody class="divide-y divide-gray-100">
+								{#each displayItems as blok, index}
+									<tr class="hover:bg-gray-50 transition-colors">
+										<td class="px-6 py-4 text-sm text-gray-600">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+										<td class="px-6 py-4 text-sm text-gray-900 font-medium">{blok.no_blok}</td>
+										<td class="px-6 py-4">
+											<span
+												class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+													blok.status === 'Dihuni'
+														? 'bg-green-100 text-green-800'
+														: 'bg-gray-100 text-gray-800'
+												}`}
+											>
+												{blok.status}
+											</span>
+										</td>
+										<td class="px-6 py-4 text-sm text-gray-700 font-medium">
+											{blok.jumlah_kk || 0}
+										</td>
+										<td class="px-6 py-4">
+											{#if blok.daftar_kk}
+												<span class="text-sm text-gray-600">{blok.daftar_kk}</span>
+											{:else}
+												<span class="text-sm text-gray-400">-</span>
+											{/if}
+										</td>
+										<td class="px-6 py-4 text-right">
 											<div class="flex items-center justify-end gap-1 lg:gap-2">
 												<!-- Desktop: Horizontal buttons -->
 												<div class="hidden lg:flex items-center gap-1">

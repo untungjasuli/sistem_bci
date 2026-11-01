@@ -27,7 +27,7 @@ function getJkLabel(jk) {
 async function getData(filter) {
 	const { blokFilter, statusFilter } = filter;
 
-	let whereClause = 'WHERE 1=1';
+	let whereClause = 'WHERE k.status_keluarga = \'aktif\' AND ak.status_kependudukan = \'aktif\'';
 	const params = [];
 
 	if (blokFilter !== 'semua') {

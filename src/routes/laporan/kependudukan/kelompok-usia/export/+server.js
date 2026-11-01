@@ -31,7 +31,7 @@ function getKelompokOrder() {
 async function getData(filter) {
 	const { blokFilter, jkFilter } = filter;
 
-	let whereClause = 'WHERE ak.tanggal_lahir IS NOT NULL';
+	let whereClause = 'WHERE ak.tanggal_lahir IS NOT NULL AND k.status_keluarga = \'aktif\' AND ak.status_kependudukan = \'aktif\'';
 	const params = [];
 
 	if (blokFilter !== 'semua') {

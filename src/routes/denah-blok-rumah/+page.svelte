@@ -425,8 +425,8 @@
 	// Legend items
 	const legendItems = [
 		{ color: '#22c55e', label: 'Dihuni' },
-		{ color: '#ef4444', label: 'Kosong' },
-		{ color: '#9ca3af', label: 'Tidak di Grid' }
+		{ color: '#9ca3af', label: 'Kosong' },
+		{ color: '#d1d5db', label: 'Tidak di Grid' }
 	];
 </script>
 
@@ -595,7 +595,7 @@
 							top: {(blok.pos_y || 0) * cellSize}px;
 							width: {(blok.width || 1) * cellSize - 2}px;
 							height: {(blok.height || 1) * cellSize - 2}px;
-							background-color: {blok.status === 'Dihuni' ? '#22c55e' : '#ef4444'};
+							background-color: {blok.status === 'Dihuni' ? '#22c55e' : '#9ca3af'};
 							z-index: {draggedBlok?.id === blok.id ? 100 : 10};
 							opacity: {draggedBlok?.id === blok.id ? 0.8 : 1};
 							box-shadow: {draggedBlok?.id === blok.id ? '0 8px 20px rgba(0,0,0,0.2)' : '0 2px 4px rgba(0,0,0,0.1)'};

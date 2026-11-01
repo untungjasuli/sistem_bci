@@ -154,16 +154,16 @@ export const actions = {
 			}
 
 			// Ambil semua blok rumah dengan status dihuni/kosong berdasarkan keberadaan keluarga yang status_rumah bukan 'ikut_ortu_mertua'
-					const [blokRows] = await conn.execute(`
-						SELECT 
-							br.id, 
-							br.no_blok,
-							CASE WHEN COUNT(CASE WHEN k.status_rumah IN ('sendiri', 'ngontrak') THEN 1 END) > 0 THEN 'Dihuni' ELSE 'Kosong' END as status
-						FROM blok_rumah br
-						LEFT JOIN keluarga k ON k.blok_rumah_id = br.id
-						GROUP BY br.id, br.no_blok
-						ORDER BY br.no_blok ASC
-					`);
+						const [blokRows] = await conn.execute(`
+							SELECT 
+								br.id, 
+								br.no_blok,
+								CASE WHEN COUNT(CASE WHEN k.status_rumah IN ('sendiri', 'ngontrak') THEN 1 END) > 0 THEN 'Dihuni' ELSE 'Kosong' END as status
+							FROM blok_rumah br
+							LEFT JOIN keluarga k ON k.blok_rumah_id = br.id AND k.status_keluarga = 'aktif'
+							GROUP BY br.id, br.no_blok
+							ORDER BY br.no_blok ASC
+						`);
 
 			await conn.beginTransaction();
 			let generated = 0;
@@ -171,10 +171,10 @@ export const actions = {
 			for (const blok of blokRows) {
 				if (blok.status === 'Dihuni') {
 								// Cari KK yang menempati blok ini dengan status_rumah sendiri/ngontrak (bukan ikut orang tua)
-								const [kkRows] = await conn.execute(
-									'SELECT id FROM keluarga WHERE blok_rumah_id = ? AND status_rumah IN (\'sendiri\', \'ngontrak\') LIMIT 1',
-									[blok.id]
-								);
+											const [kkRows] = await conn.execute(
+												'SELECT id FROM keluarga WHERE blok_rumah_id = ? AND status_rumah IN (\'sendiri\', \'ngontrak\') AND status_keluarga = \'aktif\' LIMIT 1',
+												[blok.id]
+											);
 					if (kkRows.length > 0) {
 						const jatuhTempoDate = `${periode}-${String(jatuhTempo).padStart(2, '0')}`;
 						await conn.execute(
@@ -246,16 +246,16 @@ export const actions = {
 			}
 
 			// Ambil semua blok rumah dengan status dihuni/kosong berdasarkan keberadaan keluarga yang status_rumah bukan 'ikut_ortu_mertua'
-					const [blokRows] = await conn.execute(`
-						SELECT 
-							br.id, 
-							br.no_blok,
-							CASE WHEN COUNT(CASE WHEN k.status_rumah IN ('sendiri', 'ngontrak') THEN 1 END) > 0 THEN 'Dihuni' ELSE 'Kosong' END as status
-						FROM blok_rumah br
-						LEFT JOIN keluarga k ON k.blok_rumah_id = br.id
-						GROUP BY br.id, br.no_blok
-						ORDER BY br.no_blok ASC
-					`);
+						const [blokRows] = await conn.execute(`
+							SELECT 
+								br.id, 
+								br.no_blok,
+								CASE WHEN COUNT(CASE WHEN k.status_rumah IN ('sendiri', 'ngontrak') THEN 1 END) > 0 THEN 'Dihuni' ELSE 'Kosong' END as status
+							FROM blok_rumah br
+							LEFT JOIN keluarga k ON k.blok_rumah_id = br.id AND k.status_keluarga = 'aktif'
+							GROUP BY br.id, br.no_blok
+							ORDER BY br.no_blok ASC
+						`);
 
 			await conn.beginTransaction();
 			let generated = 0;

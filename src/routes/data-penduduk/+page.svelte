@@ -3,6 +3,9 @@
 	import { goto, invalidateAll } from '$app/navigation';
 	import KeluargaModal from './KeluargaModal.svelte';
 	import EditIndividuModal from './EditIndividuModal.svelte';
+	import PindahKeluarAnggotaModal from './PindahKeluarAnggotaModal.svelte';
+	import PindahKeluarKeluargaModal from './PindahKeluarKeluargaModal.svelte';
+	import MeninggalAnggotaModal from './MeninggalAnggotaModal.svelte';
 
 	let { data } = $props();
 
@@ -35,6 +38,15 @@
 	let editAgama = $state('');
 	let editPekerjaan = $state('');
 	let editStatusPerkawinan = $state('');
+
+	let showPindahKeluarAnggota = $state(false);
+	let pindahKeluarAnggotaData = $state({ id: '', nama: '', nik: '' });
+
+	let showPindahKeluarKeluarga = $state(false);
+	let pindahKeluarKeluargaData = $state({ keluarga_id: '', no_kk: '', jumlah_anggota: 0 });
+
+	let showMeninggalAnggota = $state(false);
+	let meninggalAnggotaData = $state({ id: '', nama: '', nik: '' });
 
 	let toast = $state(null);
 
@@ -162,23 +174,22 @@
 				showToast('error', result.error);
 				return;
 			}
-			console.log(result.data);
 			if (Array.isArray(result.data) && result.data.length > 0) {
-						anggotaFormRaw = result.data.map((a) => ({
-							nik: a.nik || '',
-							nama: a.nama || '',
-							jenis_kelamin: a.jenis_kelamin || 'Laki-laki',
-							tempat_lahir: a.tempat_lahir || '',
-							tanggal_lahir: a.tanggal_lahir ? new Date(a.tanggal_lahir).toISOString().split('T')[0] : '',
-							hub_keluarga: a.hub_keluarga || 'Anak',
-							nomor_hp: a.nomor_hp || '',
-							agama: a.agama || '',
-							pekerjaan: a.pekerjaan || '',
-							status_perkawinan: a.status_perkawinan || ''
-						}));
-					} else {
-						anggotaFormRaw = [];
-					}
+				anggotaFormRaw = result.data.map((a) => ({
+					nik: a.nik || '',
+					nama: a.nama || '',
+					jenis_kelamin: a.jenis_kelamin || 'Laki-laki',
+					tempat_lahir: a.tempat_lahir || '',
+					tanggal_lahir: a.tanggal_lahir ? new Date(a.tanggal_lahir).toISOString().split('T')[0] : '',
+					hub_keluarga: a.hub_keluarga || 'Anak',
+					nomor_hp: a.nomor_hp || '',
+					agama: a.agama || '',
+					pekerjaan: a.pekerjaan || '',
+					status_perkawinan: a.status_perkawinan || ''
+				}));
+			} else {
+				anggotaFormRaw = [];
+			}
 
 			showModal = true;
 		} catch (e) {
@@ -277,6 +288,32 @@
 			showToast('error', 'Gagal menghapus data');
 		}
 	}
+
+	// Mutasi handlers - panggil invalidateAll setelah sukses
+	async function onMutasiSuccess(success, message) {
+		if (success) {
+			showToast('success', message);
+			await invalidateAll();
+		} else {
+			showToast('error', message);
+			await invalidateAll();
+		}
+	}
+
+	function openPindahKeluarAnggota(id, nama, nik) {
+		pindahKeluarAnggotaData = { id, nama, nik };
+		showPindahKeluarAnggota = true;
+	}
+
+	function openPindahKeluarKeluarga(keluarga_id, no_kk, jumlah_anggota) {
+		pindahKeluarKeluargaData = { keluarga_id, no_kk, jumlah_anggota };
+		showPindahKeluarKeluarga = true;
+	}
+
+	function openMeninggalAnggota(id, nama, nik) {
+		meninggalAnggotaData = { id, nama, nik };
+		showMeninggalAnggota = true;
+	}
 </script>
 
 {#if toast}
@@ -352,193 +389,250 @@
 	</div>
 
 	{#if displayItems.length > 0}
-			<div class="bg-white rounded-lg shadow border border-gray-200 overflow-x-auto">
-				<table class="w-full text-left border-collapse min-w-full">
-					<thead>
-						<tr class="bg-gray-50 border-b border-gray-200">
-							<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
-							<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">KK</th>
-							<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">NIK</th>
-							<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:bg-gray-100 transition-colors" onclick={() => onSortClick('nama')}>
-								<div class="flex items-center gap-1">
-									<span>Nama</span>
-									<i class="fa-solid text-xs text-gray-400" class:fa-sort-up={sort === 'asc' && sortBy === 'nama'} class:fa-sort-down={sort === 'desc' && sortBy === 'nama'}></i>
-								</div>
-							</th>
-							<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Kelamin</th>
-							<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Tgl Lahir</th>
-							<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:bg-gray-100 transition-colors" onclick={() => onSortClick('no_blok')}>
-								<div class="flex items-center gap-1">
-									<span>Blok</span>
-									<i class="fa-solid text-xs text-gray-400" class:fa-sort-up={sort === 'asc' && sortBy === 'no_blok'} class:fa-sort-down={sort === 'desc' && sortBy === 'no_blok'}></i>
-								</div>
-							</th>
-							<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Nomor HP</th>
-							<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Aksi</th>
-						</tr>
-					</thead>
-					<tbody class="divide-y divide-gray-100">
-						{#each displayItems as p, index}
-							<tr class="hover:bg-gray-50 transition-colors">
-								<td class="px-6 py-4 text-sm text-gray-600">{(currentPage - 1) * itemsPerPage + index + 1}</td>
-								<td class="px-6 py-4 text-sm text-gray-900 font-medium">{p.no_kk || '-'}</td>
-								<td class="px-6 py-4 text-sm text-gray-900">{p.nik || '-'}</td>
-								<td class="px-6 py-4 text-sm text-gray-900 font-medium">{p.nama}</td>
-								<td class="px-6 py-4 text-sm text-gray-600">{p.jenis_kelamin}</td>
-								<td class="px-6 py-4 text-sm text-gray-600">
-									{#if p.tanggal_lahir}
-										{new Date(p.tanggal_lahir).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-									{:else}
-										-
-									{/if}
-								</td>
-								<td class="px-6 py-4 text-sm text-gray-600">{p.no_blok || '-'}</td>
-								<td class="px-6 py-4 text-sm text-gray-600">{p.nomor_hp || '-'}</td>
-								<td class="px-6 py-4 text-right">
-									<div class="flex items-center justify-end gap-1 lg:gap-2">
-										<!-- Desktop: Horizontal buttons -->
-										<div class="hidden lg:flex items-center gap-1">
+		<div class="bg-white rounded-lg shadow border border-gray-200 overflow-x-auto">
+			<table class="w-full text-left border-collapse min-w-full">
+				<thead>
+					<tr class="bg-gray-50 border-b border-gray-200">
+						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">KK</th>
+						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">NIK</th>
+						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:bg-gray-100 transition-colors" onclick={() => onSortClick('nama')}>
+							<div class="flex items-center gap-1">
+								<span>Nama</span>
+								<i class="fa-solid text-xs text-gray-400" class:fa-sort-up={sort === 'asc' && sortBy === 'nama'} class:fa-sort-down={sort === 'desc' && sortBy === 'nama'}></i>
+							</div>
+						</th>
+						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Kelamin</th>
+						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Tgl Lahir</th>
+						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer select-none hover:bg-gray-100 transition-colors" onclick={() => onSortClick('no_blok')}>
+							<div class="flex items-center gap-1">
+								<span>Blok</span>
+								<i class="fa-solid text-xs text-gray-400" class:fa-sort-up={sort === 'asc' && sortBy === 'no_blok'} class:fa-sort-down={sort === 'desc' && sortBy === 'no_blok'}></i>
+							</div>
+						</th>
+						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Nomor HP</th>
+						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Aksi</th>
+					</tr>
+				</thead>
+				<tbody class="divide-y divide-gray-100">
+					{#each displayItems as p, index}
+						<tr class="hover:bg-gray-50 transition-colors">
+							<td class="px-6 py-4 text-sm text-gray-600">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+							<td class="px-6 py-4 text-sm text-gray-900 font-medium">{p.no_kk || '-'}</td>
+							<td class="px-6 py-4 text-sm text-gray-900">{p.nik || '-'}</td>
+							<td class="px-6 py-4 text-sm text-gray-900 font-medium">{p.nama}</td>
+							<td class="px-6 py-4 text-sm text-gray-600">{p.jenis_kelamin}</td>
+							<td class="px-6 py-4 text-sm text-gray-600">
+								{#if p.tanggal_lahir}
+									{new Date(p.tanggal_lahir).toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+								{:else}
+									-
+								{/if}
+							</td>
+							<td class="px-6 py-4 text-sm text-gray-600">{p.no_blok || '-'}</td>
+							<td class="px-6 py-4 text-sm text-gray-600">{p.nomor_hp || '-'}</td>
+							<td class="px-6 py-4 text-right">
+								<div class="flex items-center justify-end gap-1 lg:gap-2">
+									<!-- Desktop: Horizontal buttons -->
+									<div class="hidden lg:flex items-center gap-1">
+										<button
+											onclick={() => openKeluargaFromTable(p.keluarga_id, p.no_kk, p.blok_rumah_id, p.status_rumah)}
+											class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+											title="Lihat Keluarga"
+											aria-label="Lihat Keluarga"
+										>
+											<i class="fa-solid fa-users text-lg"></i>
+										</button>
+										<button
+											onclick={() => openEditIndividu(p.id, p.nik, p.nama, p.jenis_kelamin, p.tempat_lahir, p.tanggal_lahir, p.nomor_hp, p.agama, p.pekerjaan, p.status_perkawinan)}
+											class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+											title="Edit"
+											aria-label="Edit"
+										>
+											<i class="fa-regular fa-pen-to-square text-lg"></i>
+										</button>
+										<button
+											type="button"
+											onclick={() => handleDeleteIndividu(p.id)}
+											class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+											title="Hapus"
+											aria-label="Hapus"
+										>
+											<i class="fa-regular fa-trash-can text-lg"></i>
+										</button>
+										{#if p.status_kependudukan === 'aktif' && p.hub_keluarga === 'Kepala Keluarga'}
 											<button
-																		onclick={() => openKeluargaFromTable(p.keluarga_id, p.no_kk, p.blok_rumah_id, p.status_rumah)}
-																		class="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-																		title="Lihat Keluarga"
-																		aria-label="Lihat Keluarga"
-																	>
-																		<i class="fa-solid fa-users text-lg"></i>
-																	</button>
-																	<button
-																								onclick={() => openEditIndividu(p.id, p.nik, p.nama, p.jenis_kelamin, p.tempat_lahir, p.tanggal_lahir, p.nomor_hp, p.agama, p.pekerjaan, p.status_perkawinan)}
-																								class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-																								title="Edit"
-																								aria-label="Edit"
-																							>
-																								<i class="fa-regular fa-pen-to-square text-lg"></i>
-																							</button>
-																	<button
-																		type="button"
-																		onclick={() => handleDeleteIndividu(p.id)}
-																		class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-																		title="Hapus"
-																		aria-label="Hapus"
-																	>
-																		<i class="fa-regular fa-trash-can text-lg"></i>
-																	</button>
-										</div>
-
-										<!-- Mobile: Dropdown -->
-										<div class="lg:hidden relative" data-dropdown-menu>
-											<button
-												type="button"
-												onclick={() => openDropdownIndex = openDropdownIndex === index ? -1 : index}
-												class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 transition-colors"
-												aria-expanded={openDropdownIndex === index}
-												aria-haspopup="true"
+												onclick={() => openPindahKeluarKeluarga(p.keluarga_id, p.no_kk, p.jumlah_anggota || 0)}
+												class="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+												title="Pindah Keluar Keluarga"
+												aria-label="Pindah Keluar Keluarga"
 											>
-												<i class="fa-solid fa-ellipsis-v"></i>
+												<i class="fa-solid fa-users-slash text-lg"></i>
 											</button>
-											{#if openDropdownIndex === index}
-																		<div class="absolute right-0 top-full mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg animate-in fade-in zoom-in-95 z-50" role="menu">
-																			<button
-																				onclick={() => { openKeluargaFromTable(p.keluarga_id, p.no_kk, p.blok_rumah_id, p.status_rumah); openDropdownIndex = -1; }}
-																				class="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 rounded-t-lg flex items-center gap-2"
-																				role="menuitem"
-																			>
-																				<i class="fa-solid fa-users text-indigo-600 w-4"></i>
-																				<span class="text-indigo-600">Lihat Keluarga</span>
-																			</button>
-																			<button
-																									onclick={() => { openEditIndividu(p.id, p.nik, p.nama, p.jenis_kelamin, p.tempat_lahir, p.tanggal_lahir, p.nomor_hp, p.agama, p.pekerjaan, p.status_perkawinan); openDropdownIndex = -1; }}
-																									class="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
-																									role="menuitem"
-																								>
-																									<i class="fa-regular fa-pen-to-square text-blue-600 w-4"></i>
-																									<span class="text-blue-600">Edit</span>
-																								</button>
-																			<button
-																				type="button"
-																				onclick={() => { handleDeleteIndividu(p.id); openDropdownIndex = -1; }}
-																				class="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 rounded-b-lg flex items-center gap-2"
-																				role="menuitem"
-																			>
-																				<i class="fa-regular fa-trash-can w-4"></i>
-																				<span class="text-red-600">Hapus</span>
-																			</button>
-																		</div>
-																	{/if}
+										{/if}
+										{#if p.status_kependudukan === 'aktif'}
+											<button
+												onclick={() => openPindahKeluarAnggota(p.id, p.nama, p.nik)}
+												class="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+												title="Pindah Keluar Individu"
+												aria-label="Pindah Keluar Individu"
+											>
+												<i class="fa-solid fa-arrow-right-from-bracket text-lg"></i>
+											</button>
+											<button
+												onclick={() => openMeninggalAnggota(p.id, p.nama, p.nik)}
+												class="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors"
+												title="Catat Meninggal"
+												aria-label="Catat Meninggal"
+											>
+												<i class="fa-solid fa-cross text-lg"></i>
+											</button>
+										{/if}
 									</div>
-								</td>
-							</tr>
-						{/each}
-					</tbody>
-				</table>
-			</div>
 
-			<!-- Pagination Controls -->
-			<div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-4 py-3 bg-white border border-gray-200 rounded-lg">
-				<div class="flex items-center gap-3">
-					<label for="items-per-page-penduduk" class="text-sm text-gray-700">Tampilkan</label>
-					<select
-						id="items-per-page-penduduk"
-						bind:value={itemsPerPage}
-						onchange={() => {
+									<!-- Mobile: Dropdown -->
+									<div class="lg:hidden relative" data-dropdown-menu>
+										<button
+											type="button"
+											onclick={() => openDropdownIndex = openDropdownIndex === index ? -1 : index}
+											class="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 border border-gray-300 rounded hover:bg-gray-200 transition-colors"
+											aria-expanded={openDropdownIndex === index}
+											aria-haspopup="true"
+										>
+											<i class="fa-solid fa-ellipsis-v"></i>
+										</button>
+										{#if openDropdownIndex === index}
+											<div class="absolute right-0 top-full mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg animate-in fade-in zoom-in-95 z-50" role="menu">
+												<button
+													onclick={() => { openKeluargaFromTable(p.keluarga_id, p.no_kk, p.blok_rumah_id, p.status_rumah); openDropdownIndex = -1; }}
+													class="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 rounded-t-lg flex items-center gap-2"
+													role="menuitem"
+												>
+													<i class="fa-solid fa-users text-indigo-600 w-4"></i>
+													<span class="text-indigo-600">Lihat Keluarga</span>
+												</button>
+												<button
+													onclick={() => { openEditIndividu(p.id, p.nik, p.nama, p.jenis_kelamin, p.tempat_lahir, p.tanggal_lahir, p.nomor_hp, p.agama, p.pekerjaan, p.status_perkawinan); openDropdownIndex = -1; }}
+													class="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+													role="menuitem"
+												>
+													<i class="fa-regular fa-pen-to-square text-blue-600 w-4"></i>
+													<span class="text-blue-600">Edit</span>
+												</button>
+												{#if p.status_kependudukan === 'aktif' && p.hub_keluarga === 'Kepala Keluarga'}
+													<button
+														onclick={() => { openPindahKeluarKeluarga(p.keluarga_id, p.no_kk, p.jumlah_anggota || 0); openDropdownIndex = -1; }}
+														class="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+														role="menuitem"
+													>
+														<i class="fa-solid fa-users-slash text-orange-600 w-4"></i>
+														<span class="text-orange-600">Pindah Keluar KK</span>
+													</button>
+												{/if}
+												{#if p.status_kependudukan === 'aktif'}
+													<button
+														onclick={() => { openPindahKeluarAnggota(p.id, p.nama, p.nik); openDropdownIndex = -1; }}
+														class="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+														role="menuitem"
+													>
+														<i class="fa-solid fa-arrow-right-from-bracket text-amber-600 w-4"></i>
+														<span class="text-amber-600">Pindah Keluar</span>
+													</button>
+													<button
+														onclick={() => { openMeninggalAnggota(p.id, p.nama, p.nik); openDropdownIndex = -1; }}
+														class="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+														role="menuitem"
+													>
+														<i class="fa-solid fa-cross text-gray-600 w-4"></i>
+														<span class="text-gray-600">Catat Meninggal</span>
+													</button>
+												{/if}
+												<button
+													onclick={() => { handleDeleteIndividu(p.id); openDropdownIndex = -1; }}
+													type="button"
+													class="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 rounded-b-lg flex items-center gap-2"
+													role="menuitem"
+												>
+													<i class="fa-regular fa-trash-can w-4"></i>
+													<span class="text-red-600">Hapus</span>
+												</button>
+											</div>
+										{/if}
+									</div>
+								</div>
+							</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		</div>
+
+		<!-- Pagination Controls -->
+		<div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-4 py-3 bg-white border border-gray-200 rounded-lg">
+			<div class="flex items-center gap-3">
+				<label for="items-per-page-penduduk" class="text-sm text-gray-700">Tampilkan</label>
+				<select
+					id="items-per-page-penduduk"
+					bind:value={itemsPerPage}
+					onchange={() => {
+						const params = new URLSearchParams();
+						if (search) params.set('search', search);
+						params.set('sort', sort);
+						params.set('sortBy', sortBy);
+						params.set('page', '1');
+						params.set('itemsPerPage', itemsPerPage.toString());
+						goto(`?${params.toString()}`);
+					}}
+					class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+				>
+					{#each itemsPerPageOptions as opt}
+						<option value={opt}>{opt} per halaman</option>
+					{/each}
+				</select>
+			</div>
+			<div class="flex items-center gap-2">
+				<span class="text-sm text-gray-700">
+					Halaman {currentPage} dari {totalPages} (Total: {data.total ?? displayItems.length} data)
+				</span>
+				<button
+					onclick={() => {
+						if (currentPage > 1) {
 							const params = new URLSearchParams();
 							if (search) params.set('search', search);
 							params.set('sort', sort);
 							params.set('sortBy', sortBy);
-							params.set('page', '1');
+							params.set('page', (currentPage - 1).toString());
 							params.set('itemsPerPage', itemsPerPage.toString());
 							goto(`?${params.toString()}`);
-						}}
-						class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-					>
-						{#each itemsPerPageOptions as opt}
-							<option value={opt}>{opt} per halaman</option>
-						{/each}
-					</select>
-				</div>
-				<div class="flex items-center gap-2">
-					<span class="text-sm text-gray-700">
-						Halaman {currentPage} dari {totalPages} (Total: {data.total ?? displayItems.length} data)
-					</span>
-					<button
-						onclick={() => {
-							if (currentPage > 1) {
-								const params = new URLSearchParams();
-								if (search) params.set('search', search);
-								params.set('sort', sort);
-								params.set('sortBy', sortBy);
-								params.set('page', (currentPage - 1).toString());
-								params.set('itemsPerPage', itemsPerPage.toString());
-								goto(`?${params.toString()}`);
-							}
-						}}
-						disabled={currentPage === 1}
-						class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-						aria-label="Halaman sebelumnya"
-					>
-						<i class="fa-solid fa-chevron-left"></i>
-					</button>
-					<button
-						onclick={() => {
-							if (currentPage < totalPages) {
-								const params = new URLSearchParams();
-								if (search) params.set('search', search);
-								params.set('sort', sort);
-								params.set('sortBy', sortBy);
-								params.set('page', (currentPage + 1).toString());
-								params.set('itemsPerPage', itemsPerPage.toString());
-								goto(`?${params.toString()}`);
-							}
-						}}
-						disabled={currentPage === totalPages}
-						class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-						aria-label="Halaman selanjutnya"
-					>
-						<i class="fa-solid fa-chevron-right"></i>
-					</button>
-				</div>
+						}
+					}}
+					disabled={currentPage === 1}
+					class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+					aria-label="Halaman sebelumnya"
+				>
+					<i class="fa-solid fa-chevron-left"></i>
+				</button>
+				<button
+					onclick={() => {
+						if (currentPage < totalPages) {
+							const params = new URLSearchParams();
+							if (search) params.set('search', search);
+							params.set('sort', sort);
+							params.set('sortBy', sortBy);
+							params.set('page', (currentPage + 1).toString());
+							params.set('itemsPerPage', itemsPerPage.toString());
+							goto(`?${params.toString()}`);
+						}
+					}}
+					disabled={currentPage === totalPages}
+					class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+					aria-label="Halaman selanjutnya"
+				>
+					<i class="fa-solid fa-chevron-right"></i>
+				</button>
 			</div>
-		{:else}
+		</div>
+	{:else}
 		<div class="bg-red-50 border border-red-200 rounded-lg p-6 flex items-center gap-3">
 			<i class="fa-solid fa-circle-exclamation text-red-500"></i>
 			<div>
@@ -571,5 +665,26 @@
 		{editNomorHp}
 		onClose={closeEditIndividu}
 		onSave={handleSaveIndividu}
+	/>
+
+	<PindahKeluarAnggotaModal
+		{showPindahKeluarAnggota}
+		{pindahKeluarAnggotaData}
+		onClose={() => { showPindahKeluarAnggota = false; pindahKeluarAnggotaData = { id: '', nama: '', nik: '' }; }}
+		onSubmit={onMutasiSuccess}
+	/>
+
+	<PindahKeluarKeluargaModal
+		{showPindahKeluarKeluarga}
+		{pindahKeluarKeluargaData}
+		onClose={() => { showPindahKeluarKeluarga = false; pindahKeluarKeluargaData = { keluarga_id: '', no_kk: '', jumlah_anggota: 0 }; }}
+		onSubmit={onMutasiSuccess}
+	/>
+
+	<MeninggalAnggotaModal
+		{showMeninggalAnggota}
+		{meninggalAnggotaData}
+		onClose={() => { showMeninggalAnggota = false; meninggalAnggotaData = { id: '', nama: '', nik: '' }; }}
+		onSubmit={onMutasiSuccess}
 	/>
 </div>

@@ -10,7 +10,7 @@ export const load = async ({ locals, url }) => {
 	const blokFilter = url.searchParams.get('blok') || 'semua';
 	const search = url.searchParams.get('search')?.trim() || '';
 
-	let whereClause = 'WHERE ak.nomor_hp IS NOT NULL AND ak.nomor_hp != ""';
+	let whereClause = 'WHERE ak.nomor_hp IS NOT NULL AND ak.nomor_hp != "" AND k.status_keluarga = \'aktif\' AND ak.status_kependudukan = \'aktif\'';
 	const params = [];
 
 	if (blokFilter !== 'semua') {
@@ -61,7 +61,7 @@ export const load = async ({ locals, url }) => {
 	// Grand total
 	const grandTotal = rows.length;
 
-	// Stats: warga dengan HP vs tanpa HP
+	// Stats: warga dengan HP vs tanpa HP (hanya aktif)
 	const statsSql = `
 		SELECT 
 			COUNT(*) as total_warga,
@@ -70,7 +70,8 @@ export const load = async ({ locals, url }) => {
 		FROM anggota_keluarga ak
 		JOIN keluarga k ON ak.keluarga_id = k.id
 		JOIN blok_rumah b ON k.blok_rumah_id = b.id
-		${blokFilter !== 'semua' ? 'WHERE b.id = ?' : ''}
+		WHERE k.status_keluarga = 'aktif' AND ak.status_kependudukan = 'aktif'
+		${blokFilter !== 'semua' ? 'AND b.id = ?' : ''}
 	`;
 	const statsParams = blokFilter !== 'semua' ? [parseInt(blokFilter)] : [];
 	const statsRows = await executeQuery(statsSql, statsParams);
