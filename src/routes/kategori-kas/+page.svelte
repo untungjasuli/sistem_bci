@@ -340,7 +340,7 @@
 					<button
 						type="button"
 						onclick={clearSearch}
-						class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded hover:bg-gray-100 transition-colors"
+						class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-red-600 rounded transition-colors"
 						title="Hapus pencarian"
 					>
 						<i class="fa-solid fa-times text-xs"></i>
