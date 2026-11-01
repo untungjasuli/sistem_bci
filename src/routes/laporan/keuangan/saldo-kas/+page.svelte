@@ -130,7 +130,7 @@
 	<!-- Filter Bar -->
 	<div class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
 		<form onsubmit={(e) => e.preventDefault()} class="flex flex-col sm:flex-row gap-4 items-end">
-			<div class="flex-1 min-w-0">
+			<div class="w-full">
 				<input
 					type="month"
 					id="periode"

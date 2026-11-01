@@ -132,7 +132,7 @@
 	<!-- Filter Bar -->
 	<div class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
 		<form onsubmit={(e) => e.preventDefault()} class="flex flex-col sm:flex-row gap-4 items-end">
-			<div class="flex-1 min-w-0">
+			<div class="w-full">
 				<input type="month" id="periode" value={filter.periode} onchange={onPeriodeChange} class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors" required />
 			</div>
 			<div class="w-full sm:w-48">
@@ -141,7 +141,7 @@
 					{#each blokRumah as br}<option value={br.id}>{br.label}</option>{/each}
 				</select>
 			</div>
-			<div class="w-full sm:w-40">
+			<div class="w-full sm:w-48">
 				<select id="status-filter" value={filter.statusFilter} onchange={onStatusChange} class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
 					<option value="semua">Semua Status</option>
 					<option value="lunas">Lunas</option>

@@ -151,7 +151,7 @@
 	<!-- Filter Bar -->
 	<div class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
 		<form onsubmit={(e) => e.preventDefault()} class="flex flex-col sm:flex-row gap-4 items-end">
-			<div class="flex-1 min-w-0">
+			<div class="w-full">
 				<input
 					type="month"
 					id="periode"
@@ -174,7 +174,7 @@
 					{/each}
 				</select>
 			</div>
-			<div class="w-full sm:w-48">
+			<div class="w-full sm:w-60">
 				<select
 					id="kategori-filter"
 					value={filter.kategoriFilter}
@@ -187,7 +187,7 @@
 					{/each}
 				</select>
 			</div>
-			<div class="w-full sm:w-40">
+			<div class="w-full sm:w-48">
 				<select
 					id="tipe-filter"
 					value={filter.tipeFilter}
