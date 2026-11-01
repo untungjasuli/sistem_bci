@@ -152,7 +152,6 @@
 	<div class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
 		<form onsubmit={(e) => e.preventDefault()} class="flex flex-col sm:flex-row gap-4 items-end">
 			<div class="flex-1 min-w-0">
-				<label for="periode" class="block text-sm font-medium text-gray-700 mb-1">Periode <span class="text-red-500">*</span></label>
 				<input
 					type="month"
 					id="periode"
@@ -163,7 +162,6 @@
 				/>
 			</div>
 			<div class="w-full sm:w-48">
-				<label for="kas-filter" class="block text-sm font-medium text-gray-700 mb-1">Rekening Kas</label>
 				<select
 					id="kas-filter"
 					value={filter.kasFilter}
@@ -177,7 +175,6 @@
 				</select>
 			</div>
 			<div class="w-full sm:w-48">
-				<label for="kategori-filter" class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
 				<select
 					id="kategori-filter"
 					value={filter.kategoriFilter}
@@ -191,27 +188,17 @@
 				</select>
 			</div>
 			<div class="w-full sm:w-40">
-				<label for="tipe-filter" class="block text-sm font-medium text-gray-700 mb-1">Tipe</label>
 				<select
 					id="tipe-filter"
 					value={filter.tipeFilter}
 					onchange={onTipeChange}
 					class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
 				>
-					<option value="semua">Semua</option>
+					<option value="semua">Semua Tipe</option>
 					<option value="debit">Masuk (Debit)</option>
 					<option value="kredit">Keluar (Kredit)</option>
 				</select>
 			</div>
-			{#if filter.kasFilter !== 'semua' || filter.kategoriFilter !== 'semua' || filter.tipeFilter !== 'semua'}
-				<button
-					type="button"
-					onclick={clearFilters}
-					class="px-3 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors h-fit"
-				>
-					<i class="fa-solid fa-xmark mr-1"></i> Clear
-				</button>
-			{/if}
 		</form>
 	</div>
 

@@ -145,21 +145,14 @@
 	<div class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
 		<form onsubmit={(e) => e.preventDefault()} class="flex flex-col sm:flex-row gap-4 items-end">
 			<div class="flex-1 min-w-0">
-				<label for="periode" class="block text-sm font-medium text-gray-700 mb-1">Sampai Periode</label>
 				<input type="month" id="periode" value={filter.periode} onchange={onPeriodeChange} class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors" />
 			</div>
 			<div class="w-full sm:w-48">
-				<label for="blok-filter" class="block text-sm font-medium text-gray-700 mb-1">Blok Rumah</label>
 				<select id="blok-filter" value={filter.blokFilter} onchange={onBlokChange} class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
 					<option value="semua">Semua Blok</option>
 					{#each blokRumah as br}<option value={br.id}>{br.label}</option>{/each}
 				</select>
 			</div>
-			{#if filter.blokFilter !== 'semua' || filter.periode}
-				<button type="button" onclick={clearFilters} class="px-3 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors h-fit">
-					<i class="fa-solid fa-xmark mr-1"></i> Clear
-				</button>
-			{/if}
 		</form>
 	</div>
 

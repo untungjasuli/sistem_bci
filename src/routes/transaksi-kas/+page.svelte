@@ -417,39 +417,37 @@
 					<button
 						type="button"
 						onclick={clearSearch}
-						class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded hover:bg-gray-100 transition-colors"
+						class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-red-600 rounded transition-colors"
 						title="Hapus pencarian"
 					>
 						<i class="fa-solid fa-times text-xs"></i>
 					</button>
 				{/if}
 			</div>
-			<div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-				<select bind:value={pagination.statusFilter} onchange={(e) => changeFilter('statusFilter', e.currentTarget.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
-					<option value="semua">Status</option>
-					<option value="posted">Diposting</option>
-					<option value="pending">Menunggu</option>
-					<option value="rejected">Ditolak</option>
-					<option value="draft">Draft</option>
-				</select>
-				<select bind:value={pagination.kasFilter} onchange={(e) => changeFilter('kasFilter', e.currentTarget.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
-					<option value="semua">Kas</option>
-					{#each kasAccounts as ka}
-						<option value={ka.id}>{ka.kode} - {ka.nama}</option>
-					{/each}
-				</select>
-				<select bind:value={pagination.kategoriFilter} onchange={(e) => changeFilter('kategoriFilter', e.currentTarget.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
-					<option value="semua">Kategori</option>
-					{#each kategoriKas as kk}
-						<option value={kk.id}>{kk.kode} - {kk.nama}</option>
-					{/each}
-				</select>
-				<select bind:value={pagination.tipeFilter} onchange={(e) => changeFilter('tipeFilter', e.currentTarget.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
-					<option value="semua">Tipe</option>
-					<option value="debit">Masuk (Debit)</option>
-					<option value="kredit">Keluar (Kredit)</option>
-				</select>
-			</div>
+			<select bind:value={pagination.statusFilter} onchange={(e) => changeFilter('statusFilter', e.currentTarget.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+				<option value="semua">Semua Status</option>
+				<option value="posted">Diposting</option>
+				<option value="pending">Menunggu</option>
+				<option value="rejected">Ditolak</option>
+				<option value="draft">Draft</option>
+			</select>
+			<select bind:value={pagination.kasFilter} onchange={(e) => changeFilter('kasFilter', e.currentTarget.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+				<option value="semua">Semua Kas</option>
+				{#each kasAccounts as ka}
+					<option value={ka.id}>{ka.kode} - {ka.nama}</option>
+				{/each}
+			</select>
+			<select bind:value={pagination.kategoriFilter} onchange={(e) => changeFilter('kategoriFilter', e.currentTarget.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+				<option value="semua">Semua Kategori</option>
+				{#each kategoriKas as kk}
+					<option value={kk.id}>{kk.kode} - {kk.nama}</option>
+				{/each}
+			</select>
+			<select bind:value={pagination.tipeFilter} onchange={(e) => changeFilter('tipeFilter', e.currentTarget.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+				<option value="semua">Tipe</option>
+				<option value="debit">Masuk (Debit)</option>
+				<option value="kredit">Keluar (Kredit)</option>
+			</select>
 		</form>
 	</div>
 

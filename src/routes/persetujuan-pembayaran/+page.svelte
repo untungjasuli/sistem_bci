@@ -394,7 +394,7 @@
 				{/if}
 			</div>
 			<select bind:value={pagination.metodeFilter} onchange={(e) => changeFilter('metodeFilter', e.currentTarget.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
-				<option value="semua">Metode</option>
+				<option value="semua">Semua Metode</option>
 				<option value="cash">Tunai</option>
 				<option value="qris">QRIS</option>
 				<option value="transfer">Transfer</option>

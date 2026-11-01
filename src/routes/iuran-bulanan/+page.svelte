@@ -366,8 +366,7 @@
 	<div class="bg-white rounded-lg shadow border border-gray-200 p-4 mb-6">
 		<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
 			<!-- Periode Selector -->
-			<div class="flex items-center gap-2 w-full lg:w-auto">
-				<label for="periode" class="text-sm text-gray-700 whitespace-nowrap">Periode:</label>
+			<div class="flex items-center gap-2 w-full ">
 				<select
 					id="periode"
 					bind:value={periode}
@@ -375,17 +374,17 @@
 					class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors flex-1"
 				>
 					{#each periods as p}
-						<option value={p}>{p}</option>
+						<option value={p}>Periode {p}</option>
 					{/each}
 					{#if !periods.includes(periode)}
-						<option value={periode} selected>{periode} (Belum generate)</option>
+						<option value={periode} selected>Periode {periode} (Belum generate)</option>
 					{/if}
 				</select>
 			</div>
 
 			<!-- Generate Buttons (Admin only) -->
 			{#if isAdmin()}
-				<div class="flex gap-2 w-full lg:w-auto lg:ml-auto">
+				<div class="flex gap-2 w-full  lg:ml-auto">
 					<button
 						onclick={handleGenerate}
 						disabled={periods.includes(periode)}

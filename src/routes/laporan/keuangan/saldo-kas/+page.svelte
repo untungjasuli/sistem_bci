@@ -131,7 +131,6 @@
 	<div class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
 		<form onsubmit={(e) => e.preventDefault()} class="flex flex-col sm:flex-row gap-4 items-end">
 			<div class="flex-1 min-w-0">
-				<label for="periode" class="block text-sm font-medium text-gray-700 mb-1">Periode <span class="text-red-500">*</span></label>
 				<input
 					type="month"
 					id="periode"
@@ -142,7 +141,6 @@
 				/>
 			</div>
 			<div class="w-full sm:w-48">
-				<label for="kas-filter" class="block text-sm font-medium text-gray-700 mb-1">Rekening Kas</label>
 				<select
 					id="kas-filter"
 					value={filter.kasFilter}
@@ -155,15 +153,6 @@
 					{/each}
 				</select>
 			</div>
-			{#if filter.kasFilter !== 'semua'}
-				<button
-					type="button"
-					onclick={clearFilters}
-					class="px-3 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors h-fit"
-				>
-					<i class="fa-solid fa-xmark mr-1"></i> Clear
-				</button>
-			{/if}
 		</form>
 	</div>
 

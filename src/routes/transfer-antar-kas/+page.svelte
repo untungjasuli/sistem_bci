@@ -456,7 +456,7 @@
 				{/if}
 			</div>
 			<select bind:value={pagination.statusFilter} onchange={(e) => changeFilter('statusFilter', e.currentTarget.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
-				<option value="semua">Status</option>
+				<option value="semua">Semua Status</option>
 				<option value="pending">Menunggu</option>
 				<option value="posted">Diposting</option>
 				<option value="rejected">Ditolak</option>

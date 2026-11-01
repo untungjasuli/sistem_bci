@@ -172,25 +172,18 @@
 	<div class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
 		<form onsubmit={(e) => e.preventDefault()} class="flex flex-col sm:flex-row gap-4 items-end">
 			<div class="w-full sm:w-48">
-				<label for="blok-filter" class="block text-sm font-medium text-gray-700 mb-1">Blok Rumah</label>
 				<select id="blok-filter" value={filter.blokFilter} onchange={onBlokChange} class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
 					<option value="semua">Semua Blok</option>
 					{#each blokRumah as b}<option value={b.id}>{b.no_blok}</option>{/each}
 				</select>
 			</div>
 			<div class="w-full sm:w-40">
-				<label for="jk-filter" class="block text-sm font-medium text-gray-700 mb-1">Jenis Kelamin</label>
 				<select id="jk-filter" value={filter.jkFilter} onchange={onJkChange} class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
-					<option value="semua">Semua</option>
+					<option value="semua">Semua Jenis Kelamin</option>
 					<option value="L">Laki-laki</option>
 					<option value="P">Perempuan</option>
 				</select>
 			</div>
-			{#if filter.blokFilter !== 'semua' || filter.jkFilter !== 'semua'}
-				<button type="button" onclick={clearFilters} class="px-3 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors h-fit">
-					<i class="fa-solid fa-xmark mr-1"></i> Clear
-				</button>
-			{/if}
 		</form>
 	</div>
 
