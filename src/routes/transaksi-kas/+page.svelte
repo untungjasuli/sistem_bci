@@ -307,6 +307,12 @@
 		updateUrl();
 	}
 
+	function clearSearch() {
+		pagination.search = '';
+		pagination.page = 1;
+		updateUrl();
+	}
+
 	function changeFilter(filterName, value) {
 		pagination.page = 1;
 		pagination[filterName] = value;
@@ -384,65 +390,6 @@
 			<p class="text-gray-500 text-sm">Kelola transaksi masuk dan keluar kas</p>
 		</div>
 		<div class="flex items-center gap-3 w-full lg:w-auto">
-			<form onsubmit={handleSearch} class="relative flex items-center flex-1 min-w-0">
-				<label class="sr-only" for="search-transaksi">Cari Nomor Bukti / Keterangan / Kas / Kategori</label>
-				<div class="relative w-full">
-					<input
-						type="text"
-						id="search-transaksi"
-						name="searchInput"
-						value={pagination.search}
-						placeholder="Nomor Bukti / Keterangan / Kas / Kategori..."
-						class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-						oninput={(e) => (pagination.search = e.currentTarget.value)}
-					/>
-					<i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-					{#if pagination.search}
-						<button
-							type="button"
-							onclick={() => { pagination.search = ''; handleSearch(new Event('submit')); }}
-							class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded hover:bg-gray-100 transition-colors"
-							title="Hapus pencarian"
-						>
-							<i class="fa-solid fa-times text-xs"></i>
-						</button>
-					{:else}
-						<button
-							type="submit"
-							class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-blue-600 rounded hover:bg-blue-50 transition-colors"
-							title="Cari"
-						>
-							<i class="fa-solid fa-magnifying-glass text-xs"></i>
-						</button>
-					{/if}
-				</div>
-			</form>
-			<div class="flex flex-wrap items-center gap-2">
-				<select bind:value={pagination.statusFilter} onchange={(e) => changeFilter('statusFilter', e.target.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
-					<option value="semua">Status</option>
-					<option value="posted">Diposting</option>
-					<option value="pending">Menunggu</option>
-					<option value="rejected">Ditolak</option>
-					<option value="draft">Draft</option>
-				</select>
-				<select bind:value={pagination.kasFilter} onchange={(e) => changeFilter('kasFilter', e.target.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
-					<option value="semua">Kas</option>
-					{#each kasAccounts as ka}
-						<option value={ka.id}>{ka.kode} - {ka.nama}</option>
-					{/each}
-				</select>
-				<select bind:value={pagination.kategoriFilter} onchange={(e) => changeFilter('kategoriFilter', e.target.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
-					<option value="semua">Kategori</option>
-					{#each kategoriKas as kk}
-						<option value={kk.id}>{kk.kode} - {kk.nama}</option>
-					{/each}
-				</select>
-				<select bind:value={pagination.tipeFilter} onchange={(e) => changeFilter('tipeFilter', e.target.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
-					<option value="semua">Tipe</option>
-					<option value="debit">Masuk (Debit)</option>
-					<option value="kredit">Keluar (Kredit)</option>
-				</select>
-			</div>
 			{#if data.user?.role === 'admin'}
 				<button
 					onclick={openAddModal}
@@ -454,6 +401,56 @@
 				</button>
 			{/if}
 		</div>
+	</div>
+
+	<!-- Search & Filter Card (mirip Surat RT) -->
+	<div class="bg-white rounded-lg shadow border border-gray-200 p-4 mb-6">
+		<form onsubmit={handleSearch} class="flex flex-col sm:flex-row gap-4">
+			<div class="relative flex-1 min-w-0">
+				<label class="sr-only">Cari Nomor Bukti / Keterangan / Kas / Kategori</label>
+				<input type="text" name="searchInput" value={pagination.search} placeholder="Nomor Bukti / Keterangan / Kas / Kategori..."
+					class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+					oninput={(e) => pagination.search = e.currentTarget.value}
+					enterkeyhint="go" />
+				<i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+				{#if pagination.search}
+					<button
+						type="button"
+						onclick={clearSearch}
+						class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded hover:bg-gray-100 transition-colors"
+						title="Hapus pencarian"
+					>
+						<i class="fa-solid fa-times text-xs"></i>
+					</button>
+				{/if}
+			</div>
+			<div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+				<select bind:value={pagination.statusFilter} onchange={(e) => changeFilter('statusFilter', e.currentTarget.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+					<option value="semua">Status</option>
+					<option value="posted">Diposting</option>
+					<option value="pending">Menunggu</option>
+					<option value="rejected">Ditolak</option>
+					<option value="draft">Draft</option>
+				</select>
+				<select bind:value={pagination.kasFilter} onchange={(e) => changeFilter('kasFilter', e.currentTarget.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+					<option value="semua">Kas</option>
+					{#each kasAccounts as ka}
+						<option value={ka.id}>{ka.kode} - {ka.nama}</option>
+					{/each}
+				</select>
+				<select bind:value={pagination.kategoriFilter} onchange={(e) => changeFilter('kategoriFilter', e.currentTarget.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+					<option value="semua">Kategori</option>
+					{#each kategoriKas as kk}
+						<option value={kk.id}>{kk.kode} - {kk.nama}</option>
+					{/each}
+				</select>
+				<select bind:value={pagination.tipeFilter} onchange={(e) => changeFilter('tipeFilter', e.currentTarget.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+					<option value="semua">Tipe</option>
+					<option value="debit">Masuk (Debit)</option>
+					<option value="kredit">Keluar (Kredit)</option>
+				</select>
+			</div>
+		</form>
 	</div>
 
 	<!-- Summary Cards -->

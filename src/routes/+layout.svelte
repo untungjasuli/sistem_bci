@@ -241,48 +241,113 @@
 
 						<hr class="my-2 border-gray-100" />
 
-						<!-- Divider: Surat RT -->
-						<li>
-							<div class="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Surat-Surat</div>
-						</li>
+											<!-- Divider: Keuangan (admin only) -->
+											{#if isAdmin()}
+											<li>
+												<div class="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Keuangan</div>
+											</li>
 
-						<li>
-							<a
-								href="/surat-rt"
-								onclick={closeSidebar}
-								class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
-									{page.url.pathname === '/surat-rt' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
-							>
-								<i class="fa-solid fa-file-lines w-5"></i>
-								<span>Surat RT</span>
-							</a>
-						</li>
-						<li>
-							<a
-								href="/surat-rt/jenis"
-								onclick={closeSidebar}
-								class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
-									{page.url.pathname === '/surat-rt/jenis' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
-							>
-								<i class="fa-solid fa-list w-5"></i>
-								<span>Master Jenis Surat</span>
-							</a>
-						</li>
-						<li>
-							<a
-								href="/surat-rt/pengaturan"
-								onclick={closeSidebar}
-								class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
-									{page.url.pathname === '/surat-rt/pengaturan' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
-							>
-								<i class="fa-solid fa-gear w-5"></i>
-								<span>Pengaturan RT/RW</span>
-							</a>
-						</li>
+											<li>
+												<a
+													href="/kas-account"
+													onclick={closeSidebar}
+													class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+														{page.url.pathname === '/kas-account' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+												>
+													<i class="fa-solid fa-wallet w-5"></i>
+													<span>Rekening Kas</span>
+												</a>
+											</li>
+											<li>
+												<a
+													href="/kategori-kas"
+													onclick={closeSidebar}
+													class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+														{page.url.pathname === '/kategori-kas' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+												>
+													<i class="fa-solid fa-money-bill-wave w-5"></i>
+													<span>Akun Pemasukan & Pengeluaran</span>
+												</a>
+											</li>
+											<li>
+												<a
+													href="/pembayaran-method"
+													onclick={closeSidebar}
+													class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+														{page.url.pathname === '/pembayaran-method' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+												>
+													<i class="fa-solid fa-credit-card w-5"></i>
+													<span>Metode Pembayaran</span>
+												</a>
+											</li>
+											<li>
+												<a
+													href="/transaksi-kas"
+													onclick={closeSidebar}
+													class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+														{page.url.pathname === '/transaksi-kas' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+												>
+													<i class="fa-solid fa-receipt w-5"></i>
+													<span>Transaksi Kas</span>
+												</a>
+											</li>
+											<li>
+												<a
+													href="/transfer-antar-kas"
+													onclick={closeSidebar}
+													class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+														{page.url.pathname === '/transfer-antar-kas' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+												>
+													<i class="fa-solid fa-arrow-right-arrow-left w-5"></i>
+													<span>Transfer Antar Kas</span>
+												</a>
+											</li>
 
-						<hr class="my-2 border-gray-100" />
+											<hr class="my-2 border-gray-100" />
+											{/if}
 
-						<!-- Divider: Laporan -->
+											<!-- Divider: Surat RT -->
+											<li>
+												<div class="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Surat-Surat</div>
+											</li>
+
+											<li>
+												<a
+													href="/surat-rt"
+													onclick={closeSidebar}
+													class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+														{page.url.pathname === '/surat-rt' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+												>
+													<i class="fa-solid fa-file-lines w-5"></i>
+													<span>Surat RT</span>
+												</a>
+											</li>
+											<li>
+												<a
+													href="/surat-rt/jenis"
+													onclick={closeSidebar}
+													class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+														{page.url.pathname === '/surat-rt/jenis' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+												>
+													<i class="fa-solid fa-list w-5"></i>
+													<span>Master Jenis Surat</span>
+												</a>
+											</li>
+											<li>
+												<a
+													href="/surat-rt/pengaturan"
+													onclick={closeSidebar}
+													class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+														{page.url.pathname === '/surat-rt/pengaturan' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+												>
+													<i class="fa-solid fa-gear w-5"></i>
+													<span>Pengaturan RT/RW</span>
+												</a>
+											</li>
+
+											<hr class="my-2 border-gray-100" />
+
+											<!-- Divider: Laporan -->
 						<li>
 							<div class="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Laporan</div>
 						</li>

@@ -14,6 +14,7 @@
 	let periode = $state(data?.periode || new Date().toISOString().slice(0, 7));
 	let statusFilter = $state(data?.statusFilter || 'semua');
 	let tipeFilter = $state(data?.tipeFilter || 'semua');
+	let search = $state(data?.search || '');
 	let currentPage = $derived(parseInt(page.url.searchParams.get('page') || '1', 10));
 	let itemsPerPage = $state(data?.itemsPerPage || 10);
 	const itemsPerPageOptions = [10, 25, 50, 100];
@@ -84,9 +85,15 @@
 		params.set('periode', periode);
 		if (statusFilter !== 'semua') params.set('status', statusFilter);
 		if (tipeFilter !== 'semua') params.set('tipe', tipeFilter);
+		if (search) params.set('search', search);
 		params.set('page', '1');
 		params.set('itemsPerPage', itemsPerPage.toString());
 		goto(`?${params.toString()}`);
+	}
+
+	function clearSearch() {
+		search = '';
+		updateFilters();
 	}
 
 	function changePage(newPage) {
@@ -95,6 +102,7 @@
 		params.set('periode', periode);
 		if (statusFilter !== 'semua') params.set('status', statusFilter);
 		if (tipeFilter !== 'semua') params.set('tipe', tipeFilter);
+		if (search) params.set('search', search);
 		params.set('page', newPage.toString());
 		params.set('itemsPerPage', itemsPerPage.toString());
 		goto(`?${params.toString()}`);
@@ -105,6 +113,7 @@
 		params.set('periode', periode);
 		if (statusFilter !== 'semua') params.set('status', statusFilter);
 		if (tipeFilter !== 'semua') params.set('tipe', tipeFilter);
+		if (search) params.set('search', search);
 		params.set('page', '1');
 		params.set('itemsPerPage', itemsPerPage.toString());
 		goto(`?${params.toString()}`);
@@ -351,8 +360,11 @@
 			<h1 class="text-2xl font-bold text-gray-900">Iuran Bulanan</h1>
 			<p class="text-gray-500 text-sm">Kelola tagihan dan pembayaran iuran bulanan warga</p>
 		</div>
-		<!-- Periode Selector & Actions - Mobile: dropdown full width, buttons below horizontal; Desktop: all horizontal -->
-		<div class="w-full lg:flex lg:items-center lg:gap-4">
+	</div>
+
+	<!-- Periode & Actions Card -->
+	<div class="bg-white rounded-lg shadow border border-gray-200 p-4 mb-6">
+		<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
 			<!-- Periode Selector -->
 			<div class="flex items-center gap-2 w-full lg:w-auto">
 				<label for="periode" class="text-sm text-gray-700 whitespace-nowrap">Periode:</label>
@@ -373,7 +385,7 @@
 
 			<!-- Generate Buttons (Admin only) -->
 			{#if isAdmin()}
-				<div class="flex gap-2 w-full lg:w-auto mt-3 lg:mt-0 lg:ml-auto">
+				<div class="flex gap-2 w-full lg:w-auto lg:ml-auto">
 					<button
 						onclick={handleGenerate}
 						disabled={periods.includes(periode)}
@@ -454,34 +466,36 @@
 		</div>
 	</div>
 
-	<!-- Filters -->
-	<div class="bg-white p-4 rounded-lg border border-gray-200 shadow-sm mb-6">
+	<!-- Search & Filter Card (mirip Surat RT) -->
+	<div class="bg-white rounded-lg shadow border border-gray-200 p-4 mb-6">
 		<div class="flex flex-col sm:flex-row gap-4">
-			<!-- Mobile: Dropdown only, no label -->
-			<div class="flex-1 lg:w-auto">
-				<select
-					id="status-filter"
-					bind:value={statusFilter}
-					onchange={updateFilters}
-					class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-				>
-					<option value="semua">Semua Status</option>
-					<option value="belum_bayar">Belum Bayar</option>
-					<option value="lunas">Lunas</option>
-				</select>
+			<div class="relative flex-1 min-w-0">
+				<label class="sr-only">Cari Blok / Nama / HP</label>
+				<input type="text" bind:value={search} placeholder="Blok / Nama / HP..."
+					class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+					enterkeyhint="go" onkeydown={(e) => { if (e.key === 'Enter') { e.preventDefault(); updateFilters(); }} } />
+				<i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+				{#if search}
+					<button
+						type="button"
+						onclick={clearSearch}
+						class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded hover:bg-gray-100 transition-colors"
+						title="Hapus pencarian"
+					>
+						<i class="fa-solid fa-times text-xs"></i>
+					</button>
+				{/if}
 			</div>
-			<div class="flex-1 lg:w-auto">
-				<select
-					id="tipe-filter"
-					bind:value={tipeFilter}
-					onchange={updateFilters}
-					class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-				>
-					<option value="semua">Semua Tipe</option>
-					<option value="keluarga">Keluarga (50k)</option>
-					<option value="pemilik_kosong">Pemilik Kosong (25k)</option>
-				</select>
-			</div>
+			<select bind:value={statusFilter} onchange={updateFilters} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+				<option value="semua">Semua Status</option>
+				<option value="belum_bayar">Belum Bayar</option>
+				<option value="lunas">Lunas</option>
+			</select>
+			<select bind:value={tipeFilter} onchange={updateFilters} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+				<option value="semua">Semua Tipe</option>
+				<option value="keluarga">Keluarga (50k)</option>
+				<option value="pemilik_kosong">Pemilik Kosong (25k)</option>
+			</select>
 		</div>
 	</div>
 

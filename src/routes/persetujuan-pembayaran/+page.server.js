@@ -31,9 +31,9 @@ export const load = async ({ locals, url }) => {
 	params.push(statusFilter);
 
 	if (search) {
-		conditions.push('(pi.nomor_bukti LIKE ? OR pi.catatan LIKE ? OR k.nama LIKE ? OR br.no_blok LIKE ? OR pr.nama LIKE ?)');
+		conditions.push('(pi.catatan LIKE ? OR kk.nama LIKE ? OR br.no_blok LIKE ? OR pr.nama LIKE ?)');
 		const searchTerm = `%${search}%`;
-		params.push(searchTerm, searchTerm, searchTerm, searchTerm, searchTerm);
+		params.push(searchTerm, searchTerm, searchTerm, searchTerm);
 	}
 	if (metodeFilter !== 'semua') {
 		conditions.push('pi.metode_bayar = ?');
@@ -51,6 +51,7 @@ export const load = async ({ locals, url }) => {
 		LEFT JOIN tagihan_iuran ti ON pi.tagihan_id = ti.id
 		LEFT JOIN blok_rumah br ON ti.blok_rumah_id = br.id
 		LEFT JOIN keluarga k ON ti.keluarga_id = k.id
+		LEFT JOIN anggota_keluarga kk ON kk.keluarga_id = k.id AND kk.hub_keluarga = 'Kepala Keluarga'
 		LEFT JOIN pemilik_rumah pr ON ti.pemilik_rumah_id = pr.id
 		${whereClause}
 	`;

@@ -10,6 +10,7 @@ export const load = async ({ locals, url }) => {
 	const periode = url.searchParams.get('periode') || new Date().toISOString().slice(0, 7); // YYYY-MM
 	const statusFilter = url.searchParams.get('status') || 'semua'; // semua, belum_bayar, lunas
 	const tipeFilter = url.searchParams.get('tipe') || 'semua'; // semua, keluarga, pemilik_kosong
+	const search = url.searchParams.get('search')?.trim() || '';
 	const page = parseInt(url.searchParams.get('page') || '1');
 	const itemsPerPage = parseInt(url.searchParams.get('itemsPerPage') || '10');
 
@@ -35,12 +36,25 @@ export const load = async ({ locals, url }) => {
 			whereClause += ' AND ti.tipe_pembayar = ?';
 			params.push(tipeFilter);
 		}
+		if (search) {
+			whereClause += ' AND (br.no_blok LIKE ? OR k.no_kk LIKE ? OR kk.nama LIKE ? OR kk.nomor_hp LIKE ? OR pr.nama LIKE ? OR pr.no_hp LIKE ?)';
+			const searchParam = `%${search}%`;
+			params.push(searchParam, searchParam, searchParam, searchParam, searchParam, searchParam);
+		}
 
-		// Count total
-		const [countRows] = await conn.execute(
-			`SELECT COUNT(*) as total FROM tagihan_iuran ti ${whereClause}`,
-			params
-		);
+		// Count total - need JOINs if search is provided
+		let countSql = `SELECT COUNT(*) as total FROM tagihan_iuran ti`;
+		const countParams = [...params];
+		if (search) {
+			countSql += `
+				JOIN blok_rumah br ON ti.blok_rumah_id = br.id
+				LEFT JOIN keluarga k ON ti.keluarga_id = k.id
+				LEFT JOIN anggota_keluarga kk ON kk.keluarga_id = k.id AND kk.hub_keluarga = 'Kepala Keluarga'
+				LEFT JOIN pemilik_rumah pr ON ti.pemilik_rumah_id = pr.id
+			`;
+		}
+		countSql += ` ${whereClause}`;
+		const [countRows] = await conn.execute(countSql, countParams);
 		const total = countRows[0]?.total || 0;
 		const totalPages = Math.ceil(total / itemsPerPage) || 1;
 
@@ -73,7 +87,7 @@ export const load = async ({ locals, url }) => {
 			params
 		);
 
-		// Summary stats for current periode
+		// Summary stats for current periode (with same filters)
 		const [summaryRows] = await conn.execute(
 			`SELECT 
 				COUNT(*) as total_tagihan,
@@ -81,9 +95,13 @@ export const load = async ({ locals, url }) => {
 				SUM(CASE WHEN status = 'belum_bayar' THEN 1 ELSE 0 END) as total_belum_bayar,
 				SUM(nominal) as total_nominal,
 				SUM(CASE WHEN status = 'lunas' THEN nominal ELSE 0 END) as nominal_lunas
-			FROM tagihan_iuran 
-			WHERE periode = ?`,
-			[periode]
+			FROM tagihan_iuran ti
+			JOIN blok_rumah br ON ti.blok_rumah_id = br.id
+			LEFT JOIN keluarga k ON ti.keluarga_id = k.id
+			LEFT JOIN anggota_keluarga kk ON kk.keluarga_id = k.id AND kk.hub_keluarga = 'Kepala Keluarga'
+			LEFT JOIN pemilik_rumah pr ON ti.pemilik_rumah_id = pr.id
+			${whereClause}`,
+			params.slice(0, -2) // Remove LIMIT/OFFSET params
 		);
 		const summary = summaryRows[0] || {
 			total_tagihan: 0, total_lunas: 0, total_belum_bayar: 0, total_nominal: 0, nominal_lunas: 0
@@ -97,6 +115,7 @@ export const load = async ({ locals, url }) => {
 		return {
 			user,
 			periode,
+			search,
 			statusFilter,
 			tipeFilter,
 			page,

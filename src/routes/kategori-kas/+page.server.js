@@ -26,7 +26,7 @@ export const load = async ({ locals, url }) => {
 
 	const conditions = [];
 	if (search) {
-		conditions.push('(kode LIKE ? OR nama LIKE ?)');
+		conditions.push('(kk.kode LIKE ? OR kk.nama LIKE ?)');
 		const searchTerm = `%${search}%`;
 		params.push(searchTerm, searchTerm);
 	}
@@ -39,7 +39,7 @@ export const load = async ({ locals, url }) => {
 	}
 
 	// Total count
-	const countSql = `SELECT COUNT(*) as total FROM kategori_kas${whereClause}`;
+	const countSql = `SELECT COUNT(*) as total FROM kategori_kas kk${whereClause}`;
 	const countRows = await executeQuery(countSql, params);
 	const total = countRows[0]?.total || 0;
 	const totalPages = Math.ceil(total / itemsPerPage) || 1;

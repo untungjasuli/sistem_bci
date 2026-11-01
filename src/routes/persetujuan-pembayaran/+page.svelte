@@ -283,6 +283,12 @@
 		updateUrl();
 	}
 
+	function clearSearch() {
+		pagination.search = '';
+		pagination.page = 1;
+		updateUrl();
+	}
+
 	function changeFilter(filterName, value) {
 		pagination.page = 1;
 		pagination[filterName] = value;
@@ -359,50 +365,41 @@
 			<p class="text-gray-500 text-sm">Review dan approve pembayaran iuran dari petugas</p>
 		</div>
 		<div class="flex items-center gap-3 w-full lg:w-auto">
-			<form onsubmit={handleSearch} class="relative flex items-center flex-1 min-w-0">
-				<label class="sr-only" for="search-approve">Cari Nomor Bukti / Catatan / Nama / Blok</label>
-				<div class="relative w-full">
-					<input
-						type="text"
-						id="search-approve"
-						name="searchInput"
-						value={pagination.search}
-						placeholder="Nomor Bukti / Catatan / Nama / Blok..."
-						class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-						oninput={(e) => (pagination.search = e.currentTarget.value)}
-					/>
-					<i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-					{#if pagination.search}
-						<button
-							type="button"
-							onclick={() => { pagination.search = ''; handleSearch(new Event('submit')); }}
-							class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded hover:bg-gray-100 transition-colors"
-							title="Hapus pencarian"
-						>
-							<i class="fa-solid fa-times text-xs"></i>
-						</button>
-					{:else}
-						<button
-							type="submit"
-							class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-blue-600 rounded hover:bg-blue-50 transition-colors"
-							title="Cari"
-						>
-							<i class="fa-solid fa-magnifying-glass text-xs"></i>
-						</button>
-					{/if}
-				</div>
-			</form>
-			<select bind:value={pagination.metodeFilter} onchange={(e) => changeFilter('metodeFilter', e.target.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+			<div class="flex items-center gap-3 px-3 py-2 text-sm bg-yellow-50 border border-yellow-200 rounded-lg flex-shrink-0">
+				<i class="fa-solid fa-clock text-yellow-600"></i>
+				<span>{summary.total_pending} menunggu · {formatRupiah(summary.nominal_pending)}</span>
+			</div>
+		</div>
+	</div>
+
+	<!-- Search & Filter Card (mirip Surat RT) -->
+	<div class="bg-white rounded-lg shadow border border-gray-200 p-4 mb-6">
+		<form onsubmit={handleSearch} class="flex flex-col sm:flex-row gap-4">
+			<div class="relative flex-1 min-w-0">
+				<label class="sr-only">Cari Nomor Bukti / Catatan / Nama / Blok</label>
+				<input type="text" name="searchInput" value={pagination.search} placeholder="Nomor Bukti / Catatan / Nama / Blok..."
+					class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+					oninput={(e) => pagination.search = e.currentTarget.value}
+					enterkeyhint="go" />
+				<i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+				{#if pagination.search}
+					<button
+						type="button"
+						onclick={clearSearch}
+						class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded hover:bg-gray-100 transition-colors"
+						title="Hapus pencarian"
+					>
+						<i class="fa-solid fa-times text-xs"></i>
+					</button>
+				{/if}
+			</div>
+			<select bind:value={pagination.metodeFilter} onchange={(e) => changeFilter('metodeFilter', e.currentTarget.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
 				<option value="semua">Metode</option>
 				<option value="cash">Tunai</option>
 				<option value="qris">QRIS</option>
 				<option value="transfer">Transfer</option>
 			</select>
-			<div class="flex items-center gap-3 px-3 py-2 text-sm bg-yellow-50 border border-yellow-200 rounded-lg">
-				<i class="fa-solid fa-clock text-yellow-600"></i>
-				<span>{summary.total_pending} menunggu · {formatRupiah(summary.nominal_pending)}</span>
-			</div>
-		</div>
+		</form>
 	</div>
 
 	<!-- Batch Actions -->

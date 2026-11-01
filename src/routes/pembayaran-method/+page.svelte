@@ -225,6 +225,12 @@
 		updateUrl();
 	}
 
+	function clearSearch() {
+		pagination.search = '';
+		pagination.page = 1;
+		updateUrl();
+	}
+
 	function changeSort(newSortBy) {
 		if (pagination.sortBy === newSortBy) {
 			pagination.sort = pagination.sort === 'asc' ? 'desc' : 'asc';
@@ -289,39 +295,6 @@
 			<p class="text-gray-500 text-sm">Mapping metode pembayaran ke rekening kas</p>
 		</div>
 		<div class="flex items-center gap-3 w-full lg:w-auto">
-			<form onsubmit={handleSearch} class="relative flex items-center flex-1 min-w-0">
-				<label class="sr-only" for="search-method">Cari Kode / Nama / Kas</label>
-				<div class="relative w-full">
-					<input
-						type="text"
-						id="search-method"
-						name="searchInput"
-						value={pagination.search}
-						placeholder="Kode / Nama / Kas..."
-						class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-						oninput={(e) => (pagination.search = e.currentTarget.value)}
-					/>
-					<i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-					{#if pagination.search}
-						<button
-							type="button"
-							onclick={() => { pagination.search = ''; handleSearch(new Event('submit')); }}
-							class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded hover:bg-gray-100 transition-colors"
-							title="Hapus pencarian"
-						>
-							<i class="fa-solid fa-times text-xs"></i>
-						</button>
-					{:else}
-						<button
-							type="submit"
-							class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-blue-600 rounded hover:bg-blue-50 transition-colors"
-							title="Cari"
-						>
-							<i class="fa-solid fa-magnifying-glass text-xs"></i>
-						</button>
-					{/if}
-				</div>
-			</form>
 			<button
 				onclick={openAddModal}
 				class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex-shrink-0"
@@ -331,6 +304,30 @@
 				<span class="hidden lg:inline">Tambah Metode</span>
 			</button>
 		</div>
+	</div>
+
+	<!-- Search & Filter Card (mirip Surat RT) -->
+	<div class="bg-white rounded-lg shadow border border-gray-200 p-4 mb-6">
+		<form onsubmit={handleSearch} class="flex flex-col sm:flex-row gap-4">
+			<div class="relative flex-1 min-w-0">
+				<label class="sr-only">Cari Kode / Nama / Kas</label>
+				<input type="text" name="searchInput" value={pagination.search} placeholder="Kode / Nama / Kas..."
+					class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+					oninput={(e) => pagination.search = e.currentTarget.value}
+					enterkeyhint="go" />
+				<i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+				{#if pagination.search}
+					<button
+						type="button"
+						onclick={clearSearch}
+						class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded hover:bg-gray-100 transition-colors"
+						title="Hapus pencarian"
+					>
+						<i class="fa-solid fa-times text-xs"></i>
+					</button>
+				{/if}
+			</div>
+		</form>
 	</div>
 
 	<!-- Table -->

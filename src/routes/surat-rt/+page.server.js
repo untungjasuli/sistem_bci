@@ -57,7 +57,7 @@ export const load = async ({ locals, url }) => {
                 ak.nik, ak.nama, ak.nomor_hp,
                 k.no_kk, k.status_rumah,
                 b.no_blok,
-                u.nama as rt_pembuat_nama
+                u.name as rt_pembuat_nama
          FROM surat s
          JOIN jenis_surat js ON s.jenis_surat_id = js.id
          JOIN anggota_keluarga ak ON s.anggota_keluarga_id = ak.id

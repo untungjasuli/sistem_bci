@@ -20,7 +20,6 @@ export const load = async ({ cookies, url }) => {
 		       CASE WHEN COUNT(k.id) > 0 THEN 'Dihuni' ELSE 'Kosong' END as status
 		FROM blok_rumah b
 		LEFT JOIN keluarga k ON b.id = k.blok_rumah_id AND k.status_keluarga = 'aktif'
-		GROUP BY b.id, b.no_blok, b.created_at
 	`;
 	const params = [];
 
@@ -28,6 +27,10 @@ export const load = async ({ cookies, url }) => {
 		sql += ' WHERE b.no_blok LIKE ?';
 		params.push(`%${search}%`);
 	}
+
+	sql += `
+		GROUP BY b.id, b.no_blok, b.created_at
+	`;
 
 	const orderField = sortBy === 'status'
 		? "CASE WHEN COUNT(k.id) > 0 THEN 'Dihuni' ELSE 'Kosong' END"

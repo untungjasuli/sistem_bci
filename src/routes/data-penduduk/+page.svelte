@@ -81,6 +81,7 @@
 	// Search state - hanya update saat submit, bukan tiap ketik
 	let search = $state(data.search || '');
 	let pendingSearch = $state(data.search || ''); // untuk input sebelum submit
+	let blokFilter = $state(data.blokFilter || 'semua');
 
 	// Sort state
 	let sort = $state(data.sort || 'asc');
@@ -96,6 +97,7 @@
 		search = pendingSearch;
 		const params = new URLSearchParams();
 		if (search) params.set('search', search);
+		if (blokFilter !== 'semua') params.set('blok', blokFilter);
 		params.set('sort', sort);
 		params.set('sortBy', sortBy);
 		params.set('page', '1');
@@ -106,6 +108,7 @@
 	function onClearSearch() {
 		search = '';
 		pendingSearch = '';
+		blokFilter = 'semua';
 		const params = new URLSearchParams();
 		params.set('sort', sort);
 		params.set('sortBy', sortBy);
@@ -342,41 +345,6 @@
 			<p class="text-gray-500 text-sm">Kelola data anggota penduduk secara individual</p>
 		</div>
 		<div class="flex items-center gap-3 w-full lg:w-auto">
-			<form
-				onsubmit={handleSearchSubmit}
-				class="relative flex items-center flex-1 min-w-0"
-			>
-				<label class="sr-only">Cari NIK / Nama / KK / Blok</label>
-				<div class="relative w-full">
-					<input
-						type="text"
-						name="search"
-						value={pendingSearch}
-						placeholder="Cari NIK / Nama / KK / Blok..."
-						class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-						oninput={(e) => (pendingSearch = e.target.value)}
-					/>
-					<i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-					{#if search}
-						<button
-							type="button"
-							onclick={onClearSearch}
-							class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded hover:bg-gray-100 transition-colors"
-							title="Hapus pencarian"
-						>
-							<i class="fa-solid fa-times text-xs"></i>
-						</button>
-					{:else}
-						<button
-							type="submit"
-							class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-blue-600 rounded hover:bg-blue-50 transition-colors"
-							title="Cari"
-						>
-							<i class="fa-solid fa-magnifying-glass text-xs"></i>
-						</button>
-					{/if}
-				</div>
-			</form>
 			<button
 				onclick={openAddModal}
 				class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex-shrink-0"
@@ -386,6 +354,36 @@
 				<span class="hidden lg:inline">Tambah Keluarga</span>
 			</button>
 		</div>
+	</div>
+
+	<!-- Search & Filter Card (mirip Surat RT) -->
+	<div class="bg-white rounded-lg shadow border border-gray-200 p-4 mb-6">
+		<form onsubmit={handleSearchSubmit} class="flex flex-col sm:flex-row gap-4">
+			<div class="relative flex-1 min-w-0">
+				<label class="sr-only">Cari NIK / Nama / KK / Blok</label>
+				<input type="text" name="search" value={pendingSearch} placeholder="Cari NIK / Nama / KK / Blok..."
+					class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+					oninput={(e) => (pendingSearch = e.currentTarget.value)}
+					enterkeyhint="go" />
+				<i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+				{#if search}
+					<button
+						type="button"
+						onclick={onClearSearch}
+						class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded hover:bg-gray-100 transition-colors"
+						title="Hapus pencarian"
+					>
+						<i class="fa-solid fa-times text-xs"></i>
+					</button>
+				{/if}
+			</div>
+			<select bind:value={blokFilter} onchange={handleSearchSubmit} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+				<option value="semua">Semua Blok</option>
+				{#each blokRumahItems as b}
+					<option value={b.id}>{b.no_blok}</option>
+				{/each}
+			</select>
+		</form>
 	</div>
 
 	{#if displayItems.length > 0}
