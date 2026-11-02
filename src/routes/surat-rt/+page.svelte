@@ -356,6 +356,9 @@
                             </td>
                             <td class="px-6 py-4 text-right">
                                 <div class="flex items-center justify-end gap-1">
+                                    <button onclick={() => window.open(`/surat-rt/preview?id=${s.id}`, '_blank')} class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Preview & Cetak" aria-label="Preview Surat">
+                                        <i class="fa-solid fa-eye text-lg"></i>
+                                    </button>
                                     <button onclick={() => handleGeneratePDF(s.id)} class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Generate/Cetak PDF" aria-label="Generate PDF">
                                         <i class="fa-solid fa-file-pdf text-lg"></i>
                                     </button>
