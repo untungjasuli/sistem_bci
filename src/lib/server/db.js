@@ -7,6 +7,7 @@ const dbConfig = {
 	user: process.env.DB_USER || 'victor',
 	password: process.env.DB_PASSWORD || 'VictorAI2026!',
 	database: process.env.DB_NAME || 'sistem_bci',
+	charset: 'utf8mb4',
 	// Connection pool settings untuk production
 	waitForConnections: true,
 	connectionLimit: parseInt(process.env.DB_POOL_LIMIT || '10'),

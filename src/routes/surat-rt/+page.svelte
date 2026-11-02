@@ -1,7 +1,6 @@
 <script>
     import { page } from '$app/state';
     import { goto, invalidateAll } from '$app/navigation';
-    import { enhance } from '$app/forms';
 
     let { data } = $props();
 
@@ -13,6 +12,7 @@
     // Pagination
     let currentPage = $derived(parseInt(page.url.searchParams.get('page') || '1', 10));
     let itemsPerPage = $state(data.itemsPerPage || 10);
+    let totalPages = $derived(data.totalPages || 1);
     const itemsPerPageOptions = [10, 25, 50, 100];
 
     // Modal states
@@ -105,12 +105,13 @@
         goto(`?${params.toString()}`);
     }
 
-    function onFilterChange() {
+    function onClearSearch() {
+        search = '';
+        pendingSearch = '';
+        jenisFilter = 'semua';
+        statusFilter = 'semua';
+        blokFilter = 'semua';
         const params = new URLSearchParams();
-        if (search) params.set('search', search);
-        if (jenisFilter !== 'semua') params.set('jenis', jenisFilter);
-        if (statusFilter !== 'semua') params.set('status', statusFilter);
-        if (blokFilter !== 'semua') params.set('blok', blokFilter);
         params.set('page', '1');
         params.set('itemsPerPage', itemsPerPage.toString());
         goto(`?${params.toString()}`);
@@ -184,31 +185,43 @@
     }
 
     async function handleGeneratePDF(id) {
-        showToast('info', 'Membuat PDF...');
+            showToast('info', 'Membuat PDF...');
         
-        try {
-            const formData = new FormData();
-            formData.append('id', id);
+            try {
+                const formData = new FormData();
+                formData.append('id', id);
             
-            const res = await fetch('?/generatePDF', { method: 'POST', body: formData, credentials: 'include' });
-            const result = await res.json();
+                const res = await fetch('?/generatePDF', { method: 'POST', body: formData, credentials: 'include' });
+                const result = await res.json();
             
-            if (!res.ok || result.error) {
-                showToast('error', result.error || 'Gagal generate PDF');
-                return;
+                // Parse SvelteKit action response format
+                let actionResult = result;
+                if (result.data && typeof result.data === 'string') {
+                    try {
+                        const parsed = JSON.parse(result.data);
+                        if (Array.isArray(parsed) && parsed.length >= 2) {
+                            if (parsed[0]?.error) actionResult = { error: parsed[1] };
+                            else if (parsed[0]?.success) actionResult = { success: parsed[1], fileName: parsed[2], filePath: parsed[3] };
+                        } else if (typeof parsed === 'object') actionResult = parsed;
+                    } catch {}
+                }
+            
+                if (!res.ok || actionResult.error) {
+                    showToast('error', actionResult.error || 'Gagal generate PDF');
+                    return;
+                }
+            
+                showToast('success', actionResult.success || 'PDF berhasil digenerate');
+            
+                // Open PDF in new tab
+                if (actionResult.filePath) {
+                    window.open(actionResult.filePath, '_blank');
+                }
+            } catch (e) {
+                console.error('Generate PDF error:', e);
+                showToast('error', 'Gagal generate PDF');
             }
-
-            showToast('success', result.success);
-            
-            // Open PDF in new tab
-            if (result.filePath) {
-                window.open(result.filePath, '_blank');
-            }
-        } catch (e) {
-            console.error('Generate PDF error:', e);
-            showToast('error', 'Gagal generate PDF');
         }
-    }
 
     function formatDate(dateStr) {
         if (!dateStr) return '-';
@@ -226,7 +239,7 @@
 </script>
 
 {#if toast}
-    <div class="fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium flex items-center gap-3 animate-in fade-in slide-in-from-top-2"
+    <div class="fixed top-4 left-1/2 -translate-x-1/2 z-60 px-4 py-3 rounded-lg shadow-lg text-sm font-medium flex items-center gap-3 animate-in fade-in slide-in-from-top-2"
         class:bg-green-50={toast.type === 'success'}
         class:text-green-700={toast.type === 'success'}
         class:border-green-200={toast.type === 'success'}
@@ -261,23 +274,34 @@
             <div class="relative flex-1 min-w-0">
                 <label class="sr-only">Cari Nomor/Nama/NIK/KK</label>
                 <input type="text" name="search" value={pendingSearch} placeholder="Cari Nomor Surat / Nama / NIK / KK..."
-                    class="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-                    oninput={(e) => pendingSearch = e.target.value} />
+                    class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                    oninput={(e) => pendingSearch = e.target.value}
+                    enterkeyhint="go" />
                 <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                {#if search}
+                    <button
+                        type="button"
+                        onclick={onClearSearch}
+                        class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-red-600 rounded transition-colors"
+                        title="Hapus pencarian"
+                    >
+                        <i class="fa-solid fa-times text-xs"></i>
+                    </button>
+                {/if}
             </div>
-            <select bind:value={jenisFilter} onchange={onFilterChange} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+            <select bind:value={jenisFilter} onchange={handleSearchSubmit} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
                 <option value="semua">Semua Jenis</option>
                 {#each jenisSurat as j}
                     <option value={j.id}>{j.kode} - {j.nama}</option>
                 {/each}
             </select>
-            <select bind:value={statusFilter} onchange={onFilterChange} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+            <select bind:value={statusFilter} onchange={handleSearchSubmit} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
                 <option value="semua">Semua Status</option>
                 <option value="selesai">Selesai</option>
                 <option value="draft">Draft</option>
                 <option value="dibatalkan">Dibatalkan</option>
             </select>
-            <select bind:value={blokFilter} onchange={onFilterChange} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+            <select bind:value={blokFilter} onchange={handleSearchSubmit} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
                 <option value="semua">Semua Blok</option>
                 {#each blokRumah as b}
                     <option value={b.id}>{b.no_blok}</option>
@@ -365,7 +389,7 @@
                     <h3 class="text-lg font-bold text-gray-900">Buat Surat Baru</h3>
                     <button onclick={closeModal} class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa-solid fa-times text-xl"></i></button>
                 </div>
-                <form onsubmit={handleCreate} class="p-4 space-y-4" use:enhance>
+                <form onsubmit={handleCreate} method="POST" class="p-4 space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="sm:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Surat <span class="text-red-500">*</span></label>

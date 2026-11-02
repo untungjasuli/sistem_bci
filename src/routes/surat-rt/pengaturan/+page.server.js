@@ -2,6 +2,7 @@ import { redirect, error, fail } from '@sveltejs/kit';
 import { executeQuery } from '#lib/server/db';
 
 const SETTING_KEYS = [
+    { key: 'perumahan_nama', label: 'Nama Perumahan', type: 'text', placeholder: 'Contoh: Perumahan Griya Indah', required: true },
     { key: 'rt_no', label: 'Nomor RT', type: 'text', placeholder: 'Contoh: 001', required: true },
     { key: 'rw_no', label: 'Nomor RW', type: 'text', placeholder: 'Contoh: 002', required: true },
     { key: 'rt_alamat', label: 'Alamat Lengkap RT', type: 'textarea', placeholder: 'Contoh: Jl. Mawar No. 10, Kel. Melati, Kec. Mawar, Kota Bandung', required: true },
@@ -15,7 +16,9 @@ export const load = async ({ locals }) => {
     const user = locals.user;
     if (!user) throw redirect(303, '/login');
 
-    const [rows] = await executeQuery('SELECT `key`, `value` FROM settings WHERE `key` IN (?)', [SETTING_KEYS.map(s => s.key)]);
+    const keys = SETTING_KEYS.map(s => s.key);
+    const placeholders = keys.map(() => '?').join(',');
+    const rows = await executeQuery(`SELECT \`key\`, \`value\` FROM settings WHERE \`key\` IN (${placeholders})`, keys);
     
     const settings = {};
     rows.forEach(r => { settings[r.key] = r.value; });

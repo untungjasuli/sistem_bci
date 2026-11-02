@@ -36,7 +36,7 @@ export const load = async ({ locals, url }) => {
     }
 
     // Count total
-    const [countRows] = await executeQuery(
+    const countRows = await executeQuery(
         `SELECT COUNT(*) as total FROM surat s
          JOIN jenis_surat js ON s.jenis_surat_id = js.id
          JOIN anggota_keluarga ak ON s.anggota_keluarga_id = ak.id
@@ -52,7 +52,7 @@ export const load = async ({ locals, url }) => {
     const offset = (page - 1) * itemsPerPage;
     params.push(itemsPerPage, offset);
 
-    const [rows] = await executeQuery(
+    const rows = await executeQuery(
         `SELECT s.*, js.kode as jenis_kode, js.nama as jenis_nama,
                 ak.nik, ak.nama, ak.nomor_hp,
                 k.no_kk, k.status_rumah,
@@ -71,12 +71,17 @@ export const load = async ({ locals, url }) => {
     );
 
     // Get filter options
-    const [jenisSurat] = await executeQuery('SELECT id, kode, nama FROM jenis_surat WHERE aktif = TRUE ORDER BY urutan');
-    const [blokRumah] = await executeQuery('SELECT id, no_blok FROM blok_rumah ORDER BY no_blok');
+    const jenisSuratRaw = await executeQuery('SELECT id, kode, nama FROM jenis_surat WHERE aktif = TRUE ORDER BY urutan');
+    const blokRumahRaw = await executeQuery('SELECT id, no_blok FROM blok_rumah ORDER BY no_blok');
+    
+    // Convert RowDataPacket to plain objects for proper SvelteKit serialization
+    const jenisSurat = jenisSuratRaw.map(r => ({ id: r.id, kode: r.kode, nama: r.nama }));
+    const blokRumah = blokRumahRaw.map(r => ({ id: r.id, no_blok: r.no_blok }));
+    const surat = rows.map(r => ({ ...r }));
 
     return {
         user,
-        surat: rows,
+        surat,
         jenisSurat,
         blokRumah,
         page,
@@ -107,19 +112,19 @@ export const actions = {
 
         try {
             // Get jenis surat for kode
-            const [jsRows] = await executeQuery('SELECT kode FROM jenis_surat WHERE id = ?', [jenis_surat_id]);
+            const jsRows = await executeQuery('SELECT kode FROM jenis_surat WHERE id = ?', [jenis_surat_id]);
             if (!jsRows.length) return fail(400, { error: 'Jenis surat tidak ditemukan' });
             const kode = jsRows[0].kode;
 
             // Get RT no for nomor surat
-            const [rtRows] = await executeQuery('SELECT `value` FROM settings WHERE `key` = "rt_no"');
+            const rtRows = await executeQuery('SELECT `value` FROM settings WHERE `key` = "rt_no"');
             const rtNo = rtRows[0]?.value || '001';
 
             // Get current year
             const year = new Date(tanggal_surat).getFullYear();
 
             // Get next sequence number
-            const [seqRows] = await executeQuery(
+            const seqRows = await executeQuery(
                 'SELECT COUNT(*) as cnt FROM surat WHERE jenis_surat_id = ? AND YEAR(tanggal_surat) = ?',
                 [jenis_surat_id, year]
             );
@@ -128,7 +133,7 @@ export const actions = {
             const nomor_surat = `${kode}/RT${rtNo}/${year}/${String(nextSeq).padStart(3, '0')}`;
 
             // Get warga data for variabel
-            const [wargaRows] = await executeQuery(
+            const wargaRows = await executeQuery(
                 `SELECT ak.*, k.no_kk, k.status_rumah, b.no_blok
                  FROM anggota_keluarga ak
                  JOIN keluarga k ON ak.keluarga_id = k.id
@@ -140,13 +145,17 @@ export const actions = {
             const warga = wargaRows[0];
 
             // Get RT settings
-            const [settingsRows] = await executeQuery('SELECT `key`, `value` FROM settings WHERE `key` IN ("rt_no", "rw_no", "rt_alamat", "rt_nama", "rt_nip", "rw_nama", "rw_nip")');
+            const settingsRows = await executeQuery('SELECT `key`, `value` FROM settings WHERE `key` IN ("perumahan_nama", "rt_no", "rw_no", "rt_alamat", "rt_nama", "rt_nip", "rw_nama", "rw_nip")');
             const settings = {};
             settingsRows.forEach(s => { settings[s.key] = s.value; });
 
-            // Get jenis surat template
-            const [jsTemplate] = await executeQuery('SELECT template_html FROM jenis_surat WHERE id = ?', [jenis_surat_id]);
+            // Get jenis surat template dan variabel_default
+            const jsTemplate = await executeQuery('SELECT template_html, variabel_default FROM jenis_surat WHERE id = ?', [jenis_surat_id]);
             const template_html = jsTemplate[0]?.template_html || '';
+            const rawVariabelDefault = jsTemplate[0]?.variabel_default;
+            const variabelDefault = rawVariabelDefault && typeof rawVariabelDefault === 'string' 
+                ? JSON.parse(rawVariabelDefault) 
+                : (rawVariabelDefault || {});
 
             // Build variabel
             const formatDate = (dateStr) => {
@@ -170,12 +179,15 @@ export const actions = {
                 alamat_rt: settings.rt_alamat || '-',
                 rt: settings.rt_no || '001',
                 rw: settings.rw_no || '002',
+                perumahan_nama: settings.perumahan_nama || '-',
+                blok_rumah: warga.no_blok || '-',
                 nama_rt: settings.rt_nama || '-',
                 nip_rt: settings.rt_nip || '-',
                 nama_rw: settings.rw_nama || '-',
                 nip_rw: settings.rw_nip || '-',
                 tanggal_surat: formatDate(tanggal_surat),
-                keperluan: keterangan_keperluan
+                keperluan: keterangan_keperluan,
+                ...variabelDefault
             };
 
             // Insert surat
@@ -207,7 +219,7 @@ export const actions = {
 
         try {
             // Get file path before delete
-            const [rows] = await executeQuery('SELECT file_pdf_path FROM surat WHERE id = ?', [id]);
+            const rows = await executeQuery('SELECT file_pdf_path FROM surat WHERE id = ?', [id]);
             if (rows.length) {
                 const filePath = rows[0].file_pdf_path;
                 if (filePath) {
@@ -235,7 +247,7 @@ export const actions = {
         if (!id) return fail(400, { error: 'ID surat tidak valid' });
 
         try {
-            const [rows] = await executeQuery(
+            const rows = await executeQuery(
                 `SELECT s.*, js.kode as jenis_kode
                  FROM surat s
                  JOIN jenis_surat js ON s.jenis_surat_id = js.id

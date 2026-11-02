@@ -1,8 +1,8 @@
 import { json } from '@sveltejs/kit';
 import { executeQuery } from '#lib/server/db';
 
-export const GET = async ({ url, cookies }) => {
-    const user = cookies.get('session_user');
+export const GET = async ({ url, locals }) => {
+    const user = locals.user;
     if (!user) {
         return json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -13,7 +13,7 @@ export const GET = async ({ url, cookies }) => {
     }
 
     try {
-        const [rows] = await executeQuery(
+        const rows = await executeQuery(
             `SELECT ak.id, ak.nik, ak.nama, ak.jenis_kelamin, ak.tanggal_lahir, ak.hub_keluarga,
                     k.no_kk, k.status_rumah, b.no_blok
              FROM anggota_keluarga ak

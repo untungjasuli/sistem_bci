@@ -5,7 +5,7 @@ export const load = async ({ locals }) => {
     const user = locals.user;
     if (!user) throw redirect(303, '/login');
 
-    const [jenisSurat] = await executeQuery('SELECT * FROM jenis_surat ORDER BY urutan, id');
+    const jenisSurat = await executeQuery('SELECT * FROM jenis_surat ORDER BY urutan, id');
 
     return { user, jenisSurat };
 };

@@ -1,24 +1,42 @@
 <script>
     import { page } from '$app/state';
-    import { goto, invalidateAll } from '$app/navigation';
+    import { invalidateAll } from '$app/navigation';
+    import JenisSuratModal from './JenisSuratModal.svelte';
 
     let { data } = $props();
 
     let items = $derived(data.jenisSurat || []);
+    let toast = $state(null);
+
+    // Standard variables available in all templates
+    const standardVariables = [
+        { key: 'nama', label: 'Nama Lengkap', category: 'Penduduk' },
+        { key: 'nik', label: 'NIK', category: 'Penduduk' },
+        { key: 'tempat_lahir', label: 'Tempat Lahir', category: 'Penduduk' },
+        { key: 'tanggal_lahir', label: 'Tanggal Lahir', category: 'Penduduk' },
+        { key: 'jenis_kelamin', label: 'Jenis Kelamin', category: 'Penduduk' },
+        { key: 'agama', label: 'Agama', category: 'Penduduk' },
+        { key: 'pekerjaan', label: 'Pekerjaan', category: 'Penduduk' },
+        { key: 'status_perkawinan', label: 'Status Perkawinan', category: 'Penduduk' },
+        { key: 'no_kk', label: 'No. KK', category: 'Keluarga' },
+        { key: 'alamat_rt', label: 'Alamat Lengkap RT', category: 'Lokasi' },
+        { key: 'rt', label: 'Nomor RT', category: 'Lokasi' },
+        { key: 'rw', label: 'Nomor RW', category: 'Lokasi' },
+        { key: 'perumahan_nama', label: 'Nama Perumahan', category: 'Lokasi' },
+        { key: 'blok_rumah', label: 'No. Blok Rumah', category: 'Lokasi' },
+        { key: 'nama_rt', label: 'Nama RT', category: 'Petugas' },
+        { key: 'nip_rt', label: 'NIP RT', category: 'Petugas' },
+        { key: 'nama_rw', label: 'Nama RW', category: 'Petugas' },
+        { key: 'nip_rw', label: 'NIP RW', category: 'Petugas' },
+        { key: 'tanggal_surat', label: 'Tanggal Surat', category: 'Surat' },
+        { key: 'keperluan', label: 'Keperluan', category: 'Surat' },
+        { key: 'nomor_surat', label: 'Nomor Surat', category: 'Surat' }
+    ];
+
+    // Modal state
     let showModal = $state(false);
     let isEditing = $state(false);
-    let editingId = $state('');
-
-    let formKode = $state('');
-    let formNama = $state('');
-    let formDeskripsi = $state('');
-    let formTemplate = $state('');
-    let formVariabel = $state('{}');
-	let placeholderVariabel = '{"nama_ayah": "", "nama_ibu": ""}';
-    let formUrutan = $state(0);
-    let formAktif = $state(true);
-
-    let toast = $state(null);
+    let editingItem = $state(null);
 
     function showToast(type, message) {
         toast = { type, message };
@@ -30,62 +48,23 @@
 
     function openAddModal() {
         isEditing = false;
-        editingId = '';
-        formKode = '';
-        formNama = '';
-        formDeskripsi = '';
-        formTemplate = '';
-        formVariabel = '{}';
-        formUrutan = 0;
-        formAktif = true;
+        editingItem = null;
         showModal = true;
     }
 
     function openEditModal(item) {
         isEditing = true;
-        editingId = item.id;
-        formKode = item.kode;
-        formNama = item.nama;
-        formDeskripsi = item.deskripsi || '';
-        formTemplate = item.template_html || '';
-        formVariabel = item.variabel_default || '{}';
-        formUrutan = item.urutan || 0;
-        formAktif = item.aktif;
+        editingItem = item;
         showModal = true;
     }
 
     function closeModal() {
         showModal = false;
         isEditing = false;
-        editingId = '';
-        formKode = '';
-        formNama = '';
-        formDeskripsi = '';
-        formTemplate = '';
-        formVariabel = '{}';
-        formUrutan = 0;
-        formAktif = true;
+        editingItem = null;
     }
 
-    async function handleSubmit(e) {
-        e.preventDefault();
-        if (!formKode || !formNama) {
-            showToast('error', 'Kode dan Nama wajib diisi');
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('id', editingId);
-        formData.append('kode', formKode);
-        formData.append('nama', formNama);
-        formData.append('deskripsi', formDeskripsi);
-        formData.append('template_html', formTemplate);
-        formData.append('variabel_default', formVariabel);
-        formData.append('urutan', formUrutan);
-        formData.append('aktif', formAktif ? 'on' : '');
-
-        const action = isEditing ? 'update' : 'create';
-
+    async function handleModalSubmit(action, formData) {
         try {
             const res = await fetch(`?/${action}`, { method: 'POST', body: formData, credentials: 'include' });
             const result = await res.json();
@@ -112,6 +91,25 @@
         } catch (e) {
             console.error('Save error:', e);
             showToast('error', 'Gagal menyimpan');
+        }
+    }
+
+    async function handleModalDelete(formData) {
+        try {
+            const res = await fetch('?/delete', { method: 'POST', body: formData, credentials: 'include' });
+            const result = await res.json();
+
+            if (!res.ok || result.error) {
+                showToast('error', result.error || 'Gagal menghapus');
+                return;
+            }
+
+            showToast('success', result.success || 'Berhasil dihapus');
+            closeModal();
+            await invalidateAll();
+        } catch (e) {
+            console.error('Delete error:', e);
+            showToast('error', 'Gagal menghapus');
         }
     }
 
@@ -208,59 +206,14 @@
         </div>
     {/if}
 
-    <!-- Modal -->
-    {#if showModal}
-        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onclick={closeModal}>
-            <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto border border-gray-200" onclick={(e) => e.stopPropagation()}>
-                <div class="flex items-center justify-between p-4 border-b border-gray-200 sticky top-0 bg-white rounded-t-lg">
-                    <h3 class="text-lg font-bold text-gray-900">{isEditing ? 'Edit' : 'Tambah'} Jenis Surat</h3>
-                    <button onclick={closeModal} class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fa-solid fa-times text-xl"></i></button>
-                </div>
-                <form onsubmit={handleSubmit} class="p-4 space-y-4">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Kode <span class="text-red-500">*</span></label>
-                            <input type="text" bind:value={formKode} required maxlength="10" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors uppercase" placeholder="Contoh: SKD, SKTM" />
-                            <p class="text-xs text-gray-500 mt-1">2-10 huruf kapital, unik</p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Urutan</label>
-                            <input type="number" bind:value={formUrutan} min="0" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors" />
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Surat <span class="text-red-500">*</span></label>
-                            <input type="text" bind:value={formNama} required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors" placeholder="Contoh: Surat Keterangan Domisili" />
-                        </div>
-                        <div class="sm:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" bind:checked={formAktif} class="text-blue-600 focus:ring-blue-500 rounded" />
-                                <span class="text-sm text-gray-700">Aktif (tampil di form buat surat)</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
-                        <textarea bind:value={formDeskripsi} rows="2" placeholder="Deskripsi singkat kegunaan surat" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Variabel Default (JSON)</label>
-                        <textarea bind:value={formVariabel} rows="3" placeholder={placeholderVariabel} class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors font-mono text-xs"></textarea>
-                        <p class="text-xs text-gray-500 mt-1">Variabel tambahan untuk template (opsional)</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Template HTML</label>
-                        <textarea bind:value={formTemplate} rows="15" placeholder="Template HTML dengan variabel {{variabel}}..." class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors font-mono text-xs" style="font-family: monospace;"></textarea>
-                        <p class="text-xs text-gray-500 mt-1">Gunakan <code>{{nama_variabel}}</code> untuk placeholder. Variabel standar: nama, nik, tempat_lahir, tanggal_lahir, jenis_kelamin, agama, pekerjaan, status_perkawinan, no_kk, alamat_rt, rt, rw, nama_rt, nip_rt, nama_rw, nip_rw, tanggal_surat, keperluan, nomor_surat</p>
-                    </div>
-                    <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
-                        <button type="button" onclick={closeModal} class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Batal</button>
-                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2"><i class="fa-solid fa-save mr-2"></i> {isEditing ? 'Update' : 'Simpan'}</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    {/if}
+    <!-- Modal Component -->
+    <JenisSuratModal
+        show={showModal}
+        isEditing={isEditing}
+        initialData={editingItem}
+        standardVariables={standardVariables}
+        onClose={closeModal}
+        onSubmit={handleModalSubmit}
+        onDelete={handleModalDelete}
+    />
 </div>

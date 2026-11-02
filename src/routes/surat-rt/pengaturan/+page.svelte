@@ -137,6 +137,7 @@
                         Variabel Otomatis di Template Surat
                     </h3>
                     <ul class="text-sm text-blue-800 space-y-1">
+                        <li><code>perumahan_nama</code> → Nama Perumahan</li>
                         <li><code>rt</code> → Nomor RT (dari pengaturan di atas)</li>
                         <li><code>rw</code> → Nomor RW</li>
                         <li><code>alamat_rt</code> → Alamat Lengkap RT</li>
@@ -145,7 +146,10 @@
                         <li><code>nama_rw</code> → Nama RW</li>
                         <li><code>nip_rw</code> → NIP RW</li>
                     </ul>
-                    <p class="text-xs text-blue-700 mt-2">Variabel ini otomatis tersedia di semua template surat sebagai <code>{{rt}}</code>, <code>{{rw}}</code>, <code>{{alamat_rt}}</code>, dst.</p>
+                    <p class="text-xs text-blue-700 mt-2">
+                        Variabel ini otomatis tersedia di semua template surat sebagai
+                        {@html '`<code>{{perumahan_nama}}</code>, <code>{{rt}}</code>, <code>{{rw}}</code>, <code>{{alamat_rt}}</code>, dst.`'}
+                    </p>
                 </div>
             </div>
 
