@@ -5,11 +5,10 @@ const CSS_A4 = `
 <style>
 /* Reset & Base */
 * { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; height: 100%; }
+html, body { margin: 0; padding: 0; height: auto; }
 body {
     font-family: 'Helvetica', 'Arial', 'DejaVu Sans', sans-serif;
     font-size: 11pt;
-    line-height: 1.6;
     color: #111827;
     background: white;
 }
@@ -26,25 +25,25 @@ body {
 }
 
 /* ProseMirror / TipTap Content Styles */
-.ProseMirror { outline: none; min-height: 300px; line-height: 1.6; }
+.ProseMirror { outline: none; }
 
 /* Headings */
 .ProseMirror h1 {
-    font-size: 2rem;
+    font-size: 16pt;
     font-weight: 700;
     line-height: 1.3;
     margin: 1.5rem 0 0.75rem;
     color: #111827;
 }
 .ProseMirror h2 {
-    font-size: 1.5rem;
+    font-size: 15pt;
     font-weight: 600;
     line-height: 1.4;
     margin: 1.25rem 0 0.5rem;
     color: #1f2937;
 }
 .ProseMirror h3 {
-    font-size: 1.25rem;
+    font-size: 14pt;
     font-weight: 600;
     line-height: 1.4;
     margin: 1rem 0 0.5rem;
@@ -58,7 +57,7 @@ body {
 .ProseMirror [style*="text-align: left"] { text-align: left; }
 
 /* Paragraph */
-.ProseMirror p { margin: 0.5rem 0; }
+.ProseMirror p { margin: 1.5pt 0 0 0; }
 
 /* Lists */
 .ProseMirror ul { list-style-type: disc; padding-left: 1.5rem; margin: 0.5rem 0; }
@@ -105,7 +104,7 @@ body {
 
 /* Table */
 .ProseMirror table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
-.ProseMirror th, .ProseMirror td { border: 1px solid #d1d5db; padding: 0.5rem; text-align: left; }
+.ProseMirror th, .ProseMirror td { text-align: left; vertical-align: text-top;}
 .ProseMirror th { background-color: #f3f4f6; font-weight: 600; }
 
 /* Strong, Em, etc */

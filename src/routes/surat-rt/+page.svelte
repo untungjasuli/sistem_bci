@@ -359,9 +359,9 @@
                                     <button onclick={() => window.open(`/surat-rt/preview?id=${s.id}`, '_blank')} class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Preview & Cetak" aria-label="Preview Surat">
                                         <i class="fa-solid fa-eye text-lg"></i>
                                     </button>
-                                    <button onclick={() => handleGeneratePDF(s.id)} class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Generate/Cetak PDF" aria-label="Generate PDF">
+                                    <!-- <button onclick={() => handleGeneratePDF(s.id)} class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="Generate/Cetak PDF" aria-label="Generate PDF">
                                         <i class="fa-solid fa-file-pdf text-lg"></i>
-                                    </button>
+                                    </button> -->
                                     <button type="button" onclick={() => handleDelete(s.id)} class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Hapus" aria-label="Hapus">
                                         <i class="fa-regular fa-trash-can text-lg"></i>
                                     </button>
