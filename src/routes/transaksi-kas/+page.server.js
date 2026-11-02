@@ -101,8 +101,12 @@ export const load = async ({ locals, url }) => {
 	const summary = summaryRows[0] || { total_debit: 0, total_kredit: 0, total_pending: 0, total_rejected: 0 };
 
 	// Get filter options
-	const kasAccounts = await executeQuery('SELECT id, kode, nama, tipe FROM kas_account WHERE is_active = 1 ORDER BY kode');
-	const kategoriKas = await executeQuery('SELECT id, kode, nama, tipe FROM kategori_kas WHERE is_active = 1 ORDER BY tipe, urutan, nama');
+	const kasAccountsRaw = await executeQuery('SELECT id, kode, nama, tipe FROM kas_account WHERE is_active = 1 ORDER BY kode');
+	const kategoriKasRaw = await executeQuery('SELECT id, kode, nama, tipe FROM kategori_kas WHERE is_active = 1 ORDER BY tipe, urutan, nama');
+
+	// Serialize to clean RowDataPacket
+	const kasAccounts = JSON.parse(JSON.stringify(kasAccountsRaw));
+	const kategoriKas = JSON.parse(JSON.stringify(kategoriKasRaw));
 
 	const itemsPerPageOptions = [10, 25, 50, 100];
 

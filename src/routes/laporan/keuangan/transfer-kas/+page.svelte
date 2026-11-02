@@ -139,7 +139,7 @@
 			<div class="w-full sm:w-48">
 				<select id="kas-filter" value={filter.kasFilter} onchange={onKasChange} class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
 					<option value="semua">Semua Kas</option>
-					{#each kasAccounts as ka}<option value={ka.id}>{ka.kode} - {ka.nama}</option>{/each}
+					{#each kasAccounts as ka}<option value={String(ka.id)}>{ka.kode} - {ka.nama}</option>{/each}
 				</select>
 			</div>
 			<div class="w-full sm:w-48">

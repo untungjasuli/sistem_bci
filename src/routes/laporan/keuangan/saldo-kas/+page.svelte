@@ -149,8 +149,8 @@
 				>
 					<option value="semua">Semua Kas</option>
 					{#each kasAccounts as ka}
-						<option value={ka.id}>{ka.kode} - {ka.nama}</option>
-					{/each}
+										<option value={String(ka.id)}>{ka.kode} - {ka.nama}</option>
+									{/each}
 				</select>
 			</div>
 		</form>

@@ -117,6 +117,17 @@
         goto(`?${params.toString()}`);
     }
 
+    function onItemsPerPageChange() {
+        const params = new URLSearchParams();
+        if (search) params.set('search', search);
+        if (jenisFilter !== 'semua') params.set('jenis', jenisFilter);
+        if (statusFilter !== 'semua') params.set('status', statusFilter);
+        if (blokFilter !== 'semua') params.set('blok', blokFilter);
+        params.set('page', '1');
+        params.set('itemsPerPage', itemsPerPage.toString());
+        goto(`?${params.toString()}`);
+    }
+
     async function handleCreate(e) {
         e.preventDefault();
         
@@ -292,7 +303,7 @@
             <select bind:value={jenisFilter} onchange={handleSearchSubmit} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
                 <option value="semua">Semua Jenis</option>
                 {#each jenisSurat as j}
-                    <option value={j.id}>{j.kode} - {j.nama}</option>
+                    <option value={String(j.id)}>{j.kode} - {j.nama}</option>
                 {/each}
             </select>
             <select bind:value={statusFilter} onchange={handleSearchSubmit} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
@@ -304,7 +315,7 @@
             <select bind:value={blokFilter} onchange={handleSearchSubmit} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
                 <option value="semua">Semua Blok</option>
                 {#each blokRumah as b}
-                    <option value={b.id}>{b.no_blok}</option>
+                    <option value={String(b.id)}>{b.no_blok}</option>
                 {/each}
             </select>
         </form>
@@ -363,7 +374,7 @@
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-4 py-3 bg-white border border-gray-200 rounded-lg">
             <div class="flex items-center gap-3">
                 <label for="items-per-page" class="text-sm text-gray-700">Tampilkan</label>
-                <select id="items-per-page" bind:value={itemsPerPage} onchange={onFilterChange} class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+                <select id="items-per-page" bind:value={itemsPerPage} onchange={onItemsPerPageChange} class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
                     {#each itemsPerPageOptions as opt}<option value={opt}>{opt} per halaman</option>{/each}
                 </select>
             </div>
@@ -405,7 +416,7 @@
                             <select bind:value={formBlokId} required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
                                 <option value="">-- Pilih Blok --</option>
                                 {#each blokRumah as b}
-                                    <option value={b.id}>{b.no_blok}</option>
+                                    <option value={String(b.id)}>{b.no_blok}</option>
                                 {/each}
                             </select>
                         </div>
@@ -419,7 +430,7 @@
                         <select bind:value={formAnggotaId} required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
                             <option value="">-- Pilih Blok Terlebih Dahulu --</option>
                             {#each formWargaOptions as w}
-                                <option value={w.id}>{w.nama} (NIK: {w.nik}) - KK: {w.no_kk}</option>
+                                <option value={String(w.id)}>{w.nama} (NIK: {w.nik}) - KK: {w.no_kk}</option>
                             {/each}
                         </select>
                         {#if !formBlokId}<p class="text-xs text-gray-500 mt-1">Pilih blok rumah terlebih dahulu untuk memuat daftar warga</p>{/if}

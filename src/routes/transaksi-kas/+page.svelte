@@ -434,13 +434,13 @@
 			<select bind:value={pagination.kasFilter} onchange={(e) => changeFilter('kasFilter', e.currentTarget.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
 				<option value="semua">Semua Kas</option>
 				{#each kasAccounts as ka}
-					<option value={ka.id}>{ka.kode} - {ka.nama}</option>
+					<option value={String(ka.id)}>{ka.kode} - {ka.nama}</option>
 				{/each}
 			</select>
 			<select bind:value={pagination.kategoriFilter} onchange={(e) => changeFilter('kategoriFilter', e.currentTarget.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
 				<option value="semua">Semua Kategori</option>
 				{#each kategoriKas as kk}
-					<option value={kk.id}>{kk.kode} - {kk.nama}</option>
+					<option value={String(kk.id)}>{kk.kode} - {kk.nama}</option>
 				{/each}
 			</select>
 			<select bind:value={pagination.tipeFilter} onchange={(e) => changeFilter('tipeFilter', e.currentTarget.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">

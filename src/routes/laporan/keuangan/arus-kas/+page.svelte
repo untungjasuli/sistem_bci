@@ -170,8 +170,8 @@
 				>
 					<option value="semua">Semua Kas</option>
 					{#each kasAccounts as ka}
-						<option value={ka.id}>{ka.kode} - {ka.nama}</option>
-					{/each}
+										<option value={String(ka.id)}>{ka.kode} - {ka.nama}</option>
+									{/each}
 				</select>
 			</div>
 			<div class="w-full sm:w-60">
@@ -183,8 +183,8 @@
 				>
 					<option value="semua">Semua Kategori</option>
 					{#each kategoriKas as kk}
-						<option value={kk.id}>{kk.kode} - {kk.nama}</option>
-					{/each}
+										<option value={String(kk.id)}>{kk.kode} - {kk.nama}</option>
+									{/each}
 				</select>
 			</div>
 			<div class="w-full sm:w-48">

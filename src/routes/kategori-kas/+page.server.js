@@ -31,7 +31,7 @@ export const load = async ({ locals, url }) => {
 		params.push(searchTerm, searchTerm);
 	}
 	if (tipeFilter !== 'semua') {
-		conditions.push('tipe = ?');
+		conditions.push('kk.tipe = ?');
 		params.push(tipeFilter);
 	}
 	if (conditions.length > 0) {

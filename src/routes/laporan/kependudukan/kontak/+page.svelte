@@ -189,7 +189,7 @@
 			</div>
 			<select bind:value={filter.blokFilter} onchange={onBlokChange} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
 				<option value="semua">Semua Blok</option>
-				{#each blokRumah as b}<option value={b.id}>{b.no_blok}</option>{/each}
+				{#each blokRumah as b}<option value={String(b.id)}>{b.no_blok}</option>{/each}
 			</select>
 		</form>
 	</div>
