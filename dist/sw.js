@@ -77,12 +77,6 @@ define(['./workbox-afac4cd2'], (function (workbox) { 'use strict';
    * See https://goo.gl/S9QRab
    */
   workbox.precacheAndRoute([{
-    "url": "favicon.png",
-    "revision": "818022fe7ac5d4afd4b3e30fcb0a630c"
-  }, {
-    "url": "robots.txt",
-    "revision": "d2ab914a1820906bd49451cb0a108119"
-  }, {
     "url": "icons/icon-128x128.png",
     "revision": "ddb7e6c143dcbbc44928916ea2e045e4"
   }, {

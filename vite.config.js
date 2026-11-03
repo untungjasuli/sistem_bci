@@ -2,20 +2,29 @@ import adapter from '@sveltejs/adapter-node';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import { writeFileSync, existsSync, cpSync, readdirSync } from 'fs';
 
 export default defineConfig({
-
 	plugins: [
 		sveltekit({
 				compilerOptions: {
 					runes: ({ filename }) =>
 						filename.split(/[/\\]/).includes('node_modules') ? undefined : true
 				},
-				adapter: adapter({ out: 'build' })
+				adapter: adapter({ out: 'build' }),
+				csrf: {
+					trustedOrigins: ['http://localhost:3100', 'http://127.0.0.1:3100', 'https://demo.untungjasuli.my.id']
+				}
 			}),
 		VitePWA({
 			registerType: 'autoUpdate',
-			includeAssets: ['favicon.png', 'robots.txt'],
+			scope: '/',
+			workbox: {
+				globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+				cleanupOutdatedCaches: true,
+				clientsClaim: true,
+				skipWaiting: true,
+			},
 			manifest: {
 				name: 'Aplikasi BCI',
 				short_name: 'BCI',
@@ -145,7 +154,30 @@ export default defineConfig({
 				enabled: true,
 				type: 'module'
 			}
-		})
+		}),
+		// Plugin custom: Copy SW ke static/ setelah build
+		{
+			name: 'copy-sw-to-static',
+			closeBundle() {
+				const src = 'dist/sw.js';
+				
+				if (existsSync('dist/sw.js')) {
+					cpSync('dist/sw.js', 'static/sw.js');
+					console.log('✅ Copied sw.js to static/');
+				}
+				
+				// Copy workbox files
+				try {
+					const files = readdirSync('dist');
+					files.filter(f => f.startsWith('workbox-')).forEach(f => {
+						cpSync(`dist/${f}`, `static/${f}`);
+						console.log(`✅ Copied ${f} to static/`);
+					});
+				} catch (e) {
+					console.log('No workbox files to copy');
+				}
+			}
+		},
 	],
 	server: {
 		host: '0.0.0.0',
@@ -153,6 +185,6 @@ export default defineConfig({
 		allowedHosts: true
 	},
 	csrf: {
-		checkOrigin: false
+		trustedOrigins: ['http://localhost:3100', 'http://127.0.0.1:3100', 'https://demo.untungjasuli.my.id']
 	}
 });
