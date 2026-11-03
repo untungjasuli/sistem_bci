@@ -8,23 +8,61 @@ const routePermissions = {
 	// Public routes (no auth required)
 	public: ['/login', '/logout'],
 
-	// Admin only routes
+	// Admin only routes - full access
 	admin: [
 		'/data-blok-rumah',
+		'/denah-blok-rumah',
 		'/data-penduduk',
+		'/pemilik-rumah-kosong',
 		'/surat-rt',
-		'/profile',      // own profile
-		'/settings'      // only admin
+		'/iuran-bulanan',
+		'/persetujuan-pembayaran',
+		'/kas-account',
+		'/kategori-kas',
+		'/pembayaran-method',
+		'/transaksi-kas',
+		'/transfer-antar-kas',
+		'/laporan/keuangan',
+		'/laporan/tagihan',
+		'/laporan/kependudukan',
+		'/pengguna',           // user management
+		'/settings',           // system settings
+		'/profile'             // own profile
 	],
 
-	// Petugas only routes
+	// Bendahara routes - keuangan focused
+	bendahara: [
+		'/data-blok-rumah',
+		'/denah-blok-rumah',
+		'/data-penduduk',
+		'/pemilik-rumah-kosong',
+		'/iuran-bulanan',
+		'/persetujuan-pembayaran',
+		'/kas-account',
+		'/kategori-kas',
+		'/pembayaran-method',
+		'/transaksi-kas',
+		'/transfer-antar-kas',
+		'/laporan/keuangan',
+		'/laporan/tagihan',
+		'/profile'             // own profile
+	],
+
+	// Sekretaris routes - surat & kependudukan focused
+	sekretaris: [
+		'/data-blok-rumah',
+		'/denah-blok-rumah',
+		'/data-penduduk',
+		'/pemilik-rumah-kosong',
+		'/surat-rt',
+		'/laporan/kependudukan',
+		'/profile'             // own profile
+	],
+
+	// Petugas routes - iuran only
 	petugas: [
-		'/iuran-bulanan'
-	],
-
-	// Both admin and petugas (shared routes)
-	shared: [
-		'/iuran-bulanan'
+		'/iuran-bulanan',
+		'/profile'             // own profile
 	]
 };
 
@@ -50,14 +88,7 @@ function getAllowedRoles(path) {
 	for (const [roleKey, routes] of Object.entries(routePermissions)) {
 		if (roleKey === 'public') continue; // handled separately
 		if (matchRoute(path, routes)) {
-			if (roleKey === 'shared') {
-				// Special handling for shared routes - allow both admin and petugas
-				allowedRoles.add('admin');
-				allowedRoles.add('petugas');
-			} else {
-				// Split by comma for roles like 'admin,petugas'
-				roleKey.split(',').forEach(r => allowedRoles.add(r.trim()));
-			}
+			allowedRoles.add(roleKey);
 		}
 	}
 
@@ -78,7 +109,8 @@ export async function handle({ event, resolve }) {
 	// Skip for static assets and API routes that handle their own auth
 	if (url.pathname.startsWith('/_app/') || 
 		url.pathname.startsWith('/favicon') ||
-		url.pathname.startsWith('/api/')) {
+		url.pathname.startsWith('/api/') ||
+		url.pathname.startsWith('/surat')) { // surat preview endpoint
 		return resolve(event);
 	}
 
@@ -110,12 +142,14 @@ export async function handle({ event, resolve }) {
 	}
 
 	if (!isPublic && user && !isAllowed) {
-		// Logged in but not authorized -> redirect based on role
-		if (user.role === 'petugas') {
-			throw redirect(303, '/iuran-bulanan');
-		} else {
-			throw redirect(303, '/');
-		}
+		// Logged in but not authorized -> redirect to default route for role
+		const defaultRoutes = {
+			admin: '/',
+			bendahara: '/iuran-bulanan',
+			sekretaris: '/surat-rt',
+			petugas: '/iuran-bulanan'
+		};
+		throw redirect(303, defaultRoutes[user.role] || '/');
 	}
 
 	return resolve(event);

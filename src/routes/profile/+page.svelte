@@ -1,342 +1,193 @@
 <script>
+	import { page } from '$app/state';
+
 	let { data } = $props();
 
+	let userData = $derived(data?.userData);
 	let user = $derived(data?.user);
-	let activeTab = $state('profile'); // 'profile' | 'security'
 	let toast = $state(null);
 
-	// Initialize with user data from props
-	let editName = $state(user?.name || '');
-	let editUsername = $state(user?.username || '');
-	let currentPassword = $state('');
-	let newPassword = $state('');
-	let confirmPassword = $state('');
-
-	let serverError = $state('');
-	let serverSuccess = $state('');
-
-	// Update state when user data changes (e.g., after successful update)
-	$effect(() => {
-		if (user) {
-			editName = user.name || '';
-			editUsername = user.username || '';
-		}
-	});
+	let formName = $state(userData?.name || '');
+	let formCurrentPassword = $state('');
+	let formNewPassword = $state('');
+	let formConfirmPassword = $state('');
+	let showPassword = $state(false);
 
 	function showToast(type, message) {
 		toast = { type, message };
-		setTimeout(() => {
-			toast = null;
-		}, 5000);
+		setTimeout(() => { toast = null; }, 5000);
 	}
 
-	$effect(() => {
-		if (user) {
-			editName = user.name || '';
-			editUsername = user.username || '';
-		}
-	});
+	if (data?.success) showToast('success', data.success);
+	if (data?.error) showToast('error', data.error);
 
-	$effect(() => {
-		if (data?.success) showToast('success', data.success);
-		if (data?.error) showToast('error', data.error);
-	});
-
-	// Handle form submit for profile update
-	async function handleProfileUpdate(e) {
-		e.preventDefault();
-		serverError = '';
-		serverSuccess = '';
-
-		if (!editName.trim() || !editUsername.trim()) {
-			serverError = 'Nama dan username wajib diisi';
-			return;
-		}
-
-		const formData = new FormData();
-		formData.append('name', editName.trim());
-		formData.append('username', editUsername.trim());
-
+	async function handleSubmit(action, formData) {
 		try {
-			const res = await fetch('?/updateProfile', {
-				method: 'POST',
-				body: formData,
-				credentials: 'include'
-			});
+			const res = await fetch(`?/${action}`, { method: 'POST', body: formData, credentials: 'include' });
 			const result = await res.json();
 
-			// Parse SvelteKit form action response
-			let errorMessage = '';
-			let successMessage = '';
-			if (result.data) {
+			let actionResult = result;
+			if (result.data && typeof result.data === 'string') {
 				try {
 					const parsed = JSON.parse(result.data);
-					if (Array.isArray(parsed) && parsed[1]) {
-						if (parsed[0]?.error) {
-							errorMessage = parsed[1];
-						} else if (parsed[0]?.success) {
-							successMessage = parsed[1];
-						}
-					}
+					if (Array.isArray(parsed) && parsed.length >= 2) {
+						if (parsed[0]?.error) actionResult = { error: parsed[1] };
+						else if (parsed[0]?.success) actionResult = { success: parsed[1] };
+					} else if (typeof parsed === 'object') actionResult = parsed;
 				} catch {}
 			}
 
-			const hasError = !res.ok || result.error || errorMessage;
-			if (hasError) {
-				serverError = errorMessage || result.error || 'Gagal memperbarui profil';
+			if (!res.ok || actionResult.error) {
+				showToast('error', actionResult.error || 'Gagal menyimpan');
 				return;
 			}
 
-			serverSuccess = successMessage || result.success || 'Profil berhasil diperbarui';
-			showToast('success', serverSuccess);
+			showToast('success', actionResult.success || 'Berhasil disimpan');
+			formCurrentPassword = '';
+			formNewPassword = '';
+			formConfirmPassword = '';
 		} catch (e) {
-			console.error('Update profile error:', e);
-			serverError = 'Gagal memperbarui profil';
+			console.error('Save error:', e);
+			showToast('error', 'Gagal menyimpan');
 		}
 	}
 
-	// Handle form submit for password change
-	async function handlePasswordChange(e) {
+	function handleUpdateProfile(e) {
 		e.preventDefault();
-		serverError = '';
-		serverSuccess = '';
-
-		if (!currentPassword || !newPassword || !confirmPassword) {
-			serverError = 'Semua field password wajib diisi';
-			return;
-		}
-		if (newPassword.length < 6) {
-			serverError = 'Password baru minimal 6 karakter';
-			return;
-		}
-		if (newPassword !== confirmPassword) {
-			serverError = 'Konfirmasi password tidak cocok';
-			return;
-		}
-
 		const formData = new FormData();
-		formData.append('currentPassword', currentPassword);
-		formData.append('newPassword', newPassword);
-		formData.append('confirmPassword', confirmPassword);
+		formData.append('name', formName);
+		formData.append('currentPassword', formCurrentPassword);
+		formData.append('newPassword', formNewPassword);
+		formData.append('confirmPassword', formConfirmPassword);
+		handleSubmit('updateProfile', formData);
+	}
 
-		try {
-			const res = await fetch('?/changePassword', {
-				method: 'POST',
-				body: formData,
-				credentials: 'include'
-			});
-			const result = await res.json();
+	function getRoleName(role) {
+		const roles = {
+			'admin': 'Administrator',
+			'bendahara': 'Bendahara',
+			'sekretaris': 'Sekretaris',
+			'petugas': 'Petugas'
+		};
+		return roles[role] || role;
+	}
 
-			// Parse SvelteKit form action response
-			let errorMessage = '';
-			let successMessage = '';
-			if (result.data) {
-				try {
-					const parsed = JSON.parse(result.data);
-					if (Array.isArray(parsed) && parsed[1]) {
-						if (parsed[0]?.error) {
-							errorMessage = parsed[1];
-						} else if (parsed[0]?.success) {
-							successMessage = parsed[1];
-						}
-					}
-				} catch {}
-			}
-
-			const hasError = !res.ok || result.error || errorMessage;
-			if (hasError) {
-				serverError = errorMessage || result.error || 'Gagal mengubah password';
-				return;
-			}
-
-			serverSuccess = successMessage || result.success || 'Password berhasil diubah';
-			showToast('success', serverSuccess);
-			currentPassword = '';
-			newPassword = '';
-			confirmPassword = '';
-		} catch (e) {
-			console.error('Change password error:', e);
-			serverError = 'Gagal mengubah password';
-		}
+	function getRoleBadge(role) {
+		const badges = {
+			'admin': 'bg-purple-100 text-purple-700',
+			'bendahara': 'bg-green-100 text-green-700',
+			'sekretaris': 'bg-blue-100 text-blue-700',
+			'petugas': 'bg-orange-100 text-orange-700'
+		};
+		return badges[role] || 'bg-gray-100 text-gray-700';
 	}
 </script>
 
 {#if toast}
-	<div
-		class="fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium flex items-center gap-3 animate-in fade-in slide-in-from-top-2"
+	<div class="fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium flex items-center gap-3 animate-in fade-in slide-in-from-top-2"
 		class:bg-green-50={toast.type === 'success'}
 		class:text-green-700={toast.type === 'success'}
 		class:border-green-200={toast.type === 'success'}
 		class:bg-red-50={toast.type === 'error'}
 		class:text-red-700={toast.type === 'error'}
-		class:border-red-200={toast.type === 'error'}
 	>
-		{#if toast.type === 'success'}
-			<i class="fa-solid fa-circle-check"></i>
-		{:else}
-			<i class="fa-solid fa-circle-exclamation"></i>
-		{/if}
+		{#if toast.type === 'success'}<i class="fa-solid fa-circle-check"></i>
+		{:else}<i class="fa-solid fa-circle-exclamation"></i>{/if}
 		<span>{toast.message}</span>
 	</div>
 {/if}
 
-<div class="px-4 sm:px-6 lg:px-8 py-8">
+<div class="px-4 sm:px-6 lg:px-8 py-8 max-w-2xl mx-auto">
 	<div class="mb-6">
 		<h1 class="text-2xl font-bold text-gray-900">Profil Saya</h1>
-		<p class="text-gray-500 text-sm">Kelola informasi akun dan keamanan</p>
+		<p class="text-gray-500 text-sm">Kelola informasi akun dan password Anda</p>
 	</div>
 
-	<!-- Tabs -->
-	<div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
-		<div class="border-b border-gray-200">
-			<nav class="flex gap-0 -mb-px" aria-label="Tabs">
-				<button
-					onclick={() => activeTab = 'profile'}
-					class={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
-						activeTab === 'profile'
-							? 'border-blue-600 text-blue-600'
-							: 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-					}`}
-				>
-					<i class="fa-solid fa-user mr-2"></i> Profil
-				</button>
-				<button
-					onclick={() => activeTab = 'security'}
-					class={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
-						activeTab === 'security'
-							? 'border-blue-600 text-blue-600'
-							: 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-					}`}
-				>
-					<i class="fa-solid fa-shield mr-2"></i> Keamanan
-				</button>
-			</nav>
+	<!-- User Info Card -->
+	<div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+		<div class="flex items-center gap-4">
+			<div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+				{userData?.name?.charAt(0)?.toUpperCase() || 'U'}
+			</div>
+			<div>
+				<h2 class="text-xl font-bold text-gray-900">{userData?.name || '-'}</h2>
+				<p class="text-gray-500">@{userData?.username || '-'}</p>
+				<span class="inline-flex px-2 py-1 text-xs font-medium rounded-full mt-1 {getRoleBadge(userData?.role)}">
+					{getRoleName(userData?.role)}
+				</span>
+			</div>
 		</div>
-
-		<div class="p-6">
-			{#if activeTab === 'profile'}
-				<!-- Profil Tab -->
-				<form onsubmit={handleProfileUpdate} class="space-y-6 max-w-md">
-					<div>
-						<h3 class="text-lg font-semibold text-gray-900 mb-4">Informasi Akun</h3>
-					</div>
-
-					<div>
-						<label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
-						<input
-							id="username"
-							type="text"
-							name="username"
-							bind:value={editUsername}
-							required
-							class="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-						/>
-					</div>
-
-					<div>
-						<label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
-						<input
-							id="name"
-							type="text"
-							name="name"
-							bind:value={editName}
-							required
-							class="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-						/>
-					</div>
-
-					<div class="bg-gray-50 p-4 rounded-lg">
-						<p class="text-sm text-gray-600">
-							<i class="fa-solid fa-info-circle mr-1"></i>
-							Role: <span class="font-medium capitalize">{user?.role || 'admin'}</span> • 
-							Bergabung: <span class="font-medium">{user?.created_at ? new Date(user.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '-'}</span>
-						</p>
-					</div>
-
-					{#if serverError}
-						<div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-							{serverError}
-						</div>
-					{/if}
-					{#if serverSuccess && activeTab === 'profile'}
-						<div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
-							{serverSuccess}
-						</div>
-					{/if}
-
-					<div class="flex justify-end pt-4 border-t border-gray-100">
-						<button type="submit" class="px-6 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
-							<i class="fa-solid fa-save mr-2"></i> Simpan Perubahan
-						</button>
-					</div>
-				</form>
-
-			{:else}
-				<!-- Keamanan Tab -->
-				<form onsubmit={handlePasswordChange} class="space-y-6 max-w-md">
-					<div>
-						<h3 class="text-lg font-semibold text-gray-900 mb-4">Ubah Password</h3>
-						<p class="text-sm text-gray-500">Masukkan password lama dan password baru (minimal 6 karakter)</p>
-					</div>
-
-					<div>
-						<label for="current_password" class="block text-sm font-medium text-gray-700 mb-1">Password Saat Ini</label>
-						<input
-							id="current_password"
-							type="password"
-							name="currentPassword"
-							bind:value={currentPassword}
-							required
-							autocomplete="current-password"
-							class="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-						/>
-					</div>
-
-					<div>
-						<label for="new_password" class="block text-sm font-medium text-gray-700 mb-1">Password Baru</label>
-						<input
-							id="new_password"
-							type="password"
-							name="newPassword"
-							bind:value={newPassword}
-							required
-							minlength="6"
-							autocomplete="new-password"
-							class="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-						/>
-					</div>
-
-					<div>
-						<label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password Baru</label>
-						<input
-							id="confirm_password"
-							type="password"
-							name="confirmPassword"
-							bind:value={confirmPassword}
-							required
-							autocomplete="new-password"
-							class="w-full px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-						/>
-					</div>
-
-					{#if serverError}
-						<div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-							{serverError}
-						</div>
-					{/if}
-					{#if serverSuccess && activeTab === 'security'}
-						<div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
-							{serverSuccess}
-						</div>
-					{/if}
-
-					<div class="flex justify-end pt-4 border-t border-gray-100">
-						<button type="submit" class="px-6 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
-							<i class="fa-solid fa-key mr-2"></i> Ubah Password
-						</button>
-					</div>
-				</form>
-			{/if}
+		<div class="mt-4 pt-4 border-t border-gray-100 grid grid-cols-2 gap-4 text-sm">
+			<div>
+				<p class="text-gray-500">Dibuat pada</p>
+				<p class="font-medium">{userData?.created_at ? new Date(userData.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) : '-'}</p>
+			</div>
+			<div>
+				<p class="text-gray-500">ID User</p>
+				<p class="font-medium font-mono">#{userData?.id || '-'}</p>
+			</div>
 		</div>
+	</div>
+
+	<!-- Update Profile Form -->
+	<div class="bg-white rounded-lg border border-gray-200 p-6">
+		<h3 class="text-lg font-medium text-gray-900 mb-4">Informasi Akun</h3>
+		<form onsubmit={handleUpdateProfile} class="space-y-4">
+			<div>
+				<label class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap <span class="text-red-500">*</span></label>
+				<input
+					type="text"
+					bind:value={formName}
+					required
+					class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+				/>
+			</div>
+
+			<div class="border-t border-gray-200 pt-4">
+				<h4 class="text-sm font-medium text-gray-700 mb-3">Ubah Password (opsional)</h4>
+				<p class="text-xs text-gray-500 mb-3">Isi hanya jika ingin mengubah password. Kosongkan untuk mempertahankan password lama.</p>
+
+				<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">Password Lama</label>
+						<input
+							type={showPassword ? 'text' : 'password'}
+							bind:value={formCurrentPassword}
+							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+							placeholder="Masukkan password saat ini"
+						/>
+					</div>
+					<div>
+						<label class="block text-sm font-medium text-gray-700 mb-1">Password Baru</label>
+						<input
+							type={showPassword ? 'text' : 'password'}
+							bind:value={formNewPassword}
+							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+							placeholder="Minimal 6 karakter"
+						/>
+					</div>
+				</div>
+				<div class="mt-4">
+					<label class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password Baru</label>
+					<input
+						type={showPassword ? 'text' : 'password'}
+						bind:value={formConfirmPassword}
+						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+						placeholder="Ulangi password baru"
+					/>
+				</div>
+
+				<div class="flex items-center gap-2 mt-2">
+					<input type="checkbox" bind:checked={showPassword} id="showPassword" class="text-blue-600 focus:ring-blue-500 rounded" />
+					<label for="showPassword" class="text-sm text-gray-700 cursor-pointer">Tampilkan password</label>
+				</div>
+			</div>
+
+			<div class="flex justify-end pt-4 border-t border-gray-200">
+				<button type="submit" class="px-6 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2">
+					<i class="fa-solid fa-save"></i> Simpan Perubahan
+				</button>
+			</div>
+		</form>
 	</div>
 </div>

@@ -109,26 +109,30 @@
 						</button>
 
 						{#if profileOpen}
-							<div class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50">
-								<a href="/profile" onclick={closeProfile} class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors block">
-									<i class="fa-solid fa-user w-5 text-gray-400"></i>
-									<span>Profil Saya</span>
-								</a>
-								{#if isAdmin()}
-									<a href="/settings" onclick={closeProfile} class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors block">
-										<i class="fa-solid fa-gear w-5 text-gray-400"></i>
-										<span>Pengaturan</span>
-									</a>
-								{/if}
-								<hr class="my-1 border-gray-100" />
-								<form method="POST" action="/logout" class="px-4 py-2">
-									<button type="submit" class="flex items-center gap-3 w-full text-left text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors">
-										<i class="fa-solid fa-right-from-bracket w-5"></i>
-										<span>Log Out</span>
-									</button>
-								</form>
-							</div>
-						{/if}
+										<div class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50">
+											<a href="/profile" onclick={closeProfile} class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors block">
+												<i class="fa-solid fa-user w-5 text-gray-400"></i>
+												<span>Profil Saya</span>
+											</a>
+											{#if isAdmin()}
+												<a href="/pengguna" onclick={closeProfile} class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors block">
+													<i class="fa-solid fa-users-cog w-5 text-gray-400"></i>
+													<span>Manajemen Pengguna</span>
+												</a>
+												<a href="/settings" onclick={closeProfile} class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors block">
+													<i class="fa-solid fa-gear w-5 text-gray-400"></i>
+													<span>Pengaturan</span>
+												</a>
+											{/if}
+											<hr class="my-1 border-gray-100" />
+											<form method="POST" action="/logout" class="px-4 py-2">
+												<button type="submit" class="flex items-center gap-3 w-full text-left text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors">
+													<i class="fa-solid fa-right-from-bracket w-5"></i>
+													<span>Log Out</span>
+												</button>
+											</form>
+										</div>
+									{/if}
 					</div>
 				</div>
 			</div>
@@ -313,12 +317,42 @@
 											</li>
 
 											<hr class="my-2 border-gray-100" />
-											{/if}
+															{/if}
 
-											<!-- Divider: Surat RT -->
-														<li>
-															<div class="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Surat-Surat</div>
-														</li>
+															<!-- Divider: Pengaturan Sistem (admin only) -->
+															{#if isAdmin()}
+															<hr class="my-2 border-gray-100" />
+															<li>
+																<div class="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Pengaturan Sistem</div>
+															</li>
+															<li>
+																<a
+																	href="/pengguna"
+																	onclick={closeSidebar}
+																	class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+																		{page.url.pathname === '/pengguna' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+																>
+																	<i class="fa-solid fa-users-cog w-5"></i>
+																	<span>Manajemen Pengguna</span>
+																</a>
+															</li>
+															<li>
+																<a
+																	href="/settings"
+																	onclick={closeSidebar}
+																	class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+																		{page.url.pathname === '/settings' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+																>
+																	<i class="fa-solid fa-gear w-5"></i>
+																	<span>Pengaturan Umum</span>
+																</a>
+															</li>
+															{/if}
+
+															<!-- Divider: Surat RT -->
+															<li>
+																<div class="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Surat-Surat</div>
+															</li>
 
 														<li>
 															<a

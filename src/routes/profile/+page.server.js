@@ -1,56 +1,84 @@
-import { redirect, error, fail } from '@sveltejs/kit';
-import { getConnection } from '#lib/server/db';
+import { redirect } from '@sveltejs/kit';
+import { executeQuery } from '#lib/server/db';
 
-export const load = async ({ cookies }) => {
-	const user = cookies.get('session_user');
+export const load = async ({ locals, cookies }) => {
+	const user = locals.user;
 	if (!user) {
 		throw redirect(303, '/login');
 	}
 
-	const conn = await getConnection();
-	try {
-		const userData = JSON.parse(user);
-		const [rows] = await conn.execute('SELECT id, username, name, role, created_at FROM users WHERE id = ?', [userData.id]);
-		if (rows.length === 0) {
-			throw error(404, 'User tidak ditemukan');
-		}
-		return { user: rows[0] };
-	} catch (e) {
-		console.error('LOAD profile error:', e);
-		throw error(500, 'Gagal memuat profil');
-	} finally {
-		conn.release();
-	}
+	// Get fresh user data from DB
+	const rows = await executeQuery('SELECT id, username, name, role, created_at FROM users WHERE id = ?', [user.id]);
+	const userData = rows[0];
+
+	return {
+		user,
+		userData
+	};
 };
 
 export const actions = {
-	updateProfile: async ({ request, cookies }) => {
-		const user = cookies.get('session_user');
+	updateProfile: async ({ request, locals, cookies }) => {
+		const user = locals.user;
 		if (!user) {
-			throw redirect(303, '/login');
+			return { error: 'Unauthorized' };
 		}
 
 		const formData = await request.formData();
 		const name = formData.get('name')?.toString().trim() || '';
-		const username = formData.get('username')?.toString().trim() || '';
+		const currentPassword = formData.get('currentPassword')?.toString() || '';
+		const newPassword = formData.get('newPassword')?.toString() || '';
+		const confirmPassword = formData.get('confirmPassword')?.toString() || '';
 
-		if (!name || !username) {
-			return fail(400, { error: 'Nama dan username wajib diisi' });
+		if (!name) {
+			return { error: 'Nama tidak boleh kosong' };
 		}
 
-		const userData = JSON.parse(user);
-		const conn = await getConnection();
 		try {
-			// Cek username sudah dipakai user lain
-			const [existing] = await conn.execute('SELECT id FROM users WHERE username = ? AND id != ?', [username, userData.id]);
-			if (existing.length > 0) {
-				return fail(400, { error: 'Username sudah digunakan' });
+			// Verify current password if changing password
+			if (newPassword) {
+				if (!currentPassword) {
+					return { error: 'Password lama harus diisi untuk mengubah password' };
+				}
+				if (newPassword !== confirmPassword) {
+					return { error: 'Konfirmasi password tidak cocok' };
+				}
+				if (newPassword.length < 6) {
+					return { error: 'Password minimal 6 karakter' };
+				}
+
+				// Verify current password
+				const rows = await executeQuery(
+					'SELECT id FROM users WHERE id = ? AND password = MD5(?)',
+					[user.id, currentPassword]
+				);
+				if (!rows.length) {
+					return { error: 'Password lama salah' };
+				}
+
+				// Update name and password
+				await executeQuery(
+					'UPDATE users SET name = ?, password = MD5(?) WHERE id = ?',
+					[name, newPassword, user.id]
+				);
+			} else {
+				// Update name only
+				await executeQuery(
+					'UPDATE users SET name = ? WHERE id = ?',
+					[name, user.id]
+				);
 			}
 
-			await conn.execute('UPDATE users SET name = ?, username = ? WHERE id = ?', [name, username, userData.id]);
-
-			// Update cookie session
-			cookies.set('session_user', JSON.stringify({ ...userData, name, username, role: userData.role }), {
+			// Update session cookie
+			const updatedRows = await executeQuery('SELECT id, username, name, role FROM users WHERE id = ?', [user.id]);
+			const updatedUser = updatedRows[0];
+			
+			cookies.set('session_user', JSON.stringify({
+				id: updatedUser.id,
+				username: updatedUser.username,
+				name: updatedUser.name,
+				role: updatedUser.role
+			}), {
 				path: '/',
 				httpOnly: true,
 				sameSite: 'lax',
@@ -59,51 +87,8 @@ export const actions = {
 
 			return { success: 'Profil berhasil diperbarui' };
 		} catch (e) {
-			console.error('UPDATE profile error:', e);
-			return fail(500, { error: 'Gagal memperbarui profil: ' + e.message });
-		} finally {
-			conn.release();
-		}
-	},
-
-	changePassword: async ({ request, cookies }) => {
-		const user = cookies.get('session_user');
-		if (!user) {
-			throw redirect(303, '/login');
-		}
-
-		const formData = await request.formData();
-		const currentPassword = formData.get('currentPassword')?.toString() || '';
-		const newPassword = formData.get('newPassword')?.toString() || '';
-		const confirmPassword = formData.get('confirmPassword')?.toString() || '';
-
-		if (!currentPassword || !newPassword || !confirmPassword) {
-			return fail(400, { error: 'Semua field password wajib diisi' });
-		}
-		if (newPassword.length < 6) {
-			return fail(400, { error: 'Password baru minimal 6 karakter' });
-		}
-		if (newPassword !== confirmPassword) {
-			return fail(400, { error: 'Konfirmasi password tidak cocok' });
-		}
-
-		const userData = JSON.parse(user);
-		const conn = await getConnection();
-		try {
-			// Verifikasi password lama
-			const [rows] = await conn.execute('SELECT * FROM users WHERE id = ? AND password = MD5(?)', [userData.id, currentPassword]);
-			if (rows.length === 0) {
-				return fail(400, { error: 'Password saat ini salah' });
-			}
-
-			await conn.execute('UPDATE users SET password = MD5(?) WHERE id = ?', [newPassword, userData.id]);
-
-			return { success: 'Password berhasil diubah' };
-		} catch (e) {
-			console.error('CHANGE password error:', e);
-			return fail(500, { error: 'Gagal mengubah password: ' + e.message });
-		} finally {
-			conn.release();
+			console.error('Update profile error:', e);
+			return { error: 'Gagal memperbarui profil: ' + e.message };
 		}
 	}
 };
