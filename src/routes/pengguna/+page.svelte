@@ -283,8 +283,10 @@
 					</div>
 
 					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-1">
-							Password {isEditing ? '(kosongkan jika tidak diubah)' : '<span class="text-red-500">*</span>'}
+						<label class="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
+							Password
+							{#if !isEditing}<span class="text-red-500">*</span>{/if}
+							{#if isEditing}<span class="text-gray-400 text-xs">(kosongkan jika tidak diubah)</span>{/if}
 						</label>
 						<input
 							type="password"
