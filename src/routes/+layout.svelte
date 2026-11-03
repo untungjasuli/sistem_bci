@@ -428,7 +428,8 @@
 									<li><a href="/laporan/kependudukan/statistik" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/kependudukan/statistik' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-chart-bar w-4 text-gray-400"></i> Statistik Penduduk</a></li>
 									<li><a href="/laporan/kependudukan/kelompok-usia" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/kependudukan/kelompok-usia' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-user-group w-4 text-gray-400"></i> Warga per Kelompok Usia</a></li>
 									<li><a href="/laporan/kependudukan/kontak" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/kependudukan/kontak' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-phone w-4 text-gray-400"></i> Data Kontak Warga</a></li>
-								</ul>
+														<li><a href="/laporan/kependudukan/mutasi-kematian" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/kependudukan/mutasi-kematian' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-right-left w-4 text-gray-400"></i> Mutasi Penduduk & Kematian</a></li>
+													</ul>
 							{/if}
 						</li>
 					</ul>
