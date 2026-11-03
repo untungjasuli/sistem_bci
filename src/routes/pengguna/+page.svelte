@@ -1,5 +1,6 @@
 <script>
 	import { page } from '$app/state';
+	import { invalidateAll } from '$app/navigation';
 
 	let { data } = $props();
 
@@ -98,7 +99,7 @@
 
 			showToast('success', actionResult.success || 'Berhasil disimpan');
 			closeModal();
-			await page.refresh();
+			await invalidateAll();
 		} catch (e) {
 			console.error('Save error:', e);
 			showToast('error', 'Gagal menyimpan');
@@ -117,7 +118,7 @@
 
 			showToast('success', result.success || 'Berhasil dihapus');
 			closeModal();
-			await page.refresh();
+			await invalidateAll();
 		} catch (e) {
 			console.error('Delete error:', e);
 			showToast('error', 'Gagal menghapus');
