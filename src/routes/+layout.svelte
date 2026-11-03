@@ -188,21 +188,21 @@
 				</div>
 				<nav class="flex-1 overflow-y-auto p-4 space-y-1">
 					<ul class="space-y-1">
-									{#if !isPetugas()}
-										<li>
-											<a
-												href="/"
-												onclick={closeSidebar}
-												class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
-													{page.url.pathname === '/' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
-											>
-												<i class="fa-solid fa-chart-pie w-5"></i>
-												<span>Dashboard</span>
-											</a>
-										</li>
-									{/if}
+						{#if !isPetugas()}
+							<li>
+								<a
+									href="/"
+									onclick={closeSidebar}
+									class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+										{page.url.pathname === '/' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+								>
+									<i class="fa-solid fa-chart-pie w-5"></i>
+									<span>Dashboard</span>
+								</a>
+							</li>
+							<hr class="my-2 border-gray-100" />
+						{/if}
 
-						<hr class="my-2 border-gray-100" />
 
 						<!-- Divider: Data -->
 						{#if canAccessData()}
@@ -255,9 +255,9 @@
 									<span>Pemilik Rumah Kosong</span>
 								</a>
 							</li>
+							<hr class="my-2 border-gray-100" />
 						{/if}
 
-						<hr class="my-2 border-gray-100" />
 
 						<!-- Divider: Iuran Bulanan -->
 						{#if canAccessIuran()}
@@ -290,9 +290,9 @@
 									</a>
 								</li>
 							{/if}
+							<hr class="my-2 border-gray-100" />
 						{/if}
 
-						<hr class="my-2 border-gray-100" />
 
 						<!-- Divider: Keuangan (admin & bendahara) -->
 						{#if canAccessKeuangan()}
@@ -355,41 +355,11 @@
 									<span>Transfer Antar Kas</span>
 								</a>
 							</li>
-						{/if}
-
-						<!-- Divider: Pengaturan Sistem (admin only) -->
-						{#if isAdmin()}
 							<hr class="my-2 border-gray-100" />
-							<li>
-								<div class="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Pengaturan Sistem</div>
-							</li>
-							<li>
-								<a
-									href="/pengguna"
-									onclick={closeSidebar}
-									class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
-										{page.url.pathname === '/pengguna' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
-								>
-									<i class="fa-solid fa-users-cog w-5"></i>
-									<span>Manajemen Pengguna</span>
-								</a>
-							</li>
-							<li>
-								<a
-									href="/settings"
-									onclick={closeSidebar}
-									class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
-										{page.url.pathname === '/settings' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
-								>
-									<i class="fa-solid fa-gear w-5"></i>
-									<span>Pengaturan Umum</span>
-								</a>
-							</li>
 						{/if}
 
 						<!-- Divider: Surat RT (admin & sekretaris) -->
 						{#if canAccessSurat()}
-							<hr class="my-2 border-gray-100" />
 							<li>
 								<div class="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Surat-Surat</div>
 							</li>
@@ -427,12 +397,15 @@
 									<span>Surat RT</span>
 								</a>
 							</li>
+							<hr class="my-2 border-gray-100" />
 						{/if}
 
 						<!-- Divider: Laporan -->
+						 {#if !isPetugas()}
 						<li>
 							<div class="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Laporan</div>
 						</li>
+						{/if}
 
 						<!-- Laporan Keuangan (admin & bendahara) -->
 						{#if canAccessLaporanKeuangan()}
@@ -509,6 +482,36 @@
 										<li><a href="/laporan/kependudukan/mutasi-kematian" onclick={closeSidebar} class="flex items-center gap-2 px-4 py-1.5 text-sm {page.url.pathname === '/laporan/kependudukan/mutasi-kematian' ? 'text-blue-700 font-medium' : 'text-gray-600 hover:text-gray-900'}"><i class="fa-solid fa-right-left w-4 text-gray-400"></i> Mutasi Penduduk & Kematian</a></li>
 									</ul>
 								{/if}
+							</li>
+						{/if}
+
+						<!-- Divider: Pengaturan Sistem (admin only) -->
+						{#if isAdmin()}
+							<hr class="my-2 border-gray-100" />
+							<li>
+								<div class="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Pengaturan Sistem</div>
+							</li>
+							<li>
+								<a
+									href="/pengguna"
+									onclick={closeSidebar}
+									class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+										{page.url.pathname === '/pengguna' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+								>
+									<i class="fa-solid fa-users-cog w-5"></i>
+									<span>Manajemen Pengguna</span>
+								</a>
+							</li>
+							<li>
+								<a
+									href="/settings"
+									onclick={closeSidebar}
+									class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium transition-colors text-sm text-left
+										{page.url.pathname === '/settings' ? 'bg-blue-50 text-blue-700' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'}"
+								>
+									<i class="fa-solid fa-gear w-5"></i>
+									<span>Pengaturan Umum</span>
+								</a>
 							</li>
 						{/if}
 					</ul>
