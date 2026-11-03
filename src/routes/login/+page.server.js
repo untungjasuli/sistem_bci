@@ -30,10 +30,6 @@ export const actions = {
 			// Tentukan redirect berdasarkan role
 			if (user.role === 'petugas') {
 				redirectTo = '/iuran-bulanan';
-			} else if (user.role === 'sekretaris') {
-				redirectTo = '/surat-rt';
-			} else if (user.role === 'bendahara') {
-				redirectTo = '/iuran-bulanan';
 			} else {
 				redirectTo = '/';
 			}

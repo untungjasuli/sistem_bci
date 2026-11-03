@@ -145,8 +145,8 @@ export async function handle({ event, resolve }) {
 		// Logged in but not authorized -> redirect to default route for role
 		const defaultRoutes = {
 			admin: '/',
-			bendahara: '/iuran-bulanan',
-			sekretaris: '/surat-rt',
+			bendahara: '/',
+			sekretaris: '/',
 			petugas: '/iuran-bulanan'
 		};
 		throw redirect(303, defaultRoutes[user.role] || '/');
