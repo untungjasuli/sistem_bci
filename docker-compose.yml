@@ -16,12 +16,12 @@ services:
     # Bind ke localhost host only (aman, tidak expose ke internet)
     # cloudflared di host forward ke 127.0.0.1:3000
     ports:
-      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:3000:3100"
     
     environment:
       # App config
       - NODE_ENV=production
-      - PORT=3000
+      - PORT=3100
       - HOST=0.0.0.0
       
       # Database - Host MySQL (bukan container)
@@ -29,9 +29,9 @@ services:
       # Linux native: 172.17.0.1 (bridge gateway)
       - DB_HOST=host.docker.internal
       - DB_PORT=3306
-      - DB_USER=victor
+      - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
-      - DB_NAME=sistem_bci
+      - DB_NAME=${DB_NAME}
       
       # Session
       - SESSION_SECRET=${SESSION_SECRET}

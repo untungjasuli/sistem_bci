@@ -6,7 +6,7 @@ import { redirect, error } from '@sveltejs/kit';
  */
 const routePermissions = {
 	// Public routes (no auth required)
-	public: ['/login', '/logout'],
+	public: ['/login', '/logout', '/sw.js', '/manifest.webmanifest', '/icons'],
 
 	// Admin only routes - full access
 	admin: [
