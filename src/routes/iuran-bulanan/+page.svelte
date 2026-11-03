@@ -371,7 +371,7 @@
 					id="periode"
 					bind:value={periode}
 					onchange={updateFilters}
-					class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors flex-1"
+					class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors flex-1"
 				>
 					{#each periods as p}
 						<option value={p}>Periode {p}</option>
@@ -471,7 +471,7 @@
 			<div class="relative flex-1 min-w-0">
 				<label class="sr-only">Cari Blok / Nama / HP</label>
 				<input type="text" bind:value={search} placeholder="Blok / Nama / HP..."
-					class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+					class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 					enterkeyhint="go" onkeydown={(e) => { if (e.key === 'Enter') { e.preventDefault(); updateFilters(); }} } />
 				<i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
 				{#if search}
@@ -485,12 +485,12 @@
 					</button>
 				{/if}
 			</div>
-			<select bind:value={statusFilter} onchange={updateFilters} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+			<select bind:value={statusFilter} onchange={updateFilters} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors">
 				<option value="semua">Semua Status</option>
 				<option value="belum_bayar">Belum Bayar</option>
 				<option value="lunas">Lunas</option>
 			</select>
-			<select bind:value={tipeFilter} onchange={updateFilters} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+			<select bind:value={tipeFilter} onchange={updateFilters} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors">
 				<option value="semua">Semua Tipe</option>
 				<option value="keluarga">Keluarga (50k)</option>
 				<option value="pemilik_kosong">Pemilik Kosong (25k)</option>
@@ -569,7 +569,7 @@
 					<button
 						type="button"
 						onclick={() => toggleExpand(t.id)}
-						class="w-full p-4 flex items-center justify-between gap-4 text-left hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+						class="w-full p-4 flex items-center justify-between gap-4 text-left hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500"
 					>
 						<div class="flex-1 min-w-0">
 							<div class="flex items-center gap-2 flex-wrap">
@@ -658,7 +658,7 @@
 					id="items-per-page"
 					bind:value={itemsPerPage}
 					onchange={onItemsPerPageChange}
-					class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+					class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 				>
 					{#each itemsPerPageOptions as opt}
 						<option value={opt}>{opt} per halaman</option>
@@ -672,14 +672,14 @@
 				<button
 					onclick={() => changePage(currentPage - 1)}
 					disabled={currentPage === 1}
-					class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+					class="px-3 py-1.5 text-sm font-medium text-white bg-green-600 border border-transparent rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 				>
 					<i class="fa-solid fa-chevron-left"></i>
 				</button>
 				<button
 					onclick={() => changePage(currentPage + 1)}
 					disabled={currentPage === totalPages}
-					class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+					class="px-3 py-1.5 text-sm font-medium text-white bg-green-600 border border-transparent rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 				>
 					<i class="fa-solid fa-chevron-right"></i>
 				</button>
@@ -730,7 +730,7 @@
 							type="date"
 							id="bayar_tanggal"
 							bind:value={bayarTanggal}
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 							required
 						/>
 						{#if formErrors.bayar_tanggal}
@@ -743,7 +743,7 @@
 						<select
 							id="bayar_metode"
 							bind:value={bayarMetode}
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 							required
 						>
 							<option value="cash">Cash</option>
@@ -761,7 +761,7 @@
 							id="bayar_catatan"
 							bind:value={bayarCatatan}
 							rows="3"
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 							placeholder="Catatan tambahan..."
 						></textarea>
 					</div>
@@ -770,7 +770,7 @@
 						<button type="button" onclick={closeBayarModal} class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors" disabled={bayarLoading}>
 							Batal
 						</button>
-						<button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors" disabled={bayarLoading}>
+						<button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors" disabled={bayarLoading}>
 							{#if bayarLoading}
 								<i class="fa-solid fa-spinner fa-spin mr-2"></i> Memproses...
 							{:else}

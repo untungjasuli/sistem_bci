@@ -378,7 +378,7 @@
 			<div class="relative flex-1 min-w-0">
 				<label class="sr-only">Cari Nomor Bukti / Catatan / Nama / Blok</label>
 				<input type="text" name="searchInput" value={pagination.search} placeholder="Nomor Bukti / Catatan / Nama / Blok..."
-					class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+					class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 					oninput={(e) => pagination.search = e.currentTarget.value}
 					enterkeyhint="go" />
 				<i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
@@ -393,7 +393,7 @@
 					</button>
 				{/if}
 			</div>
-			<select bind:value={pagination.metodeFilter} onchange={(e) => changeFilter('metodeFilter', e.currentTarget.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+			<select bind:value={pagination.metodeFilter} onchange={(e) => changeFilter('metodeFilter', e.currentTarget.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors">
 				<option value="semua">Semua Metode</option>
 				<option value="cash">Tunai</option>
 				<option value="qris">QRIS</option>
@@ -428,7 +428,7 @@
 				<thead>
 					<tr class="bg-gray-50 border-b border-gray-200">
 						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider w-12">
-							<input type="checkbox" checked={selectAll} onchange={toggleSelectAll} class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 focus:ring-2" aria-label="Pilih semua" />
+							<input type="checkbox" checked={selectAll} onchange={toggleSelectAll} class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-green-500 focus:ring-2" aria-label="Pilih semua" />
 						</th>
 						<th class="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer" onclick={() => changeSort('created_at')}>
 							Tgl Input <i class="fa-solid {getSortIcon('created_at')} ml-1 text-xs"></i>
@@ -449,7 +449,7 @@
 					{#each pembayaran as p, index}
 						<tr class="hover:bg-gray-50 transition-colors {p.status === 'rejected' ? 'bg-red-50' : ''}">
 							<td class="px-6 py-4 text-sm text-gray-600">
-								<input type="checkbox" checked={selectedIds.includes(p.id)} onchange={() => toggleSelect(p.id)} class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 focus:ring-2" />
+								<input type="checkbox" checked={selectedIds.includes(p.id)} onchange={() => toggleSelect(p.id)} class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-green-500 focus:ring-2" />
 							</td>
 							<td class="px-6 py-4 text-sm text-gray-600">{formatDateTime(p.created_at)}</td>
 							<td class="px-6 py-4 text-sm text-gray-900 font-medium">{p.periode}</td>
@@ -562,7 +562,7 @@
 					id="items-per-page"
 					bind:value={pagination.itemsPerPage}
 					onchange={onItemsPerPageChange}
-					class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+					class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 				>
 					{#each itemsPerPageOptions as opt}
 						<option value={opt}>{opt} per halaman</option>
@@ -576,14 +576,14 @@
 				<button
 					onclick={() => changePage(pagination.page - 1)}
 					disabled={pagination.page === 1}
-					class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+					class="px-3 py-1.5 text-sm font-medium text-white bg-green-600 border border-transparent rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 				>
 					<i class="fa-solid fa-chevron-left"></i>
 				</button>
 				<button
 					onclick={() => changePage(pagination.page + 1)}
 					disabled={pagination.page === pagination.totalPages}
-					class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+					class="px-3 py-1.5 text-sm font-medium text-white bg-green-600 border border-transparent rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 				>
 					<i class="fa-solid fa-chevron-right"></i>
 				</button>
@@ -617,13 +617,13 @@
 							bind:value={rejectModal.reason}
 							rows="3"
 							required
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 							placeholder="Alasan menolak pembayaran ini..."
 						></textarea>
 					</div>
 
 					<div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-						<button type="button" onclick={() => rejectModal = { show: false, id: 0, reason: '' }} class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+						<button type="button" onclick={() => rejectModal = { show: false, id: 0, reason: '' }} class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
 							Batal
 						</button>
 						<button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">

@@ -134,16 +134,16 @@
 	<div class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
 		<form onsubmit={(e) => e.preventDefault()} class="flex flex-col sm:flex-row gap-4 items-end">
 			<div class="w-full">
-				<input type="month" id="periode" value={filter.periode} onchange={onPeriodeChange} class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors" required />
+				<input type="month" id="periode" value={filter.periode} onchange={onPeriodeChange} class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors" required />
 			</div>
 			<div class="w-full sm:w-48">
-				<select id="kas-filter" value={filter.kasFilter} onchange={onKasChange} class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+				<select id="kas-filter" value={filter.kasFilter} onchange={onKasChange} class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors">
 					<option value="semua">Semua Kas</option>
 					{#each kasAccounts as ka}<option value={String(ka.id)}>{ka.kode} - {ka.nama}</option>{/each}
 				</select>
 			</div>
 			<div class="w-full sm:w-48">
-				<select id="status-filter" value={filter.statusFilter} onchange={onStatusChange} class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+				<select id="status-filter" value={filter.statusFilter} onchange={onStatusChange} class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors">
 					<option value="semua">Semua Status</option>
 					<option value="posted">Posted</option>
 					<option value="pending">Pending</option>

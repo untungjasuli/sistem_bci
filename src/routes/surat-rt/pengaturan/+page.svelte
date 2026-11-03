@@ -112,7 +112,7 @@
                                 bind:value={formValues[setting.key]}
                                 rows="3"
                                 placeholder={setting.placeholder}
-                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
                             ></textarea>
                         {:else}
                             <input
@@ -120,7 +120,7 @@
                                 bind:value={formValues[setting.key]}
                                 placeholder={setting.placeholder}
                                 required={setting.required}
-                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                                class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
                             />
                         {/if}
                         {#if setting.key === 'rt_no' || setting.key === 'rw_no'}
@@ -154,7 +154,7 @@
             </div>
 
             <div class="flex items-center justify-end gap-3">
-                <button type="submit" class="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2">
+                <button type="submit" class="px-6 py-2.5 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors flex items-center gap-2">
                     <i class="fa-solid fa-save"></i> Simpan Pengaturan
                 </button>
             </div>

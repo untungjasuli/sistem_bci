@@ -120,7 +120,7 @@
 						bind:value={tanggalMutasi}
 						required
 						max={new Date().toISOString().split('T')[0]}
-						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 					/>
 					{#if errors.tanggalMutasi}
 						<p class="text-red-500 text-xs mt-1">{errors.tanggalMutasi}</p>
@@ -132,7 +132,7 @@
 					<select
 						id="alasan_meninggal"
 						bind:value={alasan}
-						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 					>
 						<option value="">-- Pilih Alasan (Opsional) --</option>
 						<option value="Sakit lama">Sakit lama</option>
@@ -150,7 +150,7 @@
 						type="text"
 						bind:value={noSuratMeninggal}
 						placeholder="Nomor surat keterangan meninggal dari kelurahan/RS"
-						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 					/>
 				</div>
 
@@ -161,7 +161,7 @@
 						bind:value={keterangan}
 						rows="2"
 						placeholder="Keterangan tambahan (opsional)"
-						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 					></textarea>
 				</div>
 

@@ -106,7 +106,7 @@
 	<!-- User Info Card -->
 	<div class="bg-white rounded-lg border border-gray-200 p-6 mb-6">
 		<div class="flex items-center gap-4">
-			<div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+			<div class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
 				{userData?.name?.charAt(0)?.toUpperCase() || 'U'}
 			</div>
 			<div>
@@ -139,7 +139,7 @@
 					type="text"
 					bind:value={formName}
 					required
-					class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+					class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 				/>
 			</div>
 
@@ -153,7 +153,7 @@
 						<input
 							type={showPassword ? 'text' : 'password'}
 							bind:value={formCurrentPassword}
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 							placeholder="Masukkan password saat ini"
 						/>
 					</div>
@@ -162,7 +162,7 @@
 						<input
 							type={showPassword ? 'text' : 'password'}
 							bind:value={formNewPassword}
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 							placeholder="Minimal 6 karakter"
 						/>
 					</div>
@@ -172,19 +172,19 @@
 					<input
 						type={showPassword ? 'text' : 'password'}
 						bind:value={formConfirmPassword}
-						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 						placeholder="Ulangi password baru"
 					/>
 				</div>
 
 				<div class="flex items-center gap-2 mt-2">
-					<input type="checkbox" bind:checked={showPassword} id="showPassword" class="text-blue-600 focus:ring-blue-500 rounded" />
+					<input type="checkbox" bind:checked={showPassword} id="showPassword" class="text-blue-600 focus:ring-green-500 rounded" />
 					<label for="showPassword" class="text-sm text-gray-700 cursor-pointer">Tampilkan password</label>
 				</div>
 			</div>
 
 			<div class="flex justify-end pt-4 border-t border-gray-200">
-				<button type="submit" class="px-6 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2">
+				<button type="submit" class="px-6 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors flex items-center gap-2">
 					<i class="fa-solid fa-save"></i> Simpan Perubahan
 				</button>
 			</div>

@@ -281,7 +281,7 @@
 								required
 								maxlength="16"
 								oninput={hanyaAngka}
-								class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+								class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 							/>
 							{#if formErrors.noKk}
 								<p class="text-red-500 text-xs mt-1">{formErrors.noKk}</p>
@@ -293,7 +293,7 @@
 								name="blok_rumah_id"
 								bind:value={blokRumahId}
 								required
-								class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+								class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 							>
 								<option value="">-- Pilih Blok Rumah --</option>
 								{#each blokRumahItems as blok}
@@ -310,7 +310,7 @@
 														name="status_rumah"
 														value="sendiri"
 														bind:group={statusRumah}
-														class="text-blue-600 focus:ring-blue-500"
+														class="text-blue-600 focus:ring-green-500"
 													/>
 													<span class="text-sm text-gray-700">Rumah Sendiri</span>
 												</label>
@@ -320,7 +320,7 @@
 														name="status_rumah"
 														value="ngontrak"
 														bind:group={statusRumah}
-														class="text-blue-600 focus:ring-blue-500"
+														class="text-blue-600 focus:ring-green-500"
 													/>
 													<span class="text-sm text-gray-700">Ngontrak</span>
 												</label>
@@ -330,7 +330,7 @@
 														name="status_rumah"
 														value="ikut_ortu_mertua"
 														bind:group={statusRumah}
-														class="text-blue-600 focus:ring-blue-500"
+														class="text-blue-600 focus:ring-green-500"
 													/>
 													<span class="text-sm text-gray-700">Ikut Orang Tua/Mertua</span>
 												</label>
@@ -358,7 +358,7 @@
 											: idx === anggotaForm.length - 1
 												? 'border-r border-gray-200'
 												: 'border-r border-gray-200'
-									} ${activeAnggotaIndex === idx ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-700'}`}
+									} ${activeAnggotaIndex === idx ? 'bg-green-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-700'}`}
 								>
 									{anggota.nama || `Anggota ${idx + 1}`}
 								</button>
@@ -395,7 +395,7 @@
 										bind:value={anggota.hub_keluarga}
 										required
 										onchange={(e) => onHubChange(idx, e.target?.value || '')}
-										class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+										class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 									>
 										<option value="Kepala Keluarga">Kepala Keluarga</option>
 										<option value="Istri">Istri</option>
@@ -414,7 +414,7 @@
 											required
 											maxlength="16"
 											oninput={hanyaAngka}
-											class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+											class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 										/>
 										{#if formErrors.anggota[idx]?.nik}
 											<p class="text-red-500 text-xs mt-1">{formErrors.anggota[idx].nik}</p>
@@ -429,7 +429,7 @@
 															bind:value={anggota.nama}
 															placeholder="Nama lengkap"
 															required
-															class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+															class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 														/>
 													</div>
 
@@ -438,7 +438,7 @@
 														<select
 															name="status_perkawinan[]"
 															bind:value={anggota.status_perkawinan}
-															class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+															class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 														>
 															<option value="">-- Pilih Status Perkawinan --</option>
 															{#each statusPerkawinanOptions as opt}
@@ -453,7 +453,7 @@
 															name="jenis_kelamin_visible[]"
 															bind:value={anggota.jenis_kelamin}
 															disabled={anggota.hub_keluarga === 'Istri'}
-															class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+															class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 														>
 															<option value="Laki-laki">Laki-laki</option>
 															<option value="Perempuan">Perempuan</option>
@@ -468,7 +468,7 @@
 															name="tempat_lahir[]"
 															bind:value={anggota.tempat_lahir}
 															placeholder="Contoh: Jakarta"
-															class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+															class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 														/>
 													</div>
 
@@ -479,7 +479,7 @@
 															name="tanggal_lahir[]"
 															bind:value={anggota.tanggal_lahir}
 															required
-															class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+															class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 														/>
 													</div>
 
@@ -492,7 +492,7 @@
 															placeholder="081234567890"
 															maxlength="13"
 															oninput={hanyaAngka}
-															class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+															class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 														/>
 														{#if formErrors.anggota[idx]?.nomorHp}
 															<p class="text-red-500 text-xs mt-1">{formErrors.anggota[idx].nomorHp}</p>
@@ -504,7 +504,7 @@
 														<select
 															name="agama[]"
 															bind:value={anggota.agama}
-															class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+															class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 														>
 															<option value="">-- Pilih Agama --</option>
 															{#each agamaOptions as opt}
@@ -518,7 +518,7 @@
 																		<select
 																			name="pekerjaan[]"
 																			bind:value={anggota.pekerjaan}
-																			class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+																			class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 																		>
 																			<option value="">-- Pilih Pekerjaan --</option>
 																			{#each pekerjaanOptions as opt}
@@ -536,7 +536,7 @@
 					<button type="button" onclick={onClose} class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
 						Batal
 					</button>
-					<button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+					<button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors">
 									<i class="fa-solid fa-save mr-2"></i> {isEditKeluarga ? 'Perbarui' : 'Simpan Keluarga'}
 								</button>
 				</div>

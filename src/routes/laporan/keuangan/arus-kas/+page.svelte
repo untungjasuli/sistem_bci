@@ -157,7 +157,7 @@
 					id="periode"
 					value={filter.periode}
 					onchange={onPeriodeChange}
-					class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+					class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 					required
 				/>
 			</div>
@@ -166,7 +166,7 @@
 					id="kas-filter"
 					value={filter.kasFilter}
 					onchange={onKasChange}
-					class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+					class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 				>
 					<option value="semua">Semua Kas</option>
 					{#each kasAccounts as ka}
@@ -179,7 +179,7 @@
 					id="kategori-filter"
 					value={filter.kategoriFilter}
 					onchange={onKategoriChange}
-					class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+					class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 				>
 					<option value="semua">Semua Kategori</option>
 					{#each kategoriKas as kk}
@@ -192,7 +192,7 @@
 					id="tipe-filter"
 					value={filter.tipeFilter}
 					onchange={onTipeChange}
-					class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+					class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 				>
 					<option value="semua">Semua Tipe</option>
 					<option value="debit">Masuk (Debit)</option>

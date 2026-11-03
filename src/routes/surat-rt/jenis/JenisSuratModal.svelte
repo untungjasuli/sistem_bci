@@ -147,30 +147,30 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Kode <span class="text-red-500">*</span></label>
-                            <input type="text" bind:value={formKode} required maxlength="10" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors uppercase" placeholder="Contoh: SKD, SKTM" />
+                            <input type="text" bind:value={formKode} required maxlength="10" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors uppercase" placeholder="Contoh: SKD, SKTM" />
                             <p class="text-xs text-gray-500 mt-1">2-10 huruf kapital, unik</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Urutan</label>
-                            <input type="number" bind:value={formUrutan} min="0" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors" />
+                            <input type="number" bind:value={formUrutan} min="0" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors" />
                         </div>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nama Surat <span class="text-red-500">*</span></label>
-                            <input type="text" bind:value={formNama} required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors" placeholder="Contoh: Surat Keterangan Domisili" />
+                            <input type="text" bind:value={formNama} required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors" placeholder="Contoh: Surat Keterangan Domisili" />
                         </div>
                         <div class="sm:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" bind:checked={formAktif} class="text-blue-600 focus:ring-blue-500 rounded" />
+                                <input type="checkbox" bind:checked={formAktif} class="text-blue-600 focus:ring-green-500 rounded" />
                                 <span class="text-sm text-gray-700">Aktif (tampil di form buat surat)</span>
                             </label>
                         </div>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi</label>
-                        <textarea bind:value={formDeskripsi} rows="2" placeholder="Deskripsi singkat kegunaan surat" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"></textarea>
+                        <textarea bind:value={formDeskripsi} rows="2" placeholder="Deskripsi singkat kegunaan surat" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"></textarea>
                     </div>
 
                     <!-- Variabel Custom -->
@@ -180,8 +180,8 @@
 
                         {#each Object.entries(formVariabel) as [key, value]}
                             <div class="flex items-center gap-2 mb-2">
-                                <input type="text" value={key} placeholder="Nama variabel (cth: nama_ayah)" class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors font-mono text-xs" readonly />
-                                <input type="text" value={value} placeholder="Nilai default" oninput={(e) => { e.stopPropagation(); updateCustomVariable(key, e.target.value); }} onkeydown={(e) => { if (e.key === 'Enter') e.preventDefault(); }} class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors" />
+                                <input type="text" value={key} placeholder="Nama variabel (cth: nama_ayah)" class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors font-mono text-xs" readonly />
+                                <input type="text" value={value} placeholder="Nilai default" oninput={(e) => { e.stopPropagation(); updateCustomVariable(key, e.target.value); }} onkeydown={(e) => { if (e.key === 'Enter') e.preventDefault(); }} class="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors" />
                                 <button type="button" onclick={(e) => { e.stopPropagation(); removeCustomVariable(key); }} class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Hapus"><i class="fa-solid fa-trash-can text-sm"></i></button>
                             </div>
                         {/each}
@@ -207,7 +207,7 @@
 
                     <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
                         <button type="button" onclick={onClose} class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Batal</button>
-                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2"><i class="fa-solid fa-save mr-2"></i> {isEditing ? 'Update' : 'Simpan'}</button>
+                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors flex items-center gap-2"><i class="fa-solid fa-save mr-2"></i> {isEditing ? 'Update' : 'Simpan'}</button>
                     </div>
                 </form>
             </div>

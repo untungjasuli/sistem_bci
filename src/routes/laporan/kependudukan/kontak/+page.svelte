@@ -172,7 +172,7 @@
 			<div class="relative flex-1 min-w-0">
 				<label class="sr-only">Cari Nama / HP / Blok / KK</label>
 				<input type="text" value={pendingSearch} placeholder="Cari Nama / HP / Blok / KK..."
-					class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+					class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 					oninput={(e) => (pendingSearch = e.currentTarget.value)}
 					enterkeyhint="go" />
 				<i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
@@ -187,7 +187,7 @@
 					</button>
 				{/if}
 			</div>
-			<select bind:value={filter.blokFilter} onchange={onBlokChange} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+			<select bind:value={filter.blokFilter} onchange={onBlokChange} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors">
 				<option value="semua">Semua Blok</option>
 				{#each blokRumah as b}<option value={String(b.id)}>{b.no_blok}</option>{/each}
 			</select>

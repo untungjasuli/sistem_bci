@@ -63,6 +63,13 @@
 		return roles[role] || role;
 	}
 
+	// Logout confirmation
+	function confirmLogout(event) {
+		if (!confirm('Yakin ingin logout?')) {
+			event.preventDefault();
+		}
+	}
+
 	// Role checks for sidebar/menu visibility
 	function isAdmin() { return user?.role === 'admin'; }
 	function isBendahara() { return user?.role === 'bendahara'; }
@@ -158,12 +165,12 @@
 									</a>
 								{/if}
 								<hr class="my-1 border-gray-100" />
-								<form method="POST" action="/logout" class="px-4 py-2">
-									<button type="submit" class="flex items-center gap-3 w-full text-left text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors">
-										<i class="fa-solid fa-right-from-bracket w-5"></i>
-										<span>Log Out</span>
-									</button>
-								</form>
+												<form method="POST" action="/logout" class="px-4 py-2" onsubmit={confirmLogout}>
+													<button type="submit" class="flex items-center gap-3 w-full text-left text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors">
+														<i class="fa-solid fa-right-from-bracket w-5"></i>
+														<span>Log Out</span>
+													</button>
+												</form>
 							</div>
 						{/if}
 					</div>
@@ -513,17 +520,17 @@
 					</ul>
 				</nav>
 				<div class="p-4 border-t border-gray-200">
-					<form method="POST" action="/logout" class="w-full">
-						<button
-							type="submit"
-							onclick={closeSidebar}
-							class="flex items-center gap-3 w-full px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 rounded-lg font-medium transition-colors text-left text-sm"
-						>
-							<i class="fa-solid fa-right-from-bracket w-5"></i>
-							<span>Logout</span>
-						</button>
-					</form>
-				</div>
+								<form method="POST" action="/logout" class="w-full" onsubmit={confirmLogout}>
+									<button
+										type="submit"
+										onclick={closeSidebar}
+										class="flex items-center gap-3 w-full px-4 py-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 rounded-lg font-medium transition-colors text-left text-sm"
+									>
+										<i class="fa-solid fa-right-from-bracket w-5"></i>
+										<span>Logout</span>
+									</button>
+								</form>
+							</div>
 			</div>
 		</aside>
 

@@ -104,7 +104,7 @@
 						<span class="font-medium text-blue-600">{stats.jkStats.laki}</span>
 					</div>
 					<div class="w-full bg-gray-100 rounded-full h-2">
-						<div class="bg-blue-600 h-2 rounded-full transition-all duration-500" style={`width: ${stats.totalPenduduk > 0 ? (stats.jkStats.laki / stats.totalPenduduk) * 100 : 0}%`}></div>
+						<div class="bg-green-600 h-2 rounded-full transition-all duration-500" style={`width: ${stats.totalPenduduk > 0 ? (stats.jkStats.laki / stats.totalPenduduk) * 100 : 0}%`}></div>
 					</div>
 				</div>
 				<div>

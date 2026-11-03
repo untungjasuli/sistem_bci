@@ -180,7 +180,7 @@
 			<h1 class="text-2xl font-bold text-gray-900">Manajemen Pengguna</h1>
 			<p class="text-gray-500 text-sm">Kelola akun pengguna dan hak akses</p>
 		</div>
-		<button onclick={openAddModal} class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+		<button onclick={openAddModal} class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
 			<i class="fa-solid fa-plus"></i> Tambah Pengguna
 		</button>
 	</div>
@@ -250,7 +250,7 @@
 								type="text"
 								bind:value={formUsername}
 								required
-								class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+								class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 								placeholder="Username unik"
 							/>
 							<p class="text-xs text-gray-500 mt-1">Tidak bisa diubah setelah dibuat</p>
@@ -268,14 +268,14 @@
 							type="text"
 							bind:value={formName}
 							required
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 							placeholder="Nama lengkap pengguna"
 						/>
 					</div>
 
 					<div>
 						<label class="block text-sm font-medium text-gray-700 mb-1">Role <span class="text-red-500">*</span></label>
-						<select bind:value={formRole} class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+						<select bind:value={formRole} class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors">
 							<option value="admin">Administrator (akses penuh)</option>
 							<option value="bendahara">Bendahara (keuangan, tagihan, iuran)</option>
 							<option value="sekretaris">Sekretaris (surat, kependudukan, data penduduk)</option>
@@ -293,7 +293,7 @@
 							type="password"
 							bind:value={formPassword}
 							required={!isEditing}
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 							placeholder={isEditing ? 'Biarkan kosong untuk mempertahankan password lama' : 'Minimal 6 karakter'}
 						/>
 						<p class="text-xs text-gray-500 mt-1">Minimal 6 karakter</p>
@@ -301,7 +301,7 @@
 
 					<div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
 						<button type="button" onclick={closeModal} class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Batal</button>
-						<button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2">
+						<button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors flex items-center gap-2">
 							<i class="fa-solid fa-save mr-2"></i> {isEditing ? 'Update' : 'Simpan'}
 						</button>
 					</div>

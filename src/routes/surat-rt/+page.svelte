@@ -274,7 +274,7 @@
             <h1 class="text-2xl font-bold text-gray-900">Surat RT</h1>
             <p class="text-gray-500 text-sm">Kelola surat keterangan RT/RW</p>
         </div>
-        <button onclick={openAddModal} class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+        <button onclick={openAddModal} class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
             <i class="fa-solid fa-plus"></i> Buat Surat
         </button>
     </div>
@@ -285,7 +285,7 @@
             <div class="relative flex-1 min-w-0">
                 <label class="sr-only">Cari Nomor/Nama/NIK/KK</label>
                 <input type="text" name="search" value={pendingSearch} placeholder="Cari Nomor Surat / Nama / NIK / KK..."
-                    class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+                    class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
                     oninput={(e) => pendingSearch = e.target.value}
                     enterkeyhint="go" />
                 <i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
@@ -300,19 +300,19 @@
                     </button>
                 {/if}
             </div>
-            <select bind:value={jenisFilter} onchange={handleSearchSubmit} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+            <select bind:value={jenisFilter} onchange={handleSearchSubmit} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors">
                 <option value="semua">Semua Jenis</option>
                 {#each jenisSurat as j}
                     <option value={String(j.id)}>{j.kode} - {j.nama}</option>
                 {/each}
             </select>
-            <select bind:value={statusFilter} onchange={handleSearchSubmit} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+            <select bind:value={statusFilter} onchange={handleSearchSubmit} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors">
                 <option value="semua">Semua Status</option>
                 <option value="selesai">Selesai</option>
                 <option value="draft">Draft</option>
                 <option value="dibatalkan">Dibatalkan</option>
             </select>
-            <select bind:value={blokFilter} onchange={handleSearchSubmit} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+            <select bind:value={blokFilter} onchange={handleSearchSubmit} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors">
                 <option value="semua">Semua Blok</option>
                 {#each blokRumah as b}
                     <option value={String(b.id)}>{b.no_blok}</option>
@@ -377,14 +377,14 @@
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 px-4 py-3 bg-white border border-gray-200 rounded-lg">
             <div class="flex items-center gap-3">
                 <label for="items-per-page" class="text-sm text-gray-700">Tampilkan</label>
-                <select id="items-per-page" bind:value={itemsPerPage} onchange={onItemsPerPageChange} class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+                <select id="items-per-page" bind:value={itemsPerPage} onchange={onItemsPerPageChange} class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors">
                     {#each itemsPerPageOptions as opt}<option value={opt}>{opt} per halaman</option>{/each}
                 </select>
             </div>
             <div class="flex items-center gap-2">
                 <span class="text-sm text-gray-700">Halaman {currentPage} dari {totalPages} (Total: {data.total} data)</span>
-                <button onclick={() => { if (currentPage > 1) { const p = new URLSearchParams(); if (search) p.set('search', search); if (jenisFilter !== 'semua') p.set('jenis', jenisFilter); if (statusFilter !== 'semua') p.set('status', statusFilter); if (blokFilter !== 'semua') p.set('blok', blokFilter); p.set('page', (currentPage - 1).toString()); p.set('itemsPerPage', itemsPerPage.toString()); goto(`?${p.toString()}`); } }} disabled={currentPage === 1} class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><i class="fa-solid fa-chevron-left"></i></button>
-                <button onclick={() => { if (currentPage < totalPages) { const p = new URLSearchParams(); if (search) p.set('search', search); if (jenisFilter !== 'semua') p.set('jenis', jenisFilter); if (statusFilter !== 'semua') p.set('status', statusFilter); if (blokFilter !== 'semua') p.set('blok', blokFilter); p.set('page', (currentPage + 1).toString()); p.set('itemsPerPage', itemsPerPage.toString()); goto(`?${p.toString()}`); } }} disabled={currentPage === totalPages} class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><i class="fa-solid fa-chevron-right"></i></button>
+                <button onclick={() => { if (currentPage > 1) { const p = new URLSearchParams(); if (search) p.set('search', search); if (jenisFilter !== 'semua') p.set('jenis', jenisFilter); if (statusFilter !== 'semua') p.set('status', statusFilter); if (blokFilter !== 'semua') p.set('blok', blokFilter); p.set('page', (currentPage - 1).toString()); p.set('itemsPerPage', itemsPerPage.toString()); goto(`?${p.toString()}`); } }} disabled={currentPage === 1} class="px-3 py-1.5 text-sm font-medium text-white bg-green-600 rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><i class="fa-solid fa-chevron-left"></i></button>
+                <button onclick={() => { if (currentPage < totalPages) { const p = new URLSearchParams(); if (search) p.set('search', search); if (jenisFilter !== 'semua') p.set('jenis', jenisFilter); if (statusFilter !== 'semua') p.set('status', statusFilter); if (blokFilter !== 'semua') p.set('blok', blokFilter); p.set('page', (currentPage + 1).toString()); p.set('itemsPerPage', itemsPerPage.toString()); goto(`?${p.toString()}`); } }} disabled={currentPage === totalPages} class="px-3 py-1.5 text-sm font-medium text-white bg-green-600 rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"><i class="fa-solid fa-chevron-right"></i></button>
             </div>
         </div>
     {:else}
@@ -407,7 +407,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div class="sm:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Jenis Surat <span class="text-red-500">*</span></label>
-                            <select bind:value={formJenisSuratId} required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+                            <select bind:value={formJenisSuratId} required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors">
                                 <option value="">-- Pilih Jenis Surat --</option>
                                 {#each jenisSurat as j}
                                     <option value={j.id}>{j.kode} - {j.nama}</option>
@@ -416,7 +416,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Blok Rumah <span class="text-red-500">*</span></label>
-                            <select bind:value={formBlokId} required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+                            <select bind:value={formBlokId} required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors">
                                 <option value="">-- Pilih Blok --</option>
                                 {#each blokRumah as b}
                                     <option value={String(b.id)}>{b.no_blok}</option>
@@ -425,12 +425,12 @@
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Surat <span class="text-red-500">*</span></label>
-                            <input type="date" bind:value={formTanggal} required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors" max={new Date().toISOString().split('T')[0]} />
+                            <input type="date" bind:value={formTanggal} required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors" max={new Date().toISOString().split('T')[0]} />
                         </div>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Warga <span class="text-red-500">*</span></label>
-                        <select bind:value={formAnggotaId} required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+                        <select bind:value={formAnggotaId} required class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors">
                             <option value="">-- Pilih Blok Terlebih Dahulu --</option>
                             {#each formWargaOptions as w}
                                 <option value={String(w.id)}>{w.nama} (NIK: {w.nik}) - KK: {w.no_kk}</option>
@@ -440,11 +440,11 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1">Keperluan <span class="text-red-500">*</span></label>
-                        <textarea bind:value={formKeterangan} rows="3" required placeholder="Contoh: Membuat KTP Baru, Bantuan Sosial, Izin Usaha, Pernikahan, dll" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"></textarea>
+                        <textarea bind:value={formKeterangan} rows="3" required placeholder="Contoh: Membuat KTP Baru, Bantuan Sosial, Izin Usaha, Pernikahan, dll" class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"></textarea>
                     </div>
                     <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
                         <button type="button" onclick={closeModal} class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Batal</button>
-                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors flex items-center gap-2"><i class="fa-solid fa-file-lines mr-2"></i> Buat Surat</button>
+                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors flex items-center gap-2"><i class="fa-solid fa-file-lines mr-2"></i> Buat Surat</button>
                     </div>
                 </form>
             </div>

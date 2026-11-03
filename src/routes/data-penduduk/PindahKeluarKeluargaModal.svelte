@@ -145,7 +145,7 @@
 						type="date"
 						bind:value={tanggalMutasi}
 						required
-						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 					/>
 					{#if errors.tanggalMutasi}
 						<p class="text-red-500 text-xs mt-1">{errors.tanggalMutasi}</p>
@@ -162,7 +162,7 @@
 						rows="2"
 						placeholder="Alamat lengkap tujuan pindah seluruh keluarga"
 						required
-						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 					></textarea>
 					{#if errors.alamatTujuan}
 						<p class="text-red-500 text-xs mt-1">{errors.alamatTujuan}</p>
@@ -177,7 +177,7 @@
 							type="text"
 							bind:value={rtRwTujuan}
 							placeholder="Contoh: RT 03 RW 05"
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 						/>
 					</div>
 					<div>
@@ -187,7 +187,7 @@
 							type="text"
 							bind:value={kelurahanTujuan}
 							placeholder="Kelurahan/Desa"
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 						/>
 					</div>
 				</div>
@@ -200,7 +200,7 @@
 							type="text"
 							bind:value={kecamatanTujuan}
 							placeholder="Kecamatan"
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 						/>
 					</div>
 					<div>
@@ -210,7 +210,7 @@
 							type="text"
 							bind:value={kotaTujuan}
 							placeholder="Kota/Kabupaten"
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 						/>
 					</div>
 				</div>
@@ -222,7 +222,7 @@
 						type="text"
 						bind:value={provinsiTujuan}
 						placeholder="Provinsi"
-						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 					/>
 				</div>
 
@@ -233,7 +233,7 @@
 						type="text"
 						bind:value={noSuratPindah}
 						placeholder="Nomor surat pindah (bisa sama untuk seluruh KK)"
-						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 					/>
 				</div>
 
@@ -242,7 +242,7 @@
 					<select
 						id="alasan_kk"
 						bind:value={alasan}
-						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 					>
 						<option value="">-- Pilih Alasan --</option>
 						<option value="Pindah kerja">Pindah kerja</option>
@@ -262,7 +262,7 @@
 						bind:value={keterangan}
 						rows="2"
 						placeholder="Keterangan tambahan (opsional)"
-						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 					></textarea>
 				</div>
 

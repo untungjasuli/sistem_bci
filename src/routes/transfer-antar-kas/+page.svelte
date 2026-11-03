@@ -425,7 +425,7 @@
 		<div class="flex items-center gap-3 w-full lg:w-auto">
 			<button
 				onclick={openAddModal}
-				class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex-shrink-0"
+				class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors flex-shrink-0"
 				aria-label="Tambah Transfer"
 			>
 				<i class="fa-solid fa-plus"></i>
@@ -440,7 +440,7 @@
 			<div class="relative flex-1 min-w-0">
 				<label class="sr-only">Cari Nomor Bukti / Keterangan / Kas</label>
 				<input type="text" name="searchInput" value={pagination.search} placeholder="Nomor Bukti / Keterangan / Kas..."
-					class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+					class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 					oninput={(e) => pagination.search = e.currentTarget.value}
 					enterkeyhint="go" />
 				<i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
@@ -455,7 +455,7 @@
 					</button>
 				{/if}
 			</div>
-			<select bind:value={pagination.statusFilter} onchange={(e) => changeFilter('statusFilter', e.currentTarget.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+			<select bind:value={pagination.statusFilter} onchange={(e) => changeFilter('statusFilter', e.currentTarget.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors">
 				<option value="semua">Semua Status</option>
 				<option value="pending">Menunggu</option>
 				<option value="posted">Diposting</option>
@@ -612,7 +612,7 @@
 					id="items-per-page"
 					bind:value={pagination.itemsPerPage}
 					onchange={onItemsPerPageChange}
-					class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+					class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 				>
 					{#each itemsPerPageOptions as opt}
 						<option value={opt}>{opt} per halaman</option>
@@ -626,14 +626,14 @@
 				<button
 					onclick={() => changePage(pagination.page - 1)}
 					disabled={pagination.page === 1}
-					class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+					class="px-3 py-1.5 text-sm font-medium text-white bg-green-600 border border-transparent rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 				>
 					<i class="fa-solid fa-chevron-left"></i>
 				</button>
 				<button
 					onclick={() => changePage(pagination.page + 1)}
 					disabled={pagination.page === pagination.totalPages}
-					class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+					class="px-3 py-1.5 text-sm font-medium text-white bg-green-600 border border-transparent rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 				>
 					<i class="fa-solid fa-chevron-right"></i>
 				</button>
@@ -644,7 +644,7 @@
 			<i class="fa-solid fa-arrow-right-arrow-left text-4xl text-gray-300 mb-4"></i>
 			<h3 class="text-lg font-medium text-gray-900 mb-2">Tidak ada transfer</h3>
 			<p class="text-gray-500 mb-4">Belum ada transfer antar kas yang diajukan.</p>
-			<button onclick={openAddModal} class="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+			<button onclick={openAddModal} class="px-6 py-2.5 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
 				<i class="fa-solid fa-plus mr-2"></i> Ajukan Transfer Pertama
 			</button>
 		</div>
@@ -674,7 +674,7 @@
 						<select
 							id="dari_kas_id"
 							bind:value={currentTransfer.dari_kas_id}
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors {modalFieldErrors.dari_kas_id ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}"
+							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors {modalFieldErrors.dari_kas_id ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}"
 							onblur={() => validateField('dari_kas_id', currentTransfer.dari_kas_id)}
 						>
 							<option value="">-- Pilih Rekening Asal --</option>
@@ -692,7 +692,7 @@
 						<select
 							id="ke_kas_id"
 							bind:value={currentTransfer.ke_kas_id}
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors {modalFieldErrors.ke_kas_id ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}"
+							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors {modalFieldErrors.ke_kas_id ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}"
 							onblur={() => validateField('ke_kas_id', currentTransfer.ke_kas_id)}
 						>
 							<option value="">-- Pilih Rekening Tujuan --</option>
@@ -713,7 +713,7 @@
 								bind:value={currentTransfer.nominal}
 								min="0"
 								step="100"
-								class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors {modalFieldErrors.nominal ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}"
+								class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors {modalFieldErrors.nominal ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}"
 								onblur={() => validateField('nominal', currentTransfer.nominal)}
 							/>
 							{#if modalFieldErrors.nominal}
@@ -727,7 +727,7 @@
 							type="date"
 							id="tanggal"
 							bind:value={currentTransfer.tanggal}
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors {modalFieldErrors.tanggal ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}"
+							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors {modalFieldErrors.tanggal ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}"
 							onblur={() => validateField('tanggal', currentTransfer.tanggal)}
 						/>
 						{#if modalFieldErrors.tanggal}
@@ -741,16 +741,16 @@
 							id="keterangan"
 							bind:value={currentTransfer.keterangan}
 							rows="3"
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 							placeholder="Keterangan transfer"
 						></textarea>
 					</div>
 
 					<div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-						<button type="button" onclick={closeModal} class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+						<button type="button" onclick={closeModal} class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
 							Batal
 						</button>
-						<button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+						<button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
 							<i class="fa-solid fa-save mr-2"></i>Ajukan Transfer
 						</button>
 					</div>
@@ -779,13 +779,13 @@
 							bind:value={rejectModal.reason}
 							rows="3"
 							required
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 							placeholder="Alasan menolak transfer ini..."
 						></textarea>
 					</div>
 
 					<div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-						<button type="button" onclick={() => rejectModal = { show: false, id: 0, reason: '' }} class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+						<button type="button" onclick={() => rejectModal = { show: false, id: 0, reason: '' }} class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
 							Batal
 						</button>
 						<button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">

@@ -347,7 +347,7 @@
 		<div class="flex items-center gap-3 w-full lg:w-auto">
 			<button
 				onclick={openAddModal}
-				class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex-shrink-0"
+				class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors flex-shrink-0"
 				aria-label="Tambah Keluarga"
 			>
 				<i class="fa-solid fa-plus"></i>
@@ -362,7 +362,7 @@
 			<div class="relative flex-1 min-w-0">
 				<label class="sr-only">Cari NIK / Nama / KK / Blok</label>
 				<input type="text" name="search" value={pendingSearch} placeholder="Cari NIK / Nama / KK / Blok..."
-					class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+					class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 					oninput={(e) => (pendingSearch = e.currentTarget.value)}
 					enterkeyhint="go" />
 				<i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
@@ -575,7 +575,7 @@
 						params.set('itemsPerPage', itemsPerPage.toString());
 						goto(`?${params.toString()}`);
 					}}
-					class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+					class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 				>
 					{#each itemsPerPageOptions as opt}
 						<option value={opt}>{opt} per halaman</option>
@@ -599,7 +599,7 @@
 						}
 					}}
 					disabled={currentPage === 1}
-					class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+					class="px-3 py-1.5 text-sm font-medium text-white bg-green-600 border border-transparent rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 					aria-label="Halaman sebelumnya"
 				>
 					<i class="fa-solid fa-chevron-left"></i>
@@ -617,7 +617,7 @@
 						}
 					}}
 					disabled={currentPage === totalPages}
-					class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+					class="px-3 py-1.5 text-sm font-medium text-white bg-green-600 border border-transparent rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 					aria-label="Halaman selanjutnya"
 				>
 					<i class="fa-solid fa-chevron-right"></i>

@@ -484,7 +484,7 @@
 											<span>Max Grid:</span>
 											<select
 												bind:value={maxGridCols}
-												class="w-20 px-2 py-1 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+												class="w-20 px-2 py-1 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
 												aria-label="Maksimal kolom (horizontal)"
 											>
 												<option value={20}>20</option>
@@ -496,7 +496,7 @@
 											<span class="text-gray-400">×</span>
 											<select
 												bind:value={maxGridRows}
-												class="w-20 px-2 py-1 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+												class="w-20 px-2 py-1 text-sm border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
 												aria-label="Maksimal baris (vertikal)"
 											>
 												<option value={20}>20</option>
@@ -509,7 +509,7 @@
 						<!-- Fullscreen Button -->
 						<button
 							onclick={toggleFullscreen}
-							class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+							class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
 							aria-label={isFullscreen ? 'Keluar layar penuh' : 'Layar penuh'}
 							title={isFullscreen ? 'Keluar layar penuh (Esc)' : 'Layar penuh (F11)'}
 						>
@@ -655,7 +655,7 @@
 			<!-- Drop zone highlight -->
 			{#if isDragging && dragOverCell.x >= 0 && dragOverCell.y >= 0}
 				<div
-					class="absolute border-2 border-dashed border-blue-500 bg-blue-500/10 pointer-events-none"
+					class="absolute border-2 border-dashed border-green-500 bg-blue-500/10 pointer-events-none"
 					style="
 						left: {dragOverCell.x * cellSize}px;
 						top: {dragOverCell.y * cellSize}px;

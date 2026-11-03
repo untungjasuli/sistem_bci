@@ -317,7 +317,7 @@
 		<div class="flex items-center gap-3 w-full lg:w-auto">
 			<button
 				onclick={openAddModal}
-				class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex-shrink-0"
+				class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors flex-shrink-0"
 				aria-label="Tambah Kategori"
 			>
 				<i class="fa-solid fa-plus"></i>
@@ -332,7 +332,7 @@
 			<div class="relative flex-1 min-w-0">
 				<label class="sr-only">Cari Kode / Nama</label>
 				<input type="text" name="searchInput" value={pagination.search} placeholder="Kode / Nama..."
-					class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+					class="w-full pl-10 pr-12 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 					oninput={(e) => pagination.search = e.currentTarget.value}
 					enterkeyhint="go" />
 				<i class="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
@@ -347,7 +347,7 @@
 					</button>
 				{/if}
 			</div>
-			<select bind:value={pagination.tipeFilter} onchange={(e) => changeTipeFilter(e.currentTarget.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors">
+			<select bind:value={pagination.tipeFilter} onchange={(e) => changeTipeFilter(e.currentTarget.value)} class="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors">
 				<option value="semua">Semua Tipe</option>
 				<option value="pemasukan">Pemasukan</option>
 				<option value="pengeluaran">Pengeluaran</option>
@@ -469,7 +469,7 @@
 					id="items-per-page"
 					bind:value={pagination.itemsPerPage}
 					onchange={onItemsPerPageChange}
-					class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+					class="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 				>
 					{#each itemsPerPageOptions as opt}
 						<option value={opt}>{opt} per halaman</option>
@@ -483,14 +483,14 @@
 				<button
 					onclick={() => changePage(pagination.page - 1)}
 					disabled={pagination.page === 1}
-					class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+					class="px-3 py-1.5 text-sm font-medium text-white bg-green-600 border border-transparent rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 				>
 					<i class="fa-solid fa-chevron-left"></i>
 				</button>
 				<button
 					onclick={() => changePage(pagination.page + 1)}
 					disabled={pagination.page === pagination.totalPages}
-					class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+					class="px-3 py-1.5 text-sm font-medium text-white bg-green-600 border border-transparent rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 				>
 					<i class="fa-solid fa-chevron-right"></i>
 				</button>
@@ -501,7 +501,7 @@
 			<i class="fa-solid fa-tags text-4xl text-gray-300 mb-4"></i>
 			<h3 class="text-lg font-medium text-gray-900 mb-2">Tidak ada kategori</h3>
 			<p class="text-gray-500 mb-4">Belum ada kategori yang terdaftar.</p>
-			<button onclick={openAddModal} class="px-6 py-2.5 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+			<button onclick={openAddModal} class="px-6 py-2.5 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
 				<i class="fa-solid fa-plus mr-2"></i> Tambah Kategori Pertama
 			</button>
 		</div>
@@ -534,7 +534,7 @@
 							bind:value={currentKategori.kode}
 							placeholder="Contoh: PMS-IURAN, KEL-BERSIH"
 							maxlength="20"
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors {modalFieldErrors.kode ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}"
+							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors {modalFieldErrors.kode ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}"
 							onblur={() => validateField('kode', currentKategori.kode)}
 						/>
 						{#if modalFieldErrors.kode}
@@ -549,7 +549,7 @@
 							id="nama"
 							bind:value={currentKategori.nama}
 							placeholder="Nama kategori"
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors {modalFieldErrors.nama ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}"
+							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors {modalFieldErrors.nama ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}"
 							onblur={() => validateField('nama', currentKategori.nama)}
 						/>
 						{#if modalFieldErrors.nama}
@@ -562,7 +562,7 @@
 						<select
 							id="tipe"
 							bind:value={currentKategori.tipe}
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors {modalFieldErrors.tipe ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}"
+							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors {modalFieldErrors.tipe ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}"
 							onblur={() => validateField('tipe', currentKategori.tipe)}
 						>
 							<option value="pemasukan">Pemasukan</option>
@@ -578,7 +578,7 @@
 						<select
 							id="parent_id"
 							bind:value={currentKategori.parent_id}
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 						>
 							<option value="">-- Tidak Ada Parent --</option>
 							{#each getParentOptions(currentKategori.tipe) as p}
@@ -597,7 +597,7 @@
 							id="urutan"
 							bind:value={currentKategori.urutan}
 							min="0"
-							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+							class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 						/>
 					</div>
 
@@ -607,17 +607,17 @@
 								type="checkbox"
 								id="is_active"
 								bind:checked={currentKategori.is_active}
-								class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+								class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-green-500 focus:ring-2"
 							/>
 							<label for="is_active" class="ml-2 block text-sm text-gray-700">Aktif</label>
 						</div>
 					{/if}
 
 					<div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-						<button type="button" onclick={closeModal} class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+						<button type="button" onclick={closeModal} class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
 							Batal
 						</button>
-						<button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+						<button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
 							<i class="fa-solid fa-save mr-2"></i>{editMode ? 'Update' : 'Simpan'}
 						</button>
 					</div>

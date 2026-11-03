@@ -157,7 +157,7 @@
             <h1 class="text-2xl font-bold text-gray-900">Master Jenis Surat</h1>
             <p class="text-gray-500 text-sm">Kelola jenis-jenis surat RT/RW</p>
         </div>
-        <button onclick={openAddModal} class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+        <button onclick={openAddModal} class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors">
             <i class="fa-solid fa-plus"></i> Tambah Jenis Surat
         </button>
     </div>

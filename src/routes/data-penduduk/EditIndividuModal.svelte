@@ -182,7 +182,7 @@
 						maxlength="16"
 						required
 						oninput={hanyaAngka}
-						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+						class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 					/>
 					{#if nikError}
 						<p class="text-red-500 text-xs mt-1">{nikError}</p>
@@ -196,7 +196,7 @@
 									bind:value={editNama}
 									placeholder="Nama lengkap"
 									required
-									class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+									class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 								/>
 							</div>
 							<div>
@@ -204,7 +204,7 @@
 								<select
 									id="edit_status_perkawinan"
 									bind:value={editStatusPerkawinan}
-									class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+									class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 								>
 									<option value="">-- Pilih Status Perkawinan --</option>
 									{#each statusPerkawinanOptions as opt}
@@ -218,7 +218,7 @@
 									id="edit_jenis_kelamin"
 									bind:value={editJenisKelamin}
 									required
-									class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+									class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 								>
 									<option value="Laki-laki">Laki-laki</option>
 									<option value="Perempuan">Perempuan</option>
@@ -231,7 +231,7 @@
 									type="text"
 									bind:value={editTempatLahir}
 									placeholder="Contoh: Jakarta"
-									class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+									class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 								/>
 							</div>
 							<div>
@@ -240,7 +240,7 @@
 									id="edit_tanggal_lahir"
 									type="date"
 									bind:value={editTanggalLahir}
-									class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+									class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 								/>
 							</div>
 							<div>
@@ -252,7 +252,7 @@
 									placeholder="081234567890"
 									maxlength="13"
 									oninput={hanyaAngka}
-									class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+									class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 								/>
 								{#if nomorHpError}
 									<p class="text-red-500 text-xs mt-1">{nomorHpError}</p>
@@ -263,7 +263,7 @@
 								<select
 									id="edit_agama"
 									bind:value={editAgama}
-									class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+									class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 								>
 									<option value="">-- Pilih Agama --</option>
 									{#each agamaOptions as opt}
@@ -276,7 +276,7 @@
 											<select
 												id="edit_pekerjaan"
 												bind:value={editPekerjaan}
-												class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+												class="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
 											>
 												<option value="">-- Pilih Pekerjaan --</option>
 												{#each pekerjaanOptions as opt}
@@ -288,7 +288,7 @@
 					<button type="button" onclick={onClose} class="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
 						Batal
 					</button>
-					<button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+					<button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-lg transition-colors">
 									<i class="fa-solid fa-save mr-2"></i> Simpan
 								</button>
 				</div>
