@@ -13,10 +13,10 @@
 	<div class="max-w-md w-full">
 		<div class="bg-white/90 backdrop-blur-sm p-8 rounded-2xl shadow-2xl border border-white/20">
 			<div class="text-center mb-8">
-							<img src="/logo.png" alt="Logo BCI" class="w-40 h-40 mx-auto mb-4 drop-shadow-2xl object-contain" />
-							<h2 class="text-2xl font-bold text-gray-900">Login Admin</h2>
-							<p class="text-gray-600 text-sm mt-2">Masuk ke sistem administrasi Sistem BCI</p>
-						</div>
+				<img src="/logo.png" alt="Logo BCI" class="w-40 h-40 mx-auto mb-4 drop-shadow-2xl object-contain" />
+				<h2 class="text-2xl font-bold text-gray-900">Login Admin</h2>
+				<p class="text-gray-600 text-sm mt-2">Masuk ke sistem administrasi Perumahan BCI</p>
+			</div>
 
 			{#if form?.error}
 				<div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
