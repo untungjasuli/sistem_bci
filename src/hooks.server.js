@@ -110,7 +110,7 @@ export async function handle({ event, resolve }) {
 	if (url.pathname.startsWith('/_app/') || 
 		url.pathname.startsWith('/favicon') ||
 		url.pathname.startsWith('/api/') ||
-		url.pathname.startsWith('/surat')) { // surat preview endpoint
+		url.pathname.startsWith('/surat-rt/preview')) { // surat preview endpoint only
 		return resolve(event);
 	}
 
