@@ -122,11 +122,9 @@
 						<i class="fa-solid fa-bars text-xl"></i>
 					</button>
 					<div class="flex items-center gap-2">
-						<div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
-							B
-						</div>
-						<span class="text-xl font-bold text-gray-800">Sistem BCI</span>
-					</div>
+								<img src="/logo.png" alt="Logo BCI" class="w-10 h-10 drop-shadow-md object-contain" />
+								<span class="text-xl font-bold text-gray-800">Sistem BCI</span>
+							</div>
 				</div>
 
 				<div class="flex items-center gap-2">
@@ -180,11 +178,9 @@
 			<div class="flex flex-col h-full">
 				<div class="p-6 border-b border-gray-200">
 					<div class="flex items-center gap-2">
-						<div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">
-							B
-						</div>
-						<span class="text-lg font-bold text-gray-800">Sistem BCI</span>
-					</div>
+								<img src="/logo.png" alt="Logo BCI" class="w-10 h-10 drop-shadow-md object-contain" />
+								<span class="text-lg font-bold text-gray-800">Sistem BCI</span>
+							</div>
 				</div>
 				<nav class="flex-1 overflow-y-auto p-4 space-y-1">
 					<ul class="space-y-1">
