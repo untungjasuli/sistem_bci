@@ -2,7 +2,7 @@ import { redirect, fail } from '@sveltejs/kit';
 import { getConnection } from '#lib/server/db';
 
 export const actions = {
-	default: async ({ request, cookies }) => {
+	default: async ({ request, cookies, locals }) => {
 		const formData = await request.formData();
 			const username = formData.get('username');
 			const password = formData.get('password');
@@ -35,12 +35,13 @@ export const actions = {
 					redirectTo = '/';
 				}
 
-				// Cookie options - remember me = 30 hari, session only = browser close
+				// Cookie options - secure cookie kalau HTTPS (Cloudflare)
+				const isHTTPS = locals.isHTTPS === true;
 				const cookieOptions = {
 					path: '/',
 					httpOnly: true,
 					sameSite: 'lax',
-					secure: false,
+					secure: isHTTPS,
 					...(remember ? { maxAge: 60 * 60 * 24 * 30 } : {}) // 30 hari kalau remember me
 				};
 

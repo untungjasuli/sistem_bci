@@ -1,0 +1,28 @@
+# ============================================
+# SYSTEMD SERVICE - Cloudflared (Host)
+# Simpan di: /etc/systemd/system/cloudflared.service
+# ============================================
+
+[Unit]
+Description=Cloudflare Tunnel - Sistem BCI
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=root
+# Ganti path config sesuai lokasi file
+ExecStart=/usr/local/bin/cloudflared tunnel run --config /root/.cloudflared/config.yml sistem-bci
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+# Security hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/root/.cloudflared
+
+[Install]
+WantedBy=multi-user.target

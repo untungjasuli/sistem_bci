@@ -108,7 +108,24 @@ function getAllowedRoles(path) {
  * Server hooks for authentication and authorization
  */
 export async function handle({ event, resolve }) {
-	const { url, cookies } = event;
+	const { url, cookies, request } = event;
+
+	// ---- CLOUDFLARE HEADERS HANDLING ----
+	// Cloudflare Tunnel kirim IP asli via header
+	const cfIP = request.headers.get('cf-connecting-ip');
+	const cfVisitor = request.headers.get('cf-visitor'); // {"scheme":"https"}
+	const xForwardedProto = request.headers.get('x-forwarded-proto');
+	const xForwardedFor = request.headers.get('x-forwarded-for');
+
+	// Set real IP ke locals (untuk logging, rate limit, dll)
+	event.locals.clientIP = cfIP || xForwardedFor?.split(',')[0]?.trim() || event.getClientAddress();
+
+	// Deteksi HTTPS asli (Cloudflare terminate SSL)
+	const isHTTPS = xForwardedProto === 'https' 
+		|| (cfVisitor && cfVisitor.includes('https'))
+		|| url.protocol === 'https:';
+	
+	event.locals.isHTTPS = isHTTPS;
 
 	// Skip for static assets and API routes that handle their own auth
 	if (url.pathname.startsWith('/_app/') || 

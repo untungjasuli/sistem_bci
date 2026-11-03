@@ -1,0 +1,56 @@
+# ============================================
+# DOCKERIGNORE - Sistem BCI
+# ============================================
+
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build outputs
+build
+dist
+.svelte-kit
+
+# Environment
+.env
+.env.*
+!.env.example
+!.env.production.example
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Testing
+coverage
+.nyc_output
+
+# Misc
+*.tgz
+.cache
+.eslintcache
+
+# Git
+.git
+.gitignore
+
+# Docker
+docker-compose.override.yml
+Dockerfile.dev
+
+# Database
+*.sql
+*.dump

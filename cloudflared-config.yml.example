@@ -1,0 +1,21 @@
+# ============================================
+# CLOUDFLARED CONFIG - Host (bukan di Docker)
+# Simpan di host: ~/.cloudflared/config.yml
+# ============================================
+
+tunnel: your-tunnel-id
+credentials-file: /root/.cloudflared/your-tunnel-id.json
+
+ingress:
+  - hostname: bci.yourdomain.com
+    service: http://127.0.0.1:3000
+    originRequest:
+      noTLSVerify: true
+      connectTimeout: 30s
+      # Optional: pass real IP header
+      # Proxy Protocol tidak didukung cloudflared, gunakan header
+  - service: http_status:404
+
+# Optional: warp routing untuk akses internal
+# warp-routing:
+#   enabled: true
