@@ -29,7 +29,7 @@ export const load = async ({ locals }) => {
 export const actions = {
     update: async ({ request, locals }) => {
         const user = locals.user;
-        if (!user || user.role !== 'admin') return fail(400, { error: 'Hanya admin' });
+        if (!user || !['admin', 'sekretaris'].includes(user.role)) return fail(400, { error: 'Hanya admin/sekretaris' });
 
         const formData = await request.formData();
         

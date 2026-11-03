@@ -142,8 +142,8 @@ export const load = async ({ locals, url }) => {
 export const actions = {
 	generateTagihan: async ({ request, locals }) => {
 		const user = locals.user;
-		if (!user || user.role !== 'admin') {
-			return fail(400, { error: 'Hanya admin yang bisa generate tagihan' });
+		if (!user || !['admin', 'bendahara'].includes(user.role)) {
+			return fail(400, { error: 'Hanya admin/bendahara yang bisa generate tagihan' });
 		}
 
 		const formData = await request.formData();
@@ -234,8 +234,8 @@ export const actions = {
 
 	generateMissing: async ({ request, locals }) => {
 		const user = locals.user;
-		if (!user || user.role !== 'admin') {
-			return fail(400, { error: 'Hanya admin yang bisa generate tagihan' });
+		if (!user || !['admin', 'bendahara'].includes(user.role)) {
+			return fail(400, { error: 'Hanya admin/bendahara yang bisa generate tagihan' });
 		}
 
 		const formData = await request.formData();

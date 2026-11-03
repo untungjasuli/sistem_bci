@@ -95,8 +95,8 @@ export const load = async ({ locals, url }) => {
 export const actions = {
     create: async ({ request, locals }) => {
         const user = locals.user;
-        if (!user || user.role !== 'admin') {
-            return fail(400, { error: 'Hanya admin yang bisa membuat surat' });
+        if (!user || !['admin', 'sekretaris'].includes(user.role)) {
+            return fail(400, { error: 'Hanya admin/sekretaris yang bisa membuat surat' });
         }
 
         const formData = await request.formData();
@@ -208,8 +208,8 @@ export const actions = {
 
     delete: async ({ request, locals }) => {
         const user = locals.user;
-        if (!user || user.role !== 'admin') {
-            return fail(400, { error: 'Hanya admin yang bisa menghapus surat' });
+        if (!user || !['admin', 'sekretaris'].includes(user.role)) {
+            return fail(400, { error: 'Hanya admin/sekretaris yang bisa menghapus surat' });
         }
 
         const formData = await request.formData();

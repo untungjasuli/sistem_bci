@@ -3,7 +3,7 @@ import { executeQuery, executeTransaction } from '#lib/server/db';
 
 export const load = async ({ locals, url }) => {
 	const user = locals.user;
-	if (!user || user.role !== 'admin') {
+	if (!user || (user.role !== 'admin' && user.role !== 'bendahara')) {
 		throw redirect(303, '/login');
 	}
 
@@ -122,8 +122,8 @@ export const load = async ({ locals, url }) => {
 export const actions = {
 	approve: async ({ request, locals }) => {
 		const user = locals.user;
-		if (!user || user.role !== 'admin') {
-			return fail(400, { error: 'Hanya admin yang bisa approve pembayaran' });
+		if (!user || (user.role !== 'admin' && user.role !== 'bendahara')) {
+			return fail(400, { error: 'Hanya admin/bendahara yang bisa approve pembayaran' });
 		}
 
 		const formData = await request.formData();
@@ -249,8 +249,8 @@ export const actions = {
 
 	reject: async ({ request, locals }) => {
 		const user = locals.user;
-		if (!user || user.role !== 'admin') {
-			return fail(400, { error: 'Hanya admin yang bisa reject pembayaran' });
+		if (!user || (user.role !== 'admin' && user.role !== 'bendahara')) {
+			return fail(400, { error: 'Hanya admin/bendahara yang bisa reject pembayaran' });
 		}
 
 		const formData = await request.formData();

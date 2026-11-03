@@ -3,7 +3,7 @@ import { executeQuery } from '#lib/server/db';
 
 export const load = async ({ locals, url }) => {
 	const user = locals.user;
-	if (!user || user.role !== 'admin') {
+	if (!user || !['admin', 'bendahara'].includes(user.role)) {
 		throw redirect(303, '/login');
 	}
 
@@ -72,8 +72,8 @@ export const load = async ({ locals, url }) => {
 export const actions = {
 	create: async ({ request, locals }) => {
 		const user = locals.user;
-		if (!user || user.role !== 'admin') {
-			return fail(400, { error: 'Hanya admin yang bisa menambah metode pembayaran' });
+		if (!user || !['admin', 'bendahara'].includes(user.role)) {
+			return fail(400, { error: 'Hanya admin/bendahara yang bisa menambah metode pembayaran' });
 		}
 
 		const formData = await request.formData();
@@ -110,8 +110,8 @@ export const actions = {
 
 	update: async ({ request, locals }) => {
 		const user = locals.user;
-		if (!user || user.role !== 'admin') {
-			return fail(400, { error: 'Hanya admin yang bisa mengedit metode pembayaran' });
+		if (!user || !['admin', 'bendahara'].includes(user.role)) {
+			return fail(400, { error: 'Hanya admin/bendahara yang bisa mengedit metode pembayaran' });
 		}
 
 		const formData = await request.formData();
@@ -150,8 +150,8 @@ export const actions = {
 
 	delete: async ({ request, locals }) => {
 		const user = locals.user;
-		if (!user || user.role !== 'admin') {
-			return fail(400, { error: 'Hanya admin yang bisa menghapus metode pembayaran' });
+		if (!user || !['admin', 'bendahara'].includes(user.role)) {
+			return fail(400, { error: 'Hanya admin/bendahara yang bisa menghapus metode pembayaran' });
 		}
 
 		const formData = await request.formData();

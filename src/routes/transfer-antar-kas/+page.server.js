@@ -3,7 +3,7 @@ import { executeQuery, executeTransaction } from '#lib/server/db';
 
 export const load = async ({ locals, url }) => {
 	const user = locals.user;
-	if (!user || user.role !== 'admin') {
+	if (!user || !['admin', 'bendahara'].includes(user.role)) {
 		throw redirect(303, '/login');
 	}
 
@@ -90,8 +90,8 @@ export const load = async ({ locals, url }) => {
 export const actions = {
 	create: async ({ request, locals }) => {
 		const user = locals.user;
-		if (!user || user.role !== 'admin') {
-			return fail(400, { error: 'Hanya admin yang bisa transfer antar kas' });
+		if (!user || !['admin', 'bendahara'].includes(user.role)) {
+			return fail(400, { error: 'Hanya admin/bendahara yang bisa transfer antar kas' });
 		}
 
 		const formData = await request.formData();
@@ -146,8 +146,8 @@ export const actions = {
 
 	approve: async ({ request, locals }) => {
 		const user = locals.user;
-		if (!user || user.role !== 'admin') {
-			return fail(400, { error: 'Hanya admin yang bisa approve transfer' });
+		if (!user || !['admin', 'bendahara'].includes(user.role)) {
+			return fail(400, { error: 'Hanya admin/bendahara yang bisa approve transfer' });
 		}
 
 		const formData = await request.formData();
@@ -229,8 +229,8 @@ export const actions = {
 
 	reject: async ({ request, locals }) => {
 		const user = locals.user;
-		if (!user || user.role !== 'admin') {
-			return fail(400, { error: 'Hanya admin yang bisa reject transfer' });
+		if (!user || !['admin', 'bendahara'].includes(user.role)) {
+			return fail(400, { error: 'Hanya admin/bendahara yang bisa reject transfer' });
 		}
 
 		const formData = await request.formData();
@@ -259,8 +259,8 @@ export const actions = {
 
 	delete: async ({ request, locals }) => {
 		const user = locals.user;
-		if (!user || user.role !== 'admin') {
-			return fail(400, { error: 'Hanya admin yang bisa menghapus transfer' });
+		if (!user || !['admin', 'bendahara'].includes(user.role)) {
+			return fail(400, { error: 'Hanya admin/bendahara yang bisa menghapus transfer' });
 		}
 
 		const formData = await request.formData();

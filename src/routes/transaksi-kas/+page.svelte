@@ -390,7 +390,7 @@
 			<p class="text-gray-500 text-sm">Kelola transaksi masuk dan keluar kas</p>
 		</div>
 		<div class="flex items-center gap-3 w-full lg:w-auto">
-			{#if data.user?.role === 'admin'}
+			{#if ['admin', 'bendahara'].includes(data.user?.role)}
 				<button
 					onclick={openAddModal}
 					class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex-shrink-0"
@@ -665,7 +665,7 @@
 	{/if}
 
 	<!-- Modal Add Transaksi (Admin only) -->
-	{#if showModal && data.user?.role === 'admin'}
+	{#if showModal && ['admin', 'bendahara'].includes(data.user?.role)}
 		<div class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center" onclick={closeModal} role="button" aria-label="Tutup modal"></div>
 		<div class="fixed inset-0 z-50 flex items-center justify-center">
 			<div class="bg-white rounded-lg shadow-xl w-full max-w-md p-6 border border-gray-200" onclick={(e) => e.stopPropagation()}>

@@ -10,6 +10,7 @@ const routePermissions = {
 
 	// Admin only routes - full access
 	admin: [
+		'/',                      // dashboard
 		'/data-blok-rumah',
 		'/denah-blok-rumah',
 		'/data-penduduk',
@@ -32,6 +33,7 @@ const routePermissions = {
 
 	// Bendahara routes - keuangan focused
 	bendahara: [
+		'/',                      // dashboard
 		'/data-blok-rumah',
 		'/denah-blok-rumah',
 		'/data-penduduk',
@@ -50,11 +52,13 @@ const routePermissions = {
 
 	// Sekretaris routes - surat & kependudukan focused
 	sekretaris: [
+		'/',                      // dashboard
 		'/data-blok-rumah',
 		'/denah-blok-rumah',
 		'/data-penduduk',
 		'/pemilik-rumah-kosong',
 		'/surat-rt',
+		'/surat-rt/pengaturan',
 		'/laporan/kependudukan',
 		'/profile'             // own profile
 	],
@@ -149,7 +153,8 @@ export async function handle({ event, resolve }) {
 			sekretaris: '/',
 			petugas: '/iuran-bulanan'
 		};
-		throw redirect(303, defaultRoutes[user.role] || '/');
+		const target = defaultRoutes[user.role] || '/';
+		throw redirect(303, target);
 	}
 
 	return resolve(event);

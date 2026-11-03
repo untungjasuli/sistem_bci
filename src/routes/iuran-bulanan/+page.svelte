@@ -285,9 +285,9 @@
 		}
 	}
 
-	// Check if user is admin
-	function isAdmin() {
-		return data?.user?.role === 'admin';
+	// Check if user is admin or bendahara
+	function isAdminOrBendahara() {
+		return ['admin', 'bendahara'].includes(data?.user?.role);
 	}
 
 	// Toggle expanded row (mobile)
@@ -382,8 +382,8 @@
 				</select>
 			</div>
 
-			<!-- Generate Buttons (Admin only) -->
-			{#if isAdmin()}
+			<!-- Generate Buttons (Admin/Bendahara only) -->
+			{#if isAdminOrBendahara()}
 				<div class="flex gap-2 w-full  lg:ml-auto">
 					<button
 						onclick={handleGenerate}
@@ -690,7 +690,7 @@
 			<i class="fa-solid fa-inbox text-4xl text-gray-300 mb-4"></i>
 			<h3 class="text-lg font-medium text-gray-900 mb-2">Tidak ada data tagihan</h3>
 			<p class="text-gray-500 mb-4">Belum ada tagihan untuk periode {periode}.</p>
-			{#if isAdmin() && !periods.includes(periode)}
+			{#if isAdminOrBendahara() && !periods.includes(periode)}
 				<button onclick={handleGenerate} class="px-6 py-2.5 text-sm font-medium text-white bg-green-600 border border-transparent rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors">
 					<i class="fa-solid fa-plus mr-2"></i> Generate Tagihan Periode Ini
 				</button>

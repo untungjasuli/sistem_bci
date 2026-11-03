@@ -1,8 +1,8 @@
 import { redirect } from '@sveltejs/kit';
 import { getConnection, executeQuery } from '#lib/server/db';
 
-export async function load({ url, locals }) {
-	if (!locals.user || locals.user.role !== 'admin') {
+export const load = async ({ url, locals }) => {
+	if (!locals.user || !['admin', 'bendahara', 'sekretaris'].includes(locals.user.role)) {
 		throw redirect(302, '/login');
 	}
 
