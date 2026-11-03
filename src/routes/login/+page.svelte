@@ -9,7 +9,7 @@
 	}
 </style>
 
-<div class="pt-0 min-h-screen flex items-center justify-center bg-gradient-to-br from-lime-500 via-green-600 to-indigo-700 px-4 sm:px-6 lg:px-8 overflow-hidden">
+<div class="pt-0 min-h-screen flex items-center justify-center bg-gradient-to-br from-lime-500 via-green-600 to-emerald-700 px-4 sm:px-6 lg:px-8 overflow-hidden">
 	<div class="max-w-md w-full">
 		<div class="bg-white/90 backdrop-blur-sm p-8 rounded-2xl shadow-2xl border border-white/20">
 			<div class="text-center mb-8">
