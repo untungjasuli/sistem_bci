@@ -57,7 +57,6 @@
 
 	function onYearChange(e) { updateFilter('tahun', e.target.value); }
 	function onJenisChange(e) { updateFilter('jenis', e.target.value); }
-	function clearFilters() { goto('/laporan/kependudukan/mutasi-kematian'); }
 
 	async function handleExport(type) {
 		try {
@@ -161,9 +160,6 @@
 					<option value="meninggal">Meninggal</option>
 				</select>
 			</div>
-			{#if filter.yearFilter !== 'semua' || filter.jenisFilter !== 'semua'}
-				<button type="button" onclick={clearFilters} class="px-3 py-2 text-sm text-gray-600 hover:text-gray-900 font-medium">Clear Filter</button>
-			{/if}
 		</form>
 	</div>
 
