@@ -62,6 +62,15 @@
 	function isAdmin() {
 		return user?.role === 'admin';
 	}
+
+	// Register service worker for PWA
+	$effect(() => {
+		if ('serviceWorker' in navigator) {
+			navigator.serviceWorker.register('/sw.js').catch(err => {
+				console.log('SW registration failed:', err);
+			});
+		}
+	});
 </script>
 
 <div class="min-h-screen bg-gray-50">
